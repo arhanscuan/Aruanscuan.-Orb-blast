@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cuan Breaker - Pecahkan Bata!</title>
     
-    <!-- ✅ IKLAN POPUNDER & SOCIAL BAR (ARUANSCUAN) -->
     <script src="https://pl31442264.profitableratecpmnetwork.com/a6/41/0d/a6410db42b68623bf2daa7e1fcff5615.js"></script>
     <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
 
@@ -16,7 +15,6 @@
         body { background: #1a1a2e; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
         canvas { display: block; width: 100%; height: 100vh; background: #16213e; }
         
-        /* LANDING PAGE */
         #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
@@ -27,7 +25,6 @@
         .start-btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 18px 50px; border: none; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .start-btn:active { transform: scale(0.95); }
 
-        /* GAME UI */
         .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 22, 40, 0.95); z-index: 100; }
         .hidden { display: none !important; }
         .box { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
@@ -72,7 +69,6 @@
 </head>
 <body>
 
-    <!-- LANDING PAGE -->
     <div id="landingPage">
         <div class="landing-logo">🧱</div>
         <h1 class="landing-title">CUAN BREAKER</h1>
@@ -97,9 +93,9 @@
 
     <div id="mainMenu" class="ui-overlay hidden">
         <div class="box">
-            <h1> CUAN BREAKER</h1>
+            <h1>🧱 CUAN BREAKER</h1>
             <p style="color:#ccc; margin-bottom:10px;">Hancurkan bata, kumpulkan koin!</p>
-            <div class="stat"> Koin: <span id="menuBalance">0</span> (Rp <span id="menuRupiah">0</span>)</div>
+            <div class="stat">🪙 Koin: <span id="menuBalance">0</span> (Rp <span id="menuRupiah">0</span>)</div>
             <div style="margin: 15px 0;">
                 <div style="font-size: 14px; margin-bottom: 5px;">Progress WD: <span id="wdProgress">0</span>/<span id="wdTargetMenu">30</span></div>
                 <div style="width:100%; height:10px; background:rgba(0,0,0,0.3); border-radius:5px; overflow:hidden;">
@@ -172,14 +168,13 @@
         const ADS_REQUIRED = isFirstWD ? 30 : 50;
         let adsWatched = parseInt(localStorage.getItem('breaker_ads_watched')) || 0;
         let playerId = localStorage.getItem('hans_player_id');
+        let ballFallCount = 0; // ✅ HITUNG BOLA JATUH
         
         let adInterval, bonusInterval, adWasOpen = false;
         let historyListener = null;
 
-        // ✅ DIRECT LINK BARU (ARUANSCUAN)
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
 
-        // PLAYER ONLINE SYSTEM
         if (!playerId) {
             playerId = 'player_' + Date.now();
             localStorage.setItem('hans_player_id', playerId);
@@ -190,7 +185,6 @@
         window.addEventListener('beforeunload', () => { db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {}); });
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && adWasOpen) { adWasOpen = false; forceCloseAll(); } });
 
-        // GAME VARIABLES
         let paddle, ball, bricks = [];
         const BRICK_ROWS = 4, BRICK_COLS = 6;
         
@@ -241,10 +235,18 @@
             });
 
             if(ball.y + ball.r > canvas.height) {
+                ballFallCount++; // ✅ HITUNG BOLA JATUH
                 gameState = 'menu';
-                triggerAd('💥 BOLA JATUH!', 'Tonton iklan untuk dapat 100 koin & lanjut', () => {
-                    coins += 100; localStorage.setItem('hans_coins', coins); updateUI(); initGameObjects(); startGame();
-                });
+                
+                // ✅ IKLAN HANYA SETIAP 3 KALI BOLA JATUH
+                if(ballFallCount % 3 === 0) {
+                    triggerAd('💥 BOLA JATUH!', 'Tonton iklan untuk dapat 100 koin & lanjut', () => {
+                        coins += 100; localStorage.setItem('hans_coins', coins); updateUI(); initGameObjects(); startGame();
+                    });
+                } else {
+                    // Jika bukan kelipatan 3, langsung restart tanpa iklan
+                    setTimeout(() => { initGameObjects(); startGame(); }, 1000);
+                }
             }
         }
 
@@ -329,7 +331,7 @@
         function finalizeWithdrawal() {
             let dana = document.getElementById('inputDana').value; let name = document.getElementById('inputName').value;
             if(coins < 50000) { alert('Koin belum cukup! Butuh 50.000'); return; }
-            if(adsWatched < ADS_REQUIRED) { alert(` Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
+            if(adsWatched < ADS_REQUIRED) { alert(`🔒 Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
             db.collection('withdrawals').add({ playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: 1000, amountCoins: 50000, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending', source: 'CuanBreaker', gameName: 'Cuan Breaker', adsWatched: ADS_REQUIRED }).then(()=>{
                 coins-=50000; adsWatched=0; wdClicks=0; localStorage.setItem('hans_coins', coins); localStorage.setItem('breaker_ads_watched', 0); localStorage.setItem('hans_wd_clicks', 0);
                 if(isFirstWD) { localStorage.setItem('hans_first_wd_done', 'true'); isFirstWD=false; }

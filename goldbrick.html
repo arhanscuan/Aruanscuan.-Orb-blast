@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cuan Breaker - Pecahkan Bata!</title>
+    
+    <!-- ✅ IKLAN POPUNDER & SOCIAL BAR (ARUANSCUAN) -->
+    <script src="https://pl31442264.profitableratecpmnetwork.com/a6/41/0d/a6410db42b68623bf2daa7e1fcff5615.js"></script>
+    <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #1a1a2e; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
+        canvas { display: block; width: 100%; height: 100vh; background: #16213e; }
+        
+        /* LANDING PAGE */
+        #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
+        .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .landing-title { font-size: 36px; font-weight: bold; color: #ffd700; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        .instruction-box { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; border: 1px solid rgba(255,255,255,0.3); }
+        .instruction-item { color: white; margin: 12px 0; font-size: 15px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.4; }
+        .instruction-icon { font-size: 20px; min-width: 25px; }
+        .start-btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 18px 50px; border: none; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .start-btn:active { transform: scale(0.95); }
+
+        /* GAME UI */
+        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 22, 40, 0.95); z-index: 100; }
+        .hidden { display: none !important; }
+        .box { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        h1 { color: #ffd700; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        h2 { color: #ffd700; margin-bottom: 15px; }
+        .stat { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; margin: 10px 0; font-weight: bold; color: #00ff88; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; z-index: 101; position: relative; }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; }
+        .btn-danger { background: linear-gradient(135deg, #ff4757, #ff3838); }
+        .btn-wd { background: linear-gradient(135deg, #a55eea, #8854d0); }
+        .btn-secondary { background: linear-gradient(135deg, #007BFF, #0056b3); }
+        .btn-success { background: linear-gradient(135deg, #2ed573, #26af61); }
+        
+        #hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 5; pointer-events: none; }
+        .hud-item { background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 20px; font-weight: bold; color: #ffd700; border: 2px solid #ffd700; font-size: 14px; }
+
+        .center-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .center-box { background: linear-gradient(135deg, #667eea, #764ba2); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; position: relative; }
+        .timer-text { font-size: 56px; font-weight: bold; color: #ffd700; margin: 20px 0; }
+        .overlay-btn { background: #555; color: #aaa; border: none; padding: 18px; border-radius: 50px; font-size: 20px; font-weight: bold; width: 100%; cursor: not-allowed; }
+        .overlay-btn.ready { background: #2ed573; color: white; cursor: pointer; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; }
+
+        #backToMenuBtn { position: absolute; top: 10px; right: 10px; background: rgba(255, 71, 87, 0.9); color: white; border: 2px solid white; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 20; display: none; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 50; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: #2c3e50; border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; border: 2px solid #ffd700; }
+        .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #1a252f; color: white; font-size: 16px; margin-top: 5px; }
+        
+        .history-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #ffd700; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .history-amount { color: #ffd700; font-weight: bold; font-size: 16px; }
+        .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
+        .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-refunded { background: #3498db; } .status-rejected { background: #e74c3c; }
+        .history-details { font-size: 12px; color: #aaa; }
+        .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #00d2ff, #3a7bd5); margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <!-- LANDING PAGE -->
+    <div id="landingPage">
+        <div class="landing-logo">🧱</div>
+        <h1 class="landing-title">CUAN BREAKER</h1>
+        <div class="instruction-box">
+            <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;">📜 CARA BERMAIN</h3>
+            <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Geser jari di layar untuk menggerakkan papan hijau.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">⚪</span> <span>Pantulkan bola putih untuk menghancurkan bata.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Hancurkan bata emas (warna kuning) untuk dapat banyak Koin!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan bola jatuh ke bawah, atau Game Over!</span></div>
+        </div>
+        <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
+        <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 20px;">© 2024 Cuan Breaker. All rights reserved.</p>
+    </div>
+
+    <div id="hud" class="hidden">
+        <div class="hud-item">Skor: <span id="scoreDisplay">0</span></div>
+        <div class="hud-item">WD: <span id="wdDisplay">0</span>/<span id="wdTargetDisplay">30</span></div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+    <button id="backToMenuBtn" onclick="backToMenu()">◀ MENU</button>
+
+    <div id="mainMenu" class="ui-overlay hidden">
+        <div class="box">
+            <h1> CUAN BREAKER</h1>
+            <p style="color:#ccc; margin-bottom:10px;">Hancurkan bata, kumpulkan koin!</p>
+            <div class="stat"> Koin: <span id="menuBalance">0</span> (Rp <span id="menuRupiah">0</span>)</div>
+            <div style="margin: 15px 0;">
+                <div style="font-size: 14px; margin-bottom: 5px;">Progress WD: <span id="wdProgress">0</span>/<span id="wdTargetMenu">30</span></div>
+                <div style="width:100%; height:10px; background:rgba(0,0,0,0.3); border-radius:5px; overflow:hidden;">
+                    <div id="wdProgressBar" style="height:100%; background:#00ff88; width:0%;"></div>
+                </div>
+            </div>
+            <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS</button>
+            <button class="btn btn-primary" onclick="startGame()">▶ MULAI MAIN</button>
+            <button class="btn btn-wd" onclick="showWithdraw()">💸 TARIK SALDO</button>
+            <button class="btn btn-success" onclick="showHistory()">📜 RIWAYAT</button>
+        </div>
+    </div>
+
+    <div id="gameOverOverlay" class="center-overlay">
+        <div class="center-box">
+            <button class="emergency-close" onclick="forceCloseAll()">✖</button>
+            <h2 style="color:white;">💥 BOLA JATUH!</h2>
+            <p style="color:#ddd; margin:10px 0;">Tonton iklan untuk lanjut...</p>
+            <div class="timer-text" id="adTimer">5</div>
+            <button id="adBtn" class="overlay-btn" disabled onclick="claimAdReward()">TUNGGU...</button>
+        </div>
+    </div>
+
+    <div id="bonusOverlay" class="center-overlay">
+        <div class="center-box">
+            <button class="emergency-close" onclick="forceCloseAll()">✖</button>
+            <h2 style="color:white;">🎁 BONUS HARIAN</h2>
+            <div class="timer-text" id="bonusTimer">5</div>
+            <button id="bonusBtn" class="overlay-btn" disabled onclick="claimBonus()">TUNGGU...</button>
+        </div>
+    </div>
+
+    <div id="withdrawMenu" class="ui-overlay hidden">
+        <div class="box">
+            <h2>💸 Tarik Saldo</h2>
+            <p style="margin:10px 0;">Saldo: Rp <span id="wdBalanceRupiah">0</span></p>
+            <p style="margin:10px 0; color:#ffd700;">Iklan: <span id="wdAdsWatched">0</span>/<span id="wdAdsTarget">30</span></p>
+            <button class="btn btn-primary" onclick="openInputModal(1000)">WD Rp 1.000 (50rb Koin)</button>
+            <button class="btn btn-secondary" onclick="showMainMenu()">Kembali</button>
+        </div>
+    </div>
+
+    <div id="historyMenu" class="ui-overlay hidden">
+        <div class="box scrollable">
+            <h2>📜 Riwayat Penarikan</h2>
+            <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#aaa; text-align:center;">Memuat data...</p></div>
+            <button class="btn btn-secondary" onclick="showMainMenu()">◀ Kembali</button>
+        </div>
+    </div>
+
+    <div id="inputModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="color:#ffd700; margin-bottom:15px;">Data Rekening</h3>
+            <div class="input-group"><label>Nomor DANA</label><input type="number" id="inputDana" placeholder="08xx"></div>
+            <div class="input-group"><label>Nama Pemilik</label><input type="text" id="inputName" placeholder="Nama"></div>
+            <button class="btn btn-primary" onclick="finalizeWithdrawal()">KIRIM</button>
+            <button class="btn btn-secondary" onclick="closeModal('inputModal')">Batal</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
+        firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
+
+        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+        let gameState = 'menu', score = 0;
+        let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
+        let wdClicks = parseInt(localStorage.getItem('hans_wd_clicks')) || 0;
+        let isFirstWD = !localStorage.getItem('hans_first_wd_done');
+        const ADS_REQUIRED = isFirstWD ? 30 : 50;
+        let adsWatched = parseInt(localStorage.getItem('breaker_ads_watched')) || 0;
+        let playerId = localStorage.getItem('hans_player_id');
+        
+        let adInterval, bonusInterval, adWasOpen = false;
+        let historyListener = null;
+
+        // ✅ DIRECT LINK BARU (ARUANSCUAN)
+        const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
+
+        // PLAYER ONLINE SYSTEM
+        if (!playerId) {
+            playerId = 'player_' + Date.now();
+            localStorage.setItem('hans_player_id', playerId);
+            db.collection('players').doc(playerId).set({ totalCoins: 0, isOnline: true, lastVisit: firebase.firestore.FieldValue.serverTimestamp(), createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(err => console.log('Firebase init error:', err));
+        } else {
+            db.collection('players').doc(playerId).update({ isOnline: true, lastVisit: firebase.firestore.FieldValue.serverTimestamp() }).catch(err => console.log('Firebase update error:', err));
+        }
+        window.addEventListener('beforeunload', () => { db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {}); });
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && adWasOpen) { adWasOpen = false; forceCloseAll(); } });
+
+        // GAME VARIABLES
+        let paddle, ball, bricks = [];
+        const BRICK_ROWS = 4, BRICK_COLS = 6;
+        
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initGameObjects(); }
+        window.addEventListener('resize', resize);
+
+        function initGameObjects() {
+            paddle = { w: 80, h: 15, x: canvas.width/2 - 40, y: canvas.height - 40, speed: 8 };
+            ball = { x: canvas.width/2, y: canvas.height/2, r: 8, dx: 4, dy: -4, speed: 5 };
+            bricks = [];
+            const brickW = (canvas.width - 40) / BRICK_COLS;
+            const brickH = 25;
+            for(let r=0; r<BRICK_ROWS; r++) {
+                for(let c=0; c<BRICK_COLS; c++) {
+                    let isGold = Math.random() < 0.15; 
+                    bricks.push({ x: 20 + c*brickW, y: 60 + r*(brickH+5), w: brickW-5, h: brickH, status: 1, hits: isGold ? 3 : 1, isGold: isGold });
+                }
+            }
+        }
+
+        canvas.addEventListener('mousemove', (e) => { if(gameState==='playing') paddle.x = e.clientX - paddle.w/2; });
+        canvas.addEventListener('touchmove', (e) => { if(gameState==='playing') { paddle.x = e.touches[0].clientX - paddle.w/2; e.preventDefault(); } }, {passive:false});
+
+        function update() {
+            if(gameState !== 'playing') return;
+            ball.x += ball.dx; ball.y += ball.dy;
+            if(ball.x + ball.r > canvas.width || ball.x - ball.r < 0) ball.dx = -ball.dx;
+            if(ball.y - ball.r < 0) ball.dy = -ball.dy;
+            
+            if(ball.y + ball.r > paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w && ball.dy > 0) {
+                ball.dy = -ball.speed;
+                let hitPoint = ball.x - (paddle.x + paddle.w/2);
+                ball.dx = hitPoint * 0.15;
+            }
+
+            bricks.forEach(b => {
+                if(b.status === 1) {
+                    if(ball.x > b.x && ball.x < b.x + b.w && ball.y - ball.r < b.y + b.h && ball.y + ball.r > b.y) {
+                        ball.dy = -ball.dy;
+                        b.hits--;
+                        if(b.hits <= 0) {
+                            b.status = 0;
+                            let reward = b.isGold ? 500 : 50;
+                            applyReward(reward);
+                        }
+                    }
+                }
+            });
+
+            if(ball.y + ball.r > canvas.height) {
+                gameState = 'menu';
+                triggerAd('💥 BOLA JATUH!', 'Tonton iklan untuk dapat 100 koin & lanjut', () => {
+                    coins += 100; localStorage.setItem('hans_coins', coins); updateUI(); initGameObjects(); startGame();
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            if(gameState !== 'playing') return;
+            
+            bricks.forEach(b => {
+                if(b.status === 1) {
+                    ctx.fillStyle = b.isGold ? (b.hits===3?'#FFD700':b.hits===2?'#FFA500':'#FF8C00') : '#007AFF';
+                    ctx.fillRect(b.x, b.y, b.w, b.h);
+                    ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.strokeRect(b.x, b.y, b.w, b.h);
+                    if(b.isGold) { ctx.fillStyle='black'; ctx.font='bold 12px Arial'; ctx.textAlign='center'; ctx.fillText(b.hits, b.x+b.w/2, b.y+b.h/2+4); }
+                }
+            });
+            ctx.fillStyle = '#2ed573'; ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+            ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fillStyle = 'white'; ctx.fill(); ctx.closePath();
+        }
+
+        function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+        function applyReward(val) {
+            let currentRupiah = Math.floor(coins/50);
+            let finalReward = val;
+            if (currentRupiah < 100) finalReward = val * 5; 
+            else if (currentRupiah < 1000) finalReward = val * 2; 
+            else finalReward = Math.floor(val * 0.2); 
+            
+            coins += finalReward; wdClicks = Math.min(wdClicks+1, ADS_REQUIRED);
+            localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_wd_clicks', wdClicks);
+            updatePlayerCoins(finalReward); updateUI();
+        }
+
+        function updatePlayerCoins(earned) { db.collection('players').doc(playerId).update({ totalCoins: firebase.firestore.FieldValue.increment(earned), lastVisit: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {}); }
+
+        function startGameFromLanding() { document.getElementById('landingPage').style.display = 'none'; startGame(); }
+        function startGame() { gameState = 'playing'; document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('backToMenuBtn').style.display = 'block'; initGameObjects(); }
+        function showMainMenu() { gameState='menu'; document.getElementById('withdrawMenu').classList.add('hidden'); document.getElementById('historyMenu').classList.add('hidden'); document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('backToMenuBtn').style.display = 'none'; updateUI(); }
+        function backToMenu() { gameState = 'menu'; showMainMenu(); }
+        function forceCloseAll() { document.querySelectorAll('.center-overlay').forEach(el=>el.style.display='none'); document.querySelectorAll('.modal-overlay').forEach(el=>el.style.display='none'); clearInterval(adInterval); clearInterval(bonusInterval); adWasOpen=false; showMainMenu(); }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function triggerAd(title, desc, callback) {
+            document.getElementById('gameOverOverlay').style.display = 'flex'; adWasOpen=true;
+            const timerEl = document.getElementById('adTimer'); const btn = document.getElementById('adBtn');
+            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU..."; btn.onclick = null;
+            window.open(ADSTERRA_DIRECT_LINK, '_blank');
+            const waitTime = 5000; const startTime = Date.now();
+            adInterval = setInterval(()=>{ 
+                const elapsed = Date.now() - startTime; const remaining = Math.ceil((waitTime - elapsed) / 1000);
+                if (remaining > 0) { timerEl.innerText = remaining; } 
+                else { 
+                    clearInterval(adInterval); timerEl.innerText = "0"; btn.disabled = false; btn.classList.add('ready'); btn.innerText = "KLAIM 100 KOIN"; 
+                    btn.onclick = () => { document.getElementById('gameOverOverlay').style.display = 'none'; adWasOpen=false; adsWatched++; localStorage.setItem('breaker_ads_watched', adsWatched); if(callback) callback(); updateUI(); };
+                } 
+            }, 100);
+        }
+        
+        function claimAdReward() { /* Handled by onclick inside triggerAd */ }
+
+        function showBonusAd() {
+            document.getElementById('bonusOverlay').style.display = 'flex'; adWasOpen=true;
+            const timerEl = document.getElementById('bonusTimer'); const btn = document.getElementById('bonusBtn');
+            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU..."; btn.onclick = null;
+            window.open(ADSTERRA_DIRECT_LINK, '_blank');
+            const waitTime = 5000; const startTime = Date.now();
+            bonusInterval = setInterval(()=>{ 
+                const elapsed = Date.now() - startTime; const remaining = Math.ceil((waitTime - elapsed) / 1000);
+                if (remaining > 0) { timerEl.innerText = remaining; } 
+                else { 
+                    clearInterval(bonusInterval); timerEl.innerText = "0"; btn.disabled = false; btn.classList.add('ready'); btn.innerText = "KLAIM BONUS"; 
+                    btn.onclick = () => { document.getElementById('bonusOverlay').style.display = 'none'; adWasOpen=false; coins+=200; adsWatched++; localStorage.setItem('hans_coins', coins); localStorage.setItem('breaker_ads_watched', adsWatched); updatePlayerCoins(200); updateUI(); alert('Dapat 200 koin!'); };
+                } 
+            }, 100);
+        }
+        
+        function claimBonus() { /* Handled by onclick inside showBonusAd */ }
+
+        function showWithdraw() { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('withdrawMenu').classList.remove('hidden'); document.getElementById('wdBalanceRupiah').innerText=Math.floor(coins/50); document.getElementById('wdAdsWatched').innerText=adsWatched; document.getElementById('wdAdsTarget').innerText=ADS_REQUIRED; }
+        function openInputModal() { document.getElementById('inputModal').style.display = 'flex'; }
+        
+        function finalizeWithdrawal() {
+            let dana = document.getElementById('inputDana').value; let name = document.getElementById('inputName').value;
+            if(coins < 50000) { alert('Koin belum cukup! Butuh 50.000'); return; }
+            if(adsWatched < ADS_REQUIRED) { alert(` Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
+            db.collection('withdrawals').add({ playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: 1000, amountCoins: 50000, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending', source: 'CuanBreaker', gameName: 'Cuan Breaker', adsWatched: ADS_REQUIRED }).then(()=>{
+                coins-=50000; adsWatched=0; wdClicks=0; localStorage.setItem('hans_coins', coins); localStorage.setItem('breaker_ads_watched', 0); localStorage.setItem('hans_wd_clicks', 0);
+                if(isFirstWD) { localStorage.setItem('hans_first_wd_done', 'true'); isFirstWD=false; }
+                alert('✅ WD Terkirim!'); closeModal('inputModal'); showMainMenu();
+            }).catch(e=>alert('Error: '+e.message));
+        }
+
+        function showHistory() {
+            document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('historyMenu').classList.remove('hidden');
+            const list = document.getElementById('historyList');
+            if (historyListener) historyListener();
+            historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#aaa; text-align:center;">Belum ada riwayat.</p>'; return; }
+                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = '⏳ Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = '↩️ Refund'; statusClass = 'status-refunded'; }
+                list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🧱 Cuan Breaker</span></div>`; });
+            }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
+        }
+
+        function updateUI() {
+            document.getElementById('menuBalance').innerText = coins.toLocaleString('id-ID');
+            document.getElementById('menuRupiah').innerText = Math.floor(coins/50).toLocaleString('id-ID');
+            document.getElementById('wdProgress').innerText = wdClicks;
+            document.getElementById('wdTargetDisplay').innerText = ADS_REQUIRED;
+            document.getElementById('wdTargetMenu').innerText = ADS_REQUIRED;
+            document.getElementById('wdProgressBar').style.width = ((wdClicks/ADS_REQUIRED)*100)+'%';
+        }
+
+        resize(); updateUI(); loop();
+    </script>
+</body>
+</html>

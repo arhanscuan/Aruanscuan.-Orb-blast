@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memory Cuan - Cocokkan Kartu!</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            color: white; font-family: 'Segoe UI', sans-serif; 
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+        }
+        
+        #topBar {
+            background: rgba(255,255,255,0.1); padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            flex-wrap: wrap; gap: 5px;
+        }
+        .info-box { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .coin-badge { background: #ffd700; color: #333; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; }
+        .btn-wd { background: #2ed573; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-bonus { background: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-history { background: #007BFF; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-reset { background: #95a5a6; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 12px; }
+
+        #gameArea { 
+            flex: 1; display: flex; justify-content: center; align-items: center; 
+            padding: 10px; position: relative;
+        }
+        
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            width: 100%; max-width: 350px;
+        }
+        
+        .card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 32px;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: transform 0.2s, background 0.3s;
+        }
+        .card:active { transform: scale(0.95); }
+        .card.flipped { background: white; border-color: #ffd700; }
+        .card.matched { background: #2ed573; border-color: #fff; opacity: 0.8; }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: #2c3e50; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; border: 3px solid #ffd700; position: relative; }
+        .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
+        .btn-action { background: #2ed573; color: white; border: none; padding: 12px; border-radius: 25px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
+        .btn-close { background: #e74c3c; }
+        .btn-secondary { background: #95a5a6; }
+        
+        .interstitial-timer { font-size: 48px; font-weight: bold; color: #ffd700; margin: 15px 0; }
+        .interstitial-btn { background: #555; color: #aaa; border: none; padding: 15px; border-radius: 25px; font-size: 18px; font-weight: bold; width: 100%; cursor: not-allowed; }
+        .interstitial-btn.ready { background: #2ed573; color: white; cursor: pointer; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        
+        .emergency-close {
+            position: absolute; top: 10px; right: 15px;
+            background: rgba(255, 0, 0, 0.8); color: white;
+            border: 2px solid white; width: 35px; height: 35px;
+            border-radius: 50%; font-size: 20px; font-weight: bold;
+            cursor: pointer; z-index: 10000001 !important;
+        }
+        
+        .wd-input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        
+        .history-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #ffd700; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .history-amount { color: #ffd700; font-weight: bold; font-size: 16px; }
+        .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
+        .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-refunded { background: #3498db; } .status-rejected { background: #e74c3c; }
+        .history-details { font-size: 12px; color: #aaa; }
+        
+        .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #f093fb, #f5576c); margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="topBar">
+        <div class="info-box">
+            <div class="coin-badge">🪙 <span id="coinDisplay">0</span> (Rp <span id="rupiahDisplay">0</span>)</div>
+        </div>
+        <div class="info-box">
+            <button class="btn-bonus" onclick="showBonusAd()">🎁 BONUS</button>
+            <button class="btn-wd" onclick="showWithdraw()">💸 WD</button>
+            <button class="btn-history" onclick="showHistory()">📜</button>
+            <button class="btn-reset" onclick="initGame()"></button>
+        </div>
+    </div>
+
+    <div id="gameArea">
+        <div id="grid"></div>
+    </div>
+
+    <!-- Modal Iklan -->
+    <div id="adModal" class="modal">
+        <div class="modal-box">
+            <button class="emergency-close" onclick="forceCloseAds()">✖</button>
+            <h2 id="adTitle" style="color:white;">🎁 HADIAH!</h2>
+            <p id="adDesc" style="color:#ddd; font-size:14px; margin-bottom:10px;">Tonton iklan singkat...</p>
+            <div class="interstitial-timer" id="adTimer">5</div>
+            <button id="adBtn" class="interstitial-btn" disabled>TUNGGU...</button>
+        </div>
+    </div>
+
+    <!-- Modal Bonus -->
+    <div id="bonusModal" class="modal">
+        <div class="modal-box">
+            <button class="emergency-close" onclick="forceCloseAds()">✖</button>
+            <h2 style="color:white;"> BONUS HARIAN</h2>
+            <p style="color:#ddd; font-size:14px; margin:10px 0;">Dapatkan 100-400 koin acak!</p>
+            <div class="interstitial-timer" id="bonusTimer">5</div>
+            <button id="bonusBtn" class="interstitial-btn" disabled>TUNGGU...</button>
+        </div>
+    </div>
+
+    <!-- Modal WD -->
+    <div id="wdModal" class="modal">
+        <div class="modal-box">
+            <h2 style="color:#ffd700;">💸 Tarik Saldo</h2>
+            <p style="margin:10px 0;">Saldo: Rp <span id="wdSaldo">0</span></p>
+            <p style="margin:10px 0; color:#ffd700;">📺 Iklan: <span id="wdAdsCount">0</span>/<span id="wdAdsTarget">30</span></p>
+            <input type="number" id="wdDana" placeholder="Nomor DANA (min 10 digit)" class="wd-input">
+            <input type="text" id="wdName" placeholder="Nama Pemilik (min 3 huruf)" class="wd-input">
+            <button class="btn-action" onclick="processWD()">KIRIM PERMINTAAN</button>
+            <button class="btn-action btn-close" onclick="closeModal('wdModal')">BATAL</button>
+        </div>
+    </div>
+
+    <!-- Modal Riwayat -->
+    <div id="historyModal" class="modal">
+        <div class="modal-box scrollable">
+            <h2 style="color:#ffd700; margin-bottom:15px;">📜 Riwayat WD</h2>
+            <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;">
+                <p style="color:#aaa; text-align:center;">Memuat data...</p>
+            </div>
+            <button class="btn-action btn-secondary" onclick="closeModal('historyModal')">TUTUP</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ",
+          authDomain: "hansorbblast.firebaseapp.com",
+          projectId: "hansorbblast",
+          storageBucket: "hansorbblast.firebasestorage.app",
+          messagingSenderId: "562424899290",
+          appId: "1:562424899290:web:75e0c912db1ada3341e7e3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
+        let wdClicks = parseInt(localStorage.getItem('hans_wd_clicks')) || 0;
+        const WD_TARGET = 50;
+        
+        // ✅ FAST TRACK: 30 IKLAN UNTUK WD PERTAMA
+        let isFirstWD = !localStorage.getItem('hans_first_wd_done');
+        const ADS_REQUIRED = isFirstWD ? 30 : 50;
+        let adsWatched = parseInt(localStorage.getItem('memory_ads_watched')) || 0;
+        
+        let playerId = localStorage.getItem('hans_player_id');
+        
+        // ✅ PERBAIKAN: SEMUA EMOJI VALID, TIDAK ADA YANG KOSONG!
+        const FRUITS = ['🍒', '🍓', '🍇', '', '🍎', '🍐', '🍑', '🍍'];
+        
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let isLocked = false;
+        let adWasOpen = false;
+        let adInterval = null;
+        let bonusInterval = null;
+        let historyListener = null;
+
+        // ✅ SISTEM PEMAIN ONLINE
+        if (!playerId) {
+            playerId = 'player_' + Date.now();
+            localStorage.setItem('hans_player_id', playerId);
+            db.collection('players').doc(playerId).set({ 
+                totalCoins: 0, 
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(), 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(err => console.log('Firebase init error:', err));
+        } else {
+            db.collection('players').doc(playerId).update({ 
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(err => console.log('Firebase update error:', err));
+        }
+
+        // ✅ OFFLINE SAAT TUTUP TAB
+        window.addEventListener('beforeunload', () => {
+            db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {});
+        });
+
+        // ✅ ANTI-BLANK: DETEKSI KEMBALI DARI IKLAN
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && adWasOpen) {
+                adWasOpen = false;
+                forceCloseAds();
+            }
+        });
+
+        function forceCloseAds() {
+            document.getElementById('adModal').style.display = 'none';
+            document.getElementById('bonusModal').style.display = 'none';
+            clearInterval(adInterval); clearInterval(bonusInterval);
+            adWasOpen = false;
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function updatePlayerCoins(earned) {
+            db.collection('players').doc(playerId).update({ 
+                totalCoins: firebase.firestore.FieldValue.increment(earned), 
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(() => {});
+        }
+
+        function initGame() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            flippedCards = [];
+            matchedPairs = 0;
+            isLocked = false;
+
+            let deck = [...FRUITS, ...FRUITS];
+            deck.sort(() => Math.random() - 0.5);
+
+            deck.forEach((fruit, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.fruit = fruit;
+                card.dataset.index = index;
+                card.onclick = () => flipCard(card);
+                grid.appendChild(card);
+            });
+            updateUI();
+        }
+
+        function flipCard(card) {
+            if (isLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+            card.classList.add('flipped');
+            card.innerText = card.dataset.fruit;
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                isLocked = true;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            if (card1.dataset.fruit === card2.dataset.fruit) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                flippedCards = [];
+                isLocked = false;
+                
+                // ✅ MODE GACOR 3 FASE
+                let baseReward = 50;
+                let currentRupiah = Math.floor(coins / 50);
+                let reward = baseReward;
+                
+                if (currentRupiah < 100) {
+                    reward = baseReward * 5; // SUPER GACOR: 250 koin
+                } else if (currentRupiah < 1000) {
+                    reward = baseReward * 2; // GACOR: 100 koin
+                } else {
+                    reward = Math.floor(baseReward * 0.2); // SLOW MODE: 10 koin
+                }
+                
+                coins += reward; 
+                wdClicks = Math.min(wdClicks + 1, WD_TARGET);
+                localStorage.setItem('hans_coins', coins);
+                localStorage.setItem('hans_wd_clicks', wdClicks);
+                updatePlayerCoins(reward);
+                updateUI();
+
+                if (matchedPairs === 8) {
+                    setTimeout(() => showAd('🏆 SELESAI!', 'Kamu dapat bonus 200 koin!', () => {
+                        coins += 200;
+                        localStorage.setItem('hans_coins', coins);
+                        updatePlayerCoins(200);
+                        updateUI();
+                        initGame();
+                    }), 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped'); card1.innerText = '';
+                    card2.classList.remove('flipped'); card2.innerText = '';
+                    flippedCards = [];
+                    isLocked = false;
+                }, 800);
+            }
+        }
+
+        function showAd(title, desc, callback) {
+            document.getElementById('adTitle').innerText = title;
+            document.getElementById('adDesc').innerText = desc;
+            document.getElementById('adModal').style.display = 'flex';
+            adWasOpen = true;
+            
+            let seconds = 5;
+            const timerEl = document.getElementById('adTimer');
+            const btn = document.getElementById('adBtn');
+            timerEl.innerText = seconds; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU...";
+            
+            window.open('https://www.profitableratecpmnetwork.com/e2ij2swi?key=698a3fbdfb6f8c59827bbc600706ffe1', '_blank');
+            
+            adInterval = setInterval(() => {
+                seconds--; timerEl.innerText = seconds;
+                if(seconds <= 0) {
+                    clearInterval(adInterval);
+                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ KLAIM";
+                    btn.onclick = () => {
+                        document.getElementById('adModal').style.display = 'none';
+                        adWasOpen = false;
+                        adsWatched++; 
+                        localStorage.setItem('memory_ads_watched', adsWatched);
+                        if(callback) callback();
+                        updateUI();
+                    };
+                }
+            }, 1000);
+        }
+
+        function showBonusAd() {
+            document.getElementById('bonusModal').style.display = 'flex';
+            adWasOpen = true;
+            
+            let seconds = 5;
+            const timerEl = document.getElementById('bonusTimer');
+            const btn = document.getElementById('bonusBtn');
+            timerEl.innerText = seconds; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU...";
+            
+            window.open('https://www.profitableratecpmnetwork.com/e2ij2swi?key=698a3fbdfb6f8c59827bbc600706ffe1', '_blank');
+            
+            bonusInterval = setInterval(() => {
+                seconds--; timerEl.innerText = seconds;
+                if(seconds <= 0) {
+                    clearInterval(bonusInterval);
+                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "KLAIM BONUS 🎁";
+                    btn.onclick = () => {
+                        document.getElementById('bonusModal').style.display = 'none';
+                        adWasOpen = false;
+                        const randomReward = Math.floor(Math.random() * 301) + 100;
+                        coins += randomReward;
+                        adsWatched++;
+                        localStorage.setItem('hans_coins', coins);
+                        localStorage.setItem('memory_ads_watched', adsWatched);
+                        updatePlayerCoins(randomReward);
+                        updateUI();
+                        alert(`🎉 Selamat! Kamu dapat ${randomReward} koin!`);
+                    };
+                }
+            }, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('coinDisplay').innerText = coins.toLocaleString('id-ID');
+            document.getElementById('rupiahDisplay').innerText = Math.floor(coins/50).toLocaleString('id-ID');
+        }
+
+        function showWithdraw() {
+            document.getElementById('wdSaldo').innerText = Math.floor(coins/50).toLocaleString('id-ID');
+            document.getElementById('wdAdsCount').innerText = adsWatched;
+            document.getElementById('wdAdsTarget').innerText = ADS_REQUIRED;
+            document.getElementById('wdModal').style.display = 'flex';
+        }
+
+        function processWD() {
+            let dana = document.getElementById('wdDana').value;
+            let name = document.getElementById('wdName').value;
+            let amount = Math.floor(coins/50);
+            
+            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; }
+            if(dana.length < 10 || name.length < 3) { alert('Data tidak valid! Min 10 digit & 3 huruf.'); return; }
+            if(adsWatched < ADS_REQUIRED) { alert(`🔒 Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
+            
+            db.collection('withdrawals').add({
+                playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(),
+                amountRupiah: amount, amountCoins: coins,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending',
+                source: 'MemoryCuan', gameName: 'Memory Cuan', adsWatched: ADS_REQUIRED
+            }).then(() => {
+                coins = 0; 
+                adsWatched = 0;
+                wdClicks = 0;
+                localStorage.setItem('hans_coins', 0); 
+                localStorage.setItem('memory_ads_watched', 0);
+                localStorage.setItem('hans_wd_clicks', 0);
+                if(isFirstWD) { 
+                    localStorage.setItem('hans_first_wd_done', 'true'); 
+                    isFirstWD = false; 
+                }
+                alert('✅ WD Terkirim! Tunggu diproses Admin.');
+                closeModal('wdModal');
+                updateUI();
+            }).catch(err => alert('❌ Error: ' + err.message));
+        }
+
+        function showHistory() {
+            document.getElementById('historyModal').style.display = 'flex';
+            const list = document.getElementById('historyList');
+            if (historyListener) historyListener();
+            historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc')
+                .onSnapshot(snapshot => {
+                    list.innerHTML = '';
+                    if (snapshot.empty) { list.innerHTML = '<p style="color:#aaa; text-align:center;">Belum ada riwayat WD.</p>'; return; }
+                    snapshot.forEach(doc => {
+                        const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-';
+                        let statusText = '⏳ Proses', statusClass = 'status-pending';
+                        if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; }
+                        else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; }
+                        else if (w.status === 'refunded') { statusText = '↩️ Refund'; statusClass = 'status-refunded'; }
+                        list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🧠 Memory Cuan</span></div>`;
+                    });
+                }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

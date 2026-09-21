@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Master Game Dashboard v2.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh; padding: 20px; color: #333;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        .login-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-box {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 100%;
+        }
+        .login-box h1 { color: #1e3c72; margin-bottom: 30px; }
+        .login-box input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
+        .login-box button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-login { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
+        .btn-cancel { background: #95a5a6; color: white; }
+        
+        .admin-panel { display: none; }
+        .header { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2); flex-wrap: wrap; gap: 10px; }
+        .header h1 { color: #1e3c72; font-size: 1.2rem; }
+        .btn-logout { background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-refresh { background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-right: 10px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .stat-icon { font-size: 30px; margin-bottom: 10px; }
+        .stat-value { font-size: 22px; font-weight: bold; color: #1e3c72; margin: 10px 0; }
+        .stat-label { color: #7f8c8d; font-size: 12px; }
+        
+        .section { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .section h2 { color: #1e3c72; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #1e3c72; font-size: 1.2rem; }
+        
+        .wd-item { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #1e3c72; }
+        .wd-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+        .wd-amount { font-size: 18px; font-weight: bold; color: #1e3c72; }
+        .wd-status { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #f39c12; color: white; }
+        .status-success { background: #2ed573; color: white; }
+        .status-rejected { background: #e74c3c; color: white; }
+        .status-refunded { background: #3498db; color: white; }
+        
+        .wd-details { color: #7f8c8d; font-size: 14px; margin: 10px 0; line-height: 1.5; }
+        
+        .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 5px; color: white; }
+        .source-hans { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .source-cuan { background: linear-gradient(135deg, #00b4db, #0083b0); }
+        .source-fusion { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .source-mach { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+        .source-coktail { background: linear-gradient(135deg, #ff9900, #ff6600); }
+        .source-breaker { background: linear-gradient(135deg, #00d2ff, #3a7bd5); }
+        .source-unknown { background: #95a5a6; }
+        
+        .wd-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .wd-actions button { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; flex: 1; min-width: 100px; }
+        .btn-approve { background: #2ed573; color: white; }
+        .btn-reject { background: #e74c3c; color: white; }
+        .btn-copy { background: #ffa502; color: white; }
+        
+        /* ✅ ONLINE PLAYERS LIST */
+        .online-player-item { 
+            background: #f0f8ff; padding: 12px; border-radius: 10px; margin-bottom: 10px; 
+            border-left: 4px solid #2ed573; display: flex; justify-content: space-between; align-items: center;
+        }
+        .online-player-info { flex: 1; }
+        .online-player-id { font-weight: bold; color: #1e3c72; font-size: 14px; }
+        .online-player-time { font-size: 12px; color: #7f8c8d; margin-top: 3px; }
+        .online-badge { 
+            background: #2ed573; color: white; padding: 4px 10px; border-radius: 12px; 
+            font-size: 11px; font-weight: bold;
+        }
+        
+        .loading { text-align: center; padding: 40px; color: #7f8c8d; }
+        .empty-state { text-align: center; padding: 30px; color: #95a5a6; font-style: italic; }
+        
+        @media (max-width: 768px) { 
+            .stats-grid { grid-template-columns: repeat(2, 1fr); } 
+            .wd-header { flex-direction: column; align-items: flex-start; gap: 10px; } 
+            .header { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h1>🔐 MASTER ADMIN LOGIN</h1>
+            <p style="margin-bottom:20px; color:#7f8c8d;">Hans Orb Blast Ecosystem v2.0</p>
+            <input type="password" id="adminPassword" placeholder="Masukkan Password Admin">
+            <button class="btn-login" onclick="login()">MASUK</button>
+            <button class="btn-cancel" onclick="cancelLogin()">BATAL</button>
+            <p id="loginError" style="color: #e74c3c; margin-top: 10px; display: none;">❌ Password salah!</p>
+        </div>
+    </div>
+
+    <div class="admin-panel" id="adminPanel">
+        <div class="container">
+            <div class="header">
+                <h1>💼 MASTER DASHBOARD (6 Games)</h1>
+                <div>
+                    <button class="btn-refresh" onclick="refreshData()">🔄 Refresh</button>
+                    <span style="color: #2ed573; margin-right: 15px; font-size: 14px;">● <span id="headerOnlineCount">0</span> Online</span>
+                    <button class="btn-logout" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="totalPlayers">0</div><div class="stat-label">Total Pemain</div></div>
+                <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-value" id="activePlayers">0</div><div class="stat-label">Sedang Main</div></div>
+                <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" id="pendingWD">0</div><div class="stat-label">Sedang Proses</div></div>
+                <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="successWD">0</div><div class="stat-label">Sudah Sukses</div></div>
+                <div class="stat-card"><div class="stat-icon"></div><div class="stat-value" id="statRejected">0</div><div class="stat-label">Ditolak</div></div>
+                <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="totalPaid">Rp 0</div><div class="stat-label">Total Disetujui</div></div>
+            </div>
+
+            <!-- ✅ DAFTAR PEMAIN ONLINE -->
+            <div class="section">
+                <h2>🟢 Pemain Online Saat Ini</h2>
+                <div id="onlinePlayersList"><div class="loading">Memuat data pemain...</div></div>
+            </div>
+
+            <div class="section">
+                <h2>⏳ Penarikan Pending (Butuh Aksi)</h2>
+                <div id="pendingList"><div class="loading">Memuat data dari Firebase...</div></div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Riwayat Penarikan Terakhir</h2>
+                <div id="allWDList"><div class="loading">Memuat data...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ",
+            authDomain: "hansorbblast.firebaseapp.com",
+            projectId: "hansorbblast",
+            storageBucket: "hansorbblast.firebasestorage.app",
+            messagingSenderId: "562424899290",
+            appId: "1:562424899290:web:75e0c912db1ada3341e7e3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const ADMIN_PASSWORD = "adminhans2024";
+        let withdrawalsListener = null;
+        let playersListener = null;
+        let allPlayersData = [];
+
+        function login() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('loginError').style.display = 'none';
+                loadRealTimeData();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+        function cancelLogin() { window.location.href = 'index.html'; }
+        function logout() {
+            if (withdrawalsListener) withdrawalsListener();
+            if (playersListener) playersListener();
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function refreshData() {
+            if (withdrawalsListener) withdrawalsListener();
+            if (playersListener) playersListener();
+            loadRealTimeData();
+            alert('🔄 Data di-refresh!');
+        }
+
+        function loadRealTimeData() {
+            // Load Withdrawals
+            withdrawalsListener = db.collection('withdrawals').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                let pending = 0, success = 0, totalPaid = 0, rejected = 0;
+                const allWDs = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allWDs.push({ id: doc.id, ...data });
+                    if (data.status === 'pending') pending++;
+                    else if (data.status === 'success') { success++; totalPaid += (data.amountRupiah || 0); }
+                    else if (data.status === 'rejected') rejected++;
+                });
+                document.getElementById('pendingWD').textContent = pending;
+                document.getElementById('successWD').textContent = success;
+                document.getElementById('statRejected').textContent = rejected;
+                document.getElementById('totalPaid').textContent = 'Rp ' + totalPaid.toLocaleString('id-ID');
+                renderPendingList(allWDs.filter(w => w.status === 'pending'));
+                renderAllWDList(allWDs);
+            }, err => {
+                console.error('WD Error:', err);
+                document.getElementById('pendingList').innerHTML = '<div class="empty-state">❌ Gagal memuat data WD. Cek Console.</div>';
+            });
+
+            // Load Players dengan logika online yang ROBUST
+            playersListener = db.collection('players').onSnapshot(snapshot => {
+                let total = 0, active = 0;
+                const now = Date.now();
+                const fiveMinutesAgo = now - (5 * 60 * 1000);
+                allPlayersData = [];
+                
+                snapshot.forEach(doc => {
+                    total++;
+                    const data = doc.data();
+                    let lastVisitTime = 0;
+                    
+                    // ✅ HANDLE BERBAGAI FORMAT TIMESTAMP
+                    if (data.lastVisit) {
+                        if (data.lastVisit.seconds) {
+                            // Firestore Timestamp
+                            lastVisitTime = data.lastVisit.seconds * 1000;
+                        } else if (typeof data.lastVisit === 'string') {
+                            // ISO String dari game
+                            lastVisitTime = new Date(data.lastVisit).getTime();
+                        } else if (data.lastVisit.toDate) {
+                            // Firestore Timestamp object
+                            lastVisitTime = data.lastVisit.toDate().getTime();
+                        }
+                    }
+                    
+                    const isActive = lastVisitTime > fiveMinutesAgo;
+                    if (isActive) active++;
+                    
+                    allPlayersData.push({
+                        id: doc.id,
+                        ...data,
+                        lastVisitTime: lastVisitTime,
+                        isActive: isActive
+                    });
+                });
+                
+                document.getElementById('totalPlayers').textContent = total;
+                document.getElementById('activePlayers').textContent = active;
+                document.getElementById('headerOnlineCount').textContent = active;
+                renderOnlinePlayersList(allPlayersData.filter(p => p.isActive));
+            }, err => {
+                console.error('Players Error:', err);
+                document.getElementById('onlinePlayersList').innerHTML = '<div class="empty-state">❌ Gagal memuat pemain. Mungkin butuh Index Firestore.</div>';
+            });
+        }
+
+        // ✅ LOGIKA DETEKSI 6 GAME
+        function getSourceBadge(source, gameName) {
+            const src = (source || '').toLowerCase();
+            const name = (gameName || '').toLowerCase();
+            const combined = src + ' ' + name;
+
+            if (combined.includes('hans') || (combined.includes('orb') && !combined.includes('cuan'))) {
+                return '<span class="game-source source-hans">🎮 Hans Orb</span>';
+            } else if (combined.includes('cuanorb') || (combined.includes('cuan') && combined.includes('orb'))) {
+                return '<span class="game-source source-cuan">💰 Cuan Orb</span>';
+            } else if (combined.includes('fusion') || combined.includes('fruit')) {
+                return '<span class="game-source source-fusion">🍇 Fusion Fruit</span>';
+            } else if (combined.includes('mach') || combined.includes('tile')) {
+                return '<span class="game-source source-mach">🍒 Mach Fruits</span>';
+            } else if (combined.includes('coktail')) {
+                return '<span class="game-source source-coktail">🍹 Coktail Cuan</span>';
+            } else if (combined.includes('breaker') || combined.includes('bata')) {
+                return '<span class="game-source source-breaker">🧱 Cuan Breaker</span>';
+            } else {
+                return '<span class="game-source source-unknown">❓ ' + (source || 'Unknown') + '</span>';
+            }
+        }
+
+        function renderOnlinePlayersList(onlinePlayers) {
+            const container = document.getElementById('onlinePlayersList');
+            if (onlinePlayers.length === 0) { 
+                container.innerHTML = '<div class="empty-state">😴 Tidak ada pemain online saat ini.</div>'; 
+                return; 
+            }
+            container.innerHTML = '';
+            
+            // Sort by lastVisit terbaru
+            onlinePlayers.sort((a, b) => b.lastVisitTime - a.lastVisitTime);
+            
+            onlinePlayers.forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'online-player-item';
+                
+                const lastVisitDate = new Date(player.lastVisitTime);
+                const timeAgo = getTimeAgo(lastVisitDate);
+                const totalCoins = player.totalCoins || 0;
+                const rupiah = Math.floor(totalCoins / 50);
+                
+                div.innerHTML = `
+                    <div class="online-player-info">
+                        <div class="online-player-id">👤 ${player.id}</div>
+                        <div class="online-player-time">
+                            🕐 ${timeAgo} | 💰 ${totalCoins.toLocaleString('id-ID')} Koin (Rp ${rupiah.toLocaleString('id-ID')})
+                        </div>
+                    </div>
+                    <div class="online-badge">🟢 ONLINE</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return `${seconds} detik lalu`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} menit lalu`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} jam lalu`;
+            return date.toLocaleDateString('id-ID');
+        }
+
+        function renderPendingList(pendingWDs) {
+            const container = document.getElementById('pendingList');
+            if (pendingWDs.length === 0) { container.innerHTML = '<div class="empty-state">🎉 Tidak ada WD pending.</div>'; return; }
+            container.innerHTML = '';
+            pendingWDs.forEach(wd => {
+                const div = document.createElement('div');
+                div.className = 'wd-item';
+                const date = wd.timestamp ? new Date(wd.timestamp.seconds * 1000).toLocaleString('id-ID') : 'Baru saja';
+                div.innerHTML = `
+                    <div class="wd-header">
+                        <div class="wd-amount">Rp ${wd.amountRupiah.toLocaleString('id-ID')}</div>
+                        <span class="wd-status status-pending">⏳ Pending</span>
+                    </div>
+                    <div class="wd-details">
+                        💳 ${wd.danaNumber || '-'} | 👤 ${wd.accountName || '-'}<br>
+                        📅 ${date} | 🪙 ${wd.amountCoins ? wd.amountCoins.toLocaleString('id-ID') : '-'} Koin<br>
+                        ${getSourceBadge(wd.source, wd.gameName)}
+                    </div>
+                    <div class="wd-actions">
+                        <button class="btn-approve" onclick="approveWD('${wd.id}')">✅ Setujui</button>
+                        <button class="btn-reject" onclick="rejectWD('${wd.id}')">❌ Tolak</button>
+                        <button class="btn-copy" onclick="copyAccount('${wd.danaNumber || ''}', '${wd.accountName || ''}')">📋 Salin</button>
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function renderAllWDList(allWDs) {
+            const container = document.getElementById('allWDList');
+            if (allWDs.length === 0) { container.innerHTML = '<div class="empty-state">Belum ada data.</div>'; return; }
+            container.innerHTML = '';
+            allWDs.slice(0, 50).forEach(wd => {
+                let statusClass = 'status-pending', statusText = '⏳ Pending';
+                if (wd.status === 'success') { statusClass = 'status-success'; statusText = '✅ Sukses'; }
+                else if (wd.status === 'rejected') { statusClass = 'status-rejected'; statusText = '❌ Ditolak'; }
+                else if (wd.status === 'refunded') { statusClass = 'status-refunded'; statusText = '↩️ Refund'; }
+
+                const div = document.createElement('div');
+                div.className = 'wd-item';
+                div.style.borderLeftColor = wd.status === 'success' ? '#2ed573' : (wd.status === 'rejected' ? '#e74c3c' : (wd.status === 'refunded' ? '#3498db' : '#1e3c72'));
+                const date = wd.timestamp ? new Date(wd.timestamp.seconds * 1000).toLocaleDateString('id-ID') : '-';
+                div.innerHTML = `
+                    <div class="wd-header">
+                        <div class="wd-amount">Rp ${wd.amountRupiah.toLocaleString('id-ID')}</div>
+                        <span class="wd-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="wd-details">
+                        ${wd.danaNumber || '-'} a.n ${wd.accountName || '-'} | ${date}<br>
+                        ${getSourceBadge(wd.source, wd.gameName)}
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function approveWD(id) {
+            if (confirm('✅ Setujui penarikan ini?')) {
+                db.collection('withdrawals').doc(id).update({ status: 'success', approvedAt: firebase.firestore.FieldValue.serverTimestamp() })
+                .then(() => alert('✅ WD disetujui!')).catch(err => alert('❌ Error: ' + err.message));
+            }
+        }
+        function rejectWD(id) {
+            if (confirm(' Tolak penarikan ini?')) {
+                db.collection('withdrawals').doc(id).update({ status: 'rejected', rejectedAt: firebase.firestore.FieldValue.serverTimestamp() })
+                .then(() => alert('❌ WD ditolak.')).catch(err => alert('❌ Error: ' + err.message));
+            }
+        }
+        function copyAccount(number, name) {
+            const text = `${number} a.n ${name}`;
+            navigator.clipboard.writeText(text).then(() => alert('📋 Tersalin: ' + text)).catch(() => alert('Gagal menyalin'));
+        }
+    </script>
+</body>
+</html>

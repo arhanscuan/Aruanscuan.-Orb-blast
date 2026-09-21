@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fusion Fruit - Main & Menang!</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        #landingPage {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999999; padding: 20px;
+        }
+        .game-logo { font-size: 48px; margin-bottom: 10px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .game-title { font-size: 42px; font-weight: bold; color: #ffd700; text-align: center; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); margin-bottom: 10px; }
+        .game-subtitle { font-size: 18px; color: #fff; text-align: center; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .feature-list { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; margin-bottom: 30px; width: 100%; max-width: 400px; }
+        .feature-item { color: #fff; padding: 10px; margin: 5px 0; font-size: 16px; display: flex; align-items: center; gap: 10px; }
+        .start-btn { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: #333; padding: 20px 60px; border: none; border-radius: 50px; font-size: 24px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.2s; margin-bottom: 20px; }
+        .start-btn:active { transform: scale(0.95); }
+        .fruit-showcase { display: flex; gap: 15px; margin-bottom: 30px; font-size: 40px; }
+        .fruit-item { animation: float 3s ease-in-out infinite; }
+        .fruit-item:nth-child(2) { animation-delay: 0.5s; } .fruit-item:nth-child(3) { animation-delay: 1s; } .fruit-item:nth-child(4) { animation-delay: 1.5s; } .fruit-item:nth-child(5) { animation-delay: 2s; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        #gameContainer { display: none; height: 100vh; flex-direction: column; }
+        body { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        
+        #gameArea { 
+            flex: 1; position: relative; margin: 10px; border-radius: 15px; overflow: hidden; 
+            border: 4px solid #5d3a1a; box-shadow: 0 0 25px rgba(0,0,0,0.6), inset 0 0 40px rgba(0,0,0,0.3);
+            touch-action: none; 
+        }
+        canvas { display: block; width: 100%; height: 100%; }
+        
+        .ui-panel { 
+            background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%); 
+            padding: 15px; border-radius: 20px 20px 0 0; text-align: center; 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 10; border-top: 3px solid #ffd700;
+        }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
+        .coin-badge { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: #333; padding: 8px 15px; border-radius: 20px; font-weight: bold; box-shadow: 0 3px 10px rgba(243, 156, 18, 0.4); display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+        .coin-amount { font-size: 16px; font-weight: bold; } .coin-rupiah { font-size: 10px; color: #555; margin-top: 2px; }
+        .btn { border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; transition: transform 0.1s; box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
+        .btn:active { transform: scale(0.95); }
+        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); }
+        .btn-bonus { background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); }
+        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); }
+        
+        .progress-container { width: 100%; height: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; margin-top: 5px; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #00ff88 0%, #00cc66 100%); width: 0%; transition: width 0.3s; }
+        .wd-text { font-size: 12px; color: #ddd; margin-top: 5px; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: #2c3e50; border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; border: 2px solid #ffd700; text-align: center; }
+        .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
+        .input-group { margin: 15px 0; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; color: #aaa; font-size: 14px; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #1a252f; color: white; font-size: 16px; margin-top: 5px; }
+        .confirm-data { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left; }
+        .confirm-data p { margin: 8px 0; font-size: 15px; } .confirm-data span { color: #ffd700; font-weight: bold; float: right; }
+        .history-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #ffd700; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .history-amount { color: #ffd700; font-weight: bold; font-size: 16px; }
+        .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; }
+        .status-pending { background: #f39c12; color: white; } .status-success { background: #2ed573; color: white; } .status-refunded { background: #3498db; color: white; } .status-rejected { background: #e74c3c; color: white; }
+        .history-details { font-size: 12px; color: #aaa; }
+
+        #rewardModal { background: rgba(0,0,0,0.98); z-index: 9999999; }
+        #rewardBox { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 20px; border: 3px solid #ffd700; width: 90%; max-width: 350px; position: relative; }
+        #rewardTimer { font-size: 56px; font-weight: bold; color: #ffd700; margin: 20px 0; }
+        #rewardBtn { background: #555; color: #aaa; border: none; padding: 18px; border-radius: 50px; font-size: 20px; font-weight: bold; width: 100%; cursor: not-allowed; }
+        #rewardBtn.ready { background: #2ed573; color: white; cursor: pointer; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        #gameOverOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999998; display: none; align-items: center; justify-content: center; }
+        #gameOverBox { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); animation: popIn 0.4s ease-out; }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        #gameOverBox h2 { color: white; font-size: 28px; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        #gameOverBox p { color: #fff; font-size: 16px; margin: 10px 0; }
+        .penalty-text { color: #ffd700; font-weight: bold; font-size: 18px; }
+        #restartBtn { background: #2ed573; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .interstitial-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.95); z-index: 99999999; display: none;
+            flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+        }
+        .interstitial-box {
+            background: linear-gradient(135deg, #667eea, #764ba2); padding: 30px; border-radius: 20px;
+            text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8); position: relative;
+        }
+        .interstitial-timer { font-size: 56px; font-weight: bold; color: #ffd700; margin: 20px 0; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .interstitial-btn {
+            background: #555; color: #aaa; border: none; padding: 18px 40px; border-radius: 50px;
+            font-size: 20px; font-weight: bold; width: 100%; cursor: not-allowed; transition: all 0.3s;
+        }
+        .interstitial-btn.ready { background: #2ed573; color: white; cursor: pointer; animation: pulse 1.5s infinite; }
+
+        .emergency-close {
+            position: absolute; top: 10px; right: 15px;
+            background: rgba(255, 0, 0, 0.8); color: white;
+            border: 2px solid white; width: 35px; height: 35px;
+            border-radius: 50%; font-size: 20px; font-weight: bold;
+            cursor: pointer; z-index: 10000001 !important;
+        }
+
+        #soundToggle {
+            position: absolute; left: 10px; top: 10px; background: rgba(255,255,255,0.9);
+            border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px;
+            cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LANDING PAGE -->
+    <div id="landingPage">
+        <div class="game-logo">🍉</div>
+        <h1 class="game-title">FUSION FRUIT</h1>
+        <p class="game-subtitle">Gabungkan Buah, Dapatkan Hadiah!</p>
+        <div class="fruit-showcase">
+            <div class="fruit-item"></div><div class="fruit-item"></div><div class="fruit-item"></div><div class="fruit-item"></div><div class="fruit-item"></div>
+        </div>
+        <div class="feature-list">
+            <div class="feature-item">🍓 Gabungkan buah yang sama</div>
+            <div class="feature-item">💰 Dapatkan koin & tarik saldo</div>
+            <div class="feature-item">🏆 Capai level tertinggi!</div>
+            <div class="feature-item">⚡ Main cepat & seru</div>
+        </div>
+        <button class="start-btn" onclick="startGame()">▶ MULAI MAIN</button>
+        <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 20px;">© 2024 Fusion Fruit. All rights reserved.</p>
+    </div>
+
+    <!-- GAME CONTAINER -->
+    <div id="gameContainer">
+        <div id="gameArea">
+            <button id="soundToggle" onclick="toggleSound()"></button>
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <div class="ui-panel">
+            <div class="stat-row">
+                <div class="coin-badge">
+                    <div class="coin-amount">🪙 <span id="coinDisplay">0</span></div>
+                    <div class="coin-rupiah">Rp <span id="rupiahDisplay">0</span></div>
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;">
+                    <button class="btn btn-bonus" onclick="showRewardVideo()">🎁 BONUS</button>
+                    <button class="btn btn-wd" onclick="showWithdraw()">💸 WD</button>
+                    <button class="btn btn-history" onclick="showHistory()"> RIWAYAT</button>
+                </div>
+            </div>
+            
+            <div class="progress-container"><div class="progress-bar" id="wdProgressBar"></div></div>
+            <div class="wd-text">Fusion: <span id="wdProgressText">0</span>/50</div>
+        </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="gameOverOverlay">
+        <div id="gameOverBox">
+            <h2> GAME OVER!</h2>
+            <p>Buah menumpuk melewati batas!</p>
+            <p class="penalty-text" id="penaltyText">-100 Koin</p>
+            <button id="restartBtn" onclick="restartGame()">🔄 MAIN LAGI</button>
+        </div>
+    </div>
+
+    <!-- INTERSTITIAL AD OVERLAY -->
+    <div id="interstitialOverlay" class="interstitial-overlay">
+        <div class="interstitial-box">
+            <button class="emergency-close" onclick="forceCloseAds()">✖</button>
+            <h2 id="interstitialTitle" style="color:white; margin-bottom:10px;">🎁 HADIAH!</h2>
+            <p id="interstitialDesc" style="color:#ddd; font-size:14px;">Tonton iklan singkat...</p>
+            <div class="interstitial-timer" id="interstitialTimer">5</div>
+            <button id="interstitialBtn" class="interstitial-btn" disabled>TUNGGU...</button>
+        </div>
+    </div>
+
+    <!-- REWARD VIDEO -->
+    <div id="rewardModal" class="modal-overlay">
+        <div id="rewardBox">
+            <button class="emergency-close" onclick="forceCloseAds()">✖</button>
+            <h2 style="color:white; margin-bottom:10px;">Tonton Iklan Singkat</h2>
+            <p style="color:#ddd; font-size:14px;">Dapatkan 100-400 koin acak!</p>
+            <div id="rewardTimer">5</div>
+            <button id="rewardBtn" disabled onclick="claimReward()">TUNGGU...</button>
+        </div>
+    </div>
+
+    <!-- WITHDRAW MENU -->
+    <div id="withdrawMenu" class="modal-overlay">
+        <div class="modal-box scrollable">
+            <h2 style="color:#ffd700; margin-bottom:15px;">💸 Tarik Saldo</h2>
+            <p style="margin-bottom:15px;">Saldo: Rp <span id="wdBalanceRupiah">0</span></p>
+            <p style="margin-bottom:15px; color:#ffd700;">📺 Iklan: <span id="wdAdsCount">0</span>/<span id="wdAdsTarget">30</span></p>
+            <div id="wdOptions" style="max-height:250px; overflow-y:auto; margin-bottom:15px;"></div>
+            <button class="btn" style="background:#95a5a6; width:100%;" onclick="closeModal('withdrawMenu')">Tutup</button>
+        </div>
+    </div>
+
+    <!-- INPUT DATA -->
+    <div id="inputModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="color:#ffd700; margin-bottom:15px;">Data Rekening</h3>
+            <div class="input-group"><label>Nomor DANA / E-Wallet</label><input type="number" id="inputDana" placeholder="08xxxxxxxxxx"></div>
+            <div class="input-group"><label>Nama Pemilik</label><input type="text" id="inputName" placeholder="Nama sesuai rekening"></div>
+            <button class="btn" style="background:#3498db; width:100%; margin-bottom:10px; padding:12px;" onclick="goToConfirmation()">Lanjut ▶</button>
+            <button class="btn" style="background:#95a5a6; width:100%; padding:12px;" onclick="closeModal('inputModal')">Batal</button>
+        </div>
+    </div>
+
+    <!-- CONFIRM -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="color:#ffd700; margin-bottom:15px;">Konfirmasi WD</h3>
+            <div class="confirm-data">
+                <p>DANA: <span id="confDana"></span></p><p>Nama: <span id="confName"></span></p><p>Nominal: <span id="confAmount"></span></p>
+            </div>
+            <button class="btn" style="background:#2ed573; width:100%; margin-bottom:10px; padding:12px;" onclick="finalizeWithdrawal()">✅ KONFIRMASI</button>
+            <button class="btn" style="background:#95a5a6; width:100%; padding:12px;" onclick="closeModal('confirmModal')">Batal</button>
+        </div>
+    </div>
+
+    <!-- HISTORY MENU -->
+    <div id="historyMenu" class="modal-overlay">
+        <div class="modal-box scrollable">
+            <h2 style="color:#ffd700; margin-bottom:15px;">📜 Riwayat Penarikan</h2>
+            <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#aaa; text-align:center;">Memuat data...</p></div>
+            <button class="btn" style="background:#95a5a6; width:100%;" onclick="closeModal('historyMenu')">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ",
+          authDomain: "hansorbblast.firebaseapp.com",
+          projectId: "hansorbblast",
+          storageBucket: "hansorbblast.firebasestorage.app",
+          messagingSenderId: "562424899290",
+          appId: "1:562424899290:web:75e0c912db1ada3341e7e3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
+        let wdClicks = parseInt(localStorage.getItem('hans_wd_clicks')) || 0;
+        const WD_TARGET = 50;
+        
+        // ✅ FAST TRACK: 30 IKLAN UNTUK WD PERTAMA
+        let isFirstWD = !localStorage.getItem('hans_first_wd_done');
+        const ADS_REQUIRED = isFirstWD ? 30 : 50;
+        let adsWatched = parseInt(localStorage.getItem('fusion_ads_watched')) || 0;
+        
+        let playerId = localStorage.getItem('hans_player_id');
+        let selectedWDAmount = 0, tempDana = '', tempName = '';
+        let rewardInterval, interstitialInterval;
+        let mergeCount = 0;
+        let soundEnabled = true;
+        let adWasOpen = false;
+        let historyListener = null;
+
+        // ✅ SISTEM PEMAIN ONLINE
+        if (!playerId) {
+            playerId = 'player_' + Date.now();
+            localStorage.setItem('hans_player_id', playerId);
+            db.collection('players').doc(playerId).set({ 
+                totalCoins: 0, 
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(), 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(err => console.log('Firebase init error:', err));
+        } else {
+            db.collection('players').doc(playerId).update({ 
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(err => console.log('Firebase update error:', err));
+        }
+
+        // ✅ OFFLINE SAAT TUTUP TAB
+        window.addEventListener('beforeunload', () => {
+            db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {});
+        });
+
+        // ✅ ANTI-BLANK: DETEKSI KEMBALI DARI IKLAN
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && adWasOpen) {
+                adWasOpen = false;
+                forceCloseAds();
+            }
+        });
+
+        const WD_OPTIONS = [
+            { amount: 1000, coins: 50000, isOneTime: true }, 
+            { amount: 5000, coins: 250000, isOneTime: false },
+            { amount: 10000, coins: 500000, isOneTime: false },
+            { amount: 20000, coins: 1000000, isOneTime: false },
+            { amount: 50000, coins: 2500000, isOneTime: false }
+        ];
+
+        let audioCtx = null;
+        let bgMusicOscillator = null;
+
+        function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playSound(type) {
+            if(!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
+            if(type === 'drop') { osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(300, now + 0.15); gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15); osc.start(now); osc.stop(now + 0.15); } 
+            else if(type === 'merge') { [523.25, 659.25, 783.99].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.05); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.05); o.stop(now + 0.3); }); } 
+            else if(type === 'gameover') { osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(200, now + 0.5); gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5); osc.start(now); osc.stop(now + 0.5); } 
+            else if(type === 'start') { [440, 554.37, 659.25].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.08); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.08); o.stop(now + 0.3); }); }
+        }
+        function startBgMusic() {
+            if(!soundEnabled || !audioCtx || bgMusicOscillator) return;
+            bgMusicOscillator = audioCtx.createOscillator(); const bgMusicGain = audioCtx.createGain();
+            bgMusicOscillator.connect(bgMusicGain); bgMusicGain.connect(audioCtx.destination);
+            bgMusicOscillator.frequency.value = 220; bgMusicOscillator.type = 'sine'; bgMusicGain.gain.value = 0.05;
+            bgMusicOscillator.start();
+        }
+        function toggleSound() {
+            soundEnabled = !soundEnabled; document.getElementById('soundToggle').innerText = soundEnabled ? '' : '🔇';
+            if(soundEnabled) { initAudio(); startBgMusic(); } else { if(bgMusicOscillator) { bgMusicOscillator.stop(); bgMusicOscillator = null; } }
+        }
+
+        function forceCloseAds() {
+            document.getElementById('interstitialOverlay').style.display = 'none';
+            document.getElementById('rewardModal').style.display = 'none';
+            clearInterval(interstitialInterval); clearInterval(rewardInterval);
+            adWasOpen = false;
+        }
+
+        function showInterstitial(title, desc, callback) {
+            const overlay = document.getElementById('interstitialOverlay');
+            document.getElementById('interstitialTitle').innerText = title;
+            document.getElementById('interstitialDesc').innerText = desc;
+            overlay.style.display = 'flex';
+            adWasOpen = true;
+            let seconds = 5;
+            const timerEl = document.getElementById('interstitialTimer');
+            const btn = document.getElementById('interstitialBtn');
+            timerEl.innerText = seconds; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU...";
+            window.open('https://www.profitableratecpmnetwork.com/e2ij2swi?key=698a3fbdfb6f8c59827bbc600706ffe1', '_blank');
+            interstitialInterval = setInterval(() => {
+                seconds--; timerEl.innerText = seconds;
+                if(seconds <= 0) {
+                    clearInterval(interstitialInterval); btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ KLAIM HADIAH";
+                    btn.onclick = () => { 
+                        overlay.style.display = 'none';
+                        adWasOpen = false;
+                        adsWatched++;
+                        localStorage.setItem('fusion_ads_watched', adsWatched);
+                        if(callback) callback(); 
+                    };
+                }
+            }, 1000);
+        }
+
+        function startGame() {
+            initAudio(); playSound('start'); startBgMusic();
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'flex';
+            resize(); loop();
+        }
+
+        function updateUI() {
+            const rupiah = Math.floor(coins / 50);
+            document.getElementById('coinDisplay').innerText = coins.toLocaleString('id-ID');
+            document.getElementById('rupiahDisplay').innerText = rupiah.toLocaleString('id-ID');
+            document.getElementById('wdProgressText').innerText = wdClicks;
+            document.getElementById('wdProgressBar').style.width = ((wdClicks / WD_TARGET) * 100) + '%';
+        }
+
+        function updatePlayerCoins(earned) {
+            db.collection('players').doc(playerId).update({ totalCoins: firebase.firestore.FieldValue.increment(earned), lastVisit: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
+        }
+
+        function showHistory() {
+            document.getElementById('historyMenu').style.display = 'flex';
+            const list = document.getElementById('historyList'); 
+            if (historyListener) historyListener();
+            historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc')
+                .onSnapshot(snapshot => {
+                    list.innerHTML = '';
+                    if (snapshot.empty) { list.innerHTML = '<p style="color:#aaa; text-align:center;">Belum ada riwayat WD.</p>'; return; }
+                    snapshot.forEach(doc => {
+                        const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-';
+                        let statusText = '⏳ Proses', statusClass = 'status-pending';
+                        if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; }
+                        else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; }
+                        else if (w.status === 'refunded') { statusText = '↩️ Refund'; statusClass = 'status-refunded'; }
+                        list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div></div>`;
+                    });
+                }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
+        }
+
+        function showWithdraw() {
+            document.getElementById('wdBalanceRupiah').innerText = Math.floor(coins/50).toLocaleString('id-ID');
+            document.getElementById('wdAdsCount').innerText = adsWatched;
+            document.getElementById('wdAdsTarget').innerText = ADS_REQUIRED;
+            
+            const container = document.getElementById('wdOptions'); container.innerHTML = '';
+            const claimedFirst = localStorage.getItem('claimed_first_wd_bd') === 'true';
+            const adsRequirementMet = adsWatched >= ADS_REQUIRED;
+            
+            WD_OPTIONS.forEach(opt => {
+                let locked = false;
+                if (opt.isOneTime && claimedFirst) locked = true;
+                if (coins < opt.coins || wdClicks < WD_TARGET) locked = true;
+                if (!adsRequirementMet) locked = true;
+
+                let btnText = '';
+                if (!adsRequirementMet) btnText = `🔒 TERKUNCI (Butuh ${ADS_REQUIRED - adsWatched} iklan lagi)`;
+                else if (locked) btnText = '🔒 LOCK';
+                else btnText = `Rp ${opt.amount.toLocaleString()} (${opt.coins.toLocaleString()} Koin) ${opt.isOneTime ? '1x SAJA' : ''}`;
+
+                container.innerHTML += `<button onclick="${locked ? '' : `openInputModal(${opt.amount})`}" style="width:100%; padding:12px; margin:5px 0; border:none; border-radius:8px; font-weight:bold; color:white; cursor:${locked?'not-allowed':'pointer'}; background:${locked?'#555':'#2ed573'}">${btnText}</button>`;
+            });
+            document.getElementById('withdrawMenu').style.display = 'flex';
+        }
+
+        function openInputModal(amount) { selectedWDAmount = amount; closeModal('withdrawMenu'); document.getElementById('inputModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function goToConfirmation() {
+            tempDana = document.getElementById('inputDana').value; tempName = document.getElementById('inputName').value;
+            if (tempDana.length < 10 || tempName.length < 3) { alert('Data tidak valid! Min 10 digit & 3 huruf.'); return; }
+            const opt = WD_OPTIONS.find(o => o.amount === selectedWDAmount);
+            document.getElementById('confDana').innerText = tempDana; document.getElementById('confName').innerText = tempName.toUpperCase();
+            document.getElementById('confAmount').innerText = 'Rp ' + opt.amount.toLocaleString('id-ID');
+            closeModal('inputModal'); document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function finalizeWithdrawal() {
+            const opt = WD_OPTIONS.find(o => o.amount === selectedWDAmount);
+            if (opt.isOneTime) {
+                localStorage.setItem('claimed_first_wd_bd', 'true');
+                localStorage.setItem('hans_first_wd_done', 'true');
+            }
+            
+            adsWatched = 0;
+            localStorage.setItem('fusion_ads_watched', 0);
+            
+            db.collection('withdrawals').add({
+                playerId: playerId, danaNumber: tempDana, accountName: tempName.toUpperCase(),
+                amountRupiah: opt.amount, amountCoins: opt.coins,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending',
+                source: 'FusionFruit', gameName: 'Fusion Fruit', adsWatched: ADS_REQUIRED
+            }).then(() => {
+                coins -= opt.coins; wdClicks = 0;
+                localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_wd_clicks', wdClicks);
+                alert('✅ WD Terkirim! Tunggu diproses Admin.');
+                closeModal('confirmModal'); updateUI();
+            }).catch(err => alert('❌ Error: ' + err.message));
+        }
+
+        function showRewardVideo() {
+            const modal = document.getElementById('rewardModal'); const timerEl = document.getElementById('rewardTimer'); const btn = document.getElementById('rewardBtn');
+            let seconds = 5; modal.style.display = 'flex'; timerEl.innerText = seconds; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU...";
+            adWasOpen = true;
+            window.open('https://www.profitableratecpmnetwork.com/e2ij2swi?key=698a3fbdfb6f8c59827bbc600706ffe1', '_blank');
+            rewardInterval = setInterval(() => { seconds--; timerEl.innerText = seconds; if (seconds <= 0) { clearInterval(rewardInterval); btn.disabled = false; btn.classList.add('ready'); btn.innerText = "KLAIM BONUS "; } }, 1000);
+        }
+
+        function claimReward() {
+            document.getElementById('rewardModal').style.display = 'none'; clearInterval(rewardInterval);
+            adWasOpen = false;
+            const randomReward = Math.floor(Math.random() * 301) + 100; 
+            coins += randomReward; localStorage.setItem('hans_coins', coins); updatePlayerCoins(randomReward); updateUI();
+            adsWatched++; localStorage.setItem('fusion_ads_watched', adsWatched);
+            alert(`🎉 Selamat! Kamu dapat ${randomReward} koin!`);
+        }
+
+        // GAME LOGIC
+        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+        let balls = [], isAiming = false, aimX = 0, nextBallRadius = 15, isDropping = false, isGameOver = false, DANGER_LINE_Y = 100;
+        
+        // ✅ PERBAIKAN: SEMUA BUAH PUNYA EMOJI!
+        const FRUITS = [
+            { radius: 15, emoji: '🍒', color: '#FF3B30' }, { radius: 20, emoji: '🍓', color: '#FF2D55' },
+            { radius: 25, emoji: '🍇', color: '#AF52DE' }, { radius: 30, emoji: '🍊', color: '#FF9500' },
+            { radius: 35, emoji: '🍎', color: '#FF3B30' }, { radius: 40, emoji: '🍐', color: '#34C759' },
+            { radius: 45, emoji: '', color: '#FF9500' }, { radius: 50, emoji: '', color: '#FFCC00' },
+            { radius: 55, emoji: '', color: '#34C759' }
+        ];
+        
+        const MAX_DROP_INDEX = 3; 
+        let maxUnlockedIndex = parseInt(localStorage.getItem('bd_max_unlocked')) || 0;
+
+        function getFruitByRadius(r) { let c = FRUITS[0], d = Math.abs(FRUITS[0].radius - r); for (let f of FRUITS) { let df = Math.abs(f.radius - r); if (df < d) { d = df; c = f; } } return c; }
+        function getRandomUnlockedFruit() { 
+            let limit = Math.min(maxUnlockedIndex, MAX_DROP_INDEX);
+            return FRUITS[Math.floor(Math.random() * (limit + 1))]; 
+        }
+        function unlockFruit(r) { const n = FRUITS.indexOf(getFruitByRadius(r)); if (n === maxUnlockedIndex + 1) { maxUnlockedIndex = n; localStorage.setItem('bd_max_unlocked', n); } }
+
+        let clouds = [];
+        function initScenery() { clouds = []; for (let i = 0; i < 4; i++) clouds.push({ x: Math.random() * canvas.width, y: 30 + Math.random() * 50, size: 25 + Math.random() * 20, speed: 0.15 + Math.random() * 0.25 }); }
+        function resize() { canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight; aimX = canvas.width / 2; DANGER_LINE_Y = canvas.height * 0.15; initScenery(); }
+        window.addEventListener('resize', resize);
+
+        canvas.addEventListener('pointerdown', e => { if (!isDropping && !isGameOver) { isAiming = true; updateAimPos(e); } });
+        canvas.addEventListener('pointermove', e => { if (isAiming && !isGameOver) updateAimPos(e); });
+        canvas.addEventListener('pointerup', () => { if (isAiming && !isDropping && !isGameOver) { isAiming = false; dropBall(); } });
+
+        function updateAimPos(e) { const r = canvas.getBoundingClientRect(); aimX = Math.max(nextBallRadius, Math.min(canvas.width - nextBallRadius, e.clientX - r.left)); }
+        function dropBall() {
+            isDropping = true; playSound('drop');
+            const f = getFruitByRadius(nextBallRadius);
+            balls.push({ x: aimX, y: 50, radius: nextBallRadius, emoji: f.emoji, color: f.color, vx: 0, vy: 2, mass: nextBallRadius, aboveLineTime: 0 });
+            aimX = canvas.width / 2; nextBallRadius = getRandomUnlockedFruit().radius;
+            setTimeout(() => { isDropping = false; }, 600);
+        }
+
+        function checkGameOver() {
+            let danger = 0;
+            balls.forEach(b => {
+                if (b.y < 120) return;
+                if (b.y - b.radius < DANGER_LINE_Y) { b.aboveLineTime++; if (b.aboveLineTime > 60) danger++; } else b.aboveLineTime = 0;
+            });
+            if (danger > 0 && !isGameOver) triggerGameOver();
+        }
+
+        function triggerGameOver() {
+            isGameOver = true; playSound('gameover');
+            const penalty = Math.max(100, Math.floor(coins * 0.2));
+            coins = Math.max(0, coins - penalty);
+            localStorage.setItem('hans_coins', coins);
+            db.collection('players').doc(playerId).update({ totalCoins: firebase.firestore.FieldValue.increment(-penalty), lastVisit: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
+            document.getElementById('penaltyText').innerText = `-${penalty.toLocaleString('id-ID')} Koin`;
+            setTimeout(() => {
+                showInterstitial('💥 GAME OVER!', 'Tonton iklan untuk lanjut?', () => {
+                    document.getElementById('gameOverOverlay').style.display = 'flex';
+                });
+            }, 500);
+            updateUI();
+        }
+
+        function restartGame() {
+            balls = []; maxUnlockedIndex = 0; localStorage.setItem('bd_max_unlocked', 0); nextBallRadius = 15; aimX = canvas.width / 2;
+            document.getElementById('gameOverOverlay').style.display = 'none'; isGameOver = false; isDropping = false; mergeCount = 0;
+        }
+
+        function checkMerges() {
+            let merged = new Set();
+            for (let i = 0; i < balls.length; i++) {
+                if (merged.has(i)) continue;
+                for (let j = i + 1; j < balls.length; j++) {
+                    if (merged.has(j)) continue;
+                    const b1 = balls[i], b2 = balls[j], dist = Math.hypot(b1.x - b2.x, b1.y - b2.y);
+                    if (dist < b1.radius + b2.radius && b1.radius === b2.radius && b1.radius < 55) {
+                        merged.add(i); merged.add(j);
+                        const newR = b1.radius + 5, newX = (b1.x + b2.x) / 2, newY = (b1.y + b2.y) / 2, nf = getFruitByRadius(newR);
+                        balls = balls.filter((_, idx) => !merged.has(idx));
+                        balls.push({ x: newX, y: newY, radius: newR, emoji: nf.emoji, color: nf.color, vx: 0, vy: 0, mass: newR, aboveLineTime: 0 });
+                        unlockFruit(newR); playSound('merge'); mergeCount++;
+                        
+                        // ✅ MODE GACOR 3 FASE
+                        let baseReward = newR * 5;
+                        let currentRupiah = Math.floor(coins / 50);
+                        let reward = baseReward;
+                        
+                        if (currentRupiah < 100) {
+                            reward = baseReward * 5; // SUPER GACOR
+                        } else if (currentRupiah < 1000) {
+                            reward = baseReward * 2; // GACOR
+                        } else {
+                            reward = Math.floor(baseReward * 0.2); // SLOW MODE
+                        }
+                        
+                        coins += reward; wdClicks = Math.min(wdClicks + 1, WD_TARGET);
+                        localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_wd_clicks', wdClicks);
+                        updatePlayerCoins(reward); updateUI();
+                        
+                        const adTrigger = Math.random() < 0.5 ? 2 : 3;
+                        if(mergeCount % adTrigger === 0) {
+                            setTimeout(() => showInterstitial('🎁 HADIAH MERGE!', 'Kamu dapat bonus!', () => {
+                                coins += Math.floor(Math.random() * 201) + 100; localStorage.setItem('hans_coins', coins); updateUI();
+                            }), 500);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
+        function resolveCollision(b1, b2) {
+            const dx = b2.x - b1.x, dy = b2.y - b1.y, dist = Math.hypot(dx, dy), minD = b1.radius + b2.radius;
+            if (dist < minD && dist > 0) {
+                const ov = (minD - dist) / 2, nx = dx / dist, ny = dy / dist;
+                b1.x -= nx * ov; b1.y -= ny * ov; b2.x += nx * ov; b2.y += ny * ov;
+                const dvx = b2.vx - b1.vx, dvy = b2.vy - b1.vy, vn = dvx * nx + dvy * ny;
+                if (vn > 0) return;
+                const j = -(1 + 0.1) * vn, im1 = 1 / b1.mass, im2 = 1 / b2.mass, imp = j / (im1 + im2);
+                b1.vx -= imp * im1 * nx; b1.vy -= imp * im1 * ny; b2.vx += imp * im2 * nx; b2.vy += imp * im2 * ny;
+            }
+        }
+
+        function updatePhysics() {
+            if (isGameOver) return;
+            balls.forEach(b => { b.vy += 0.5; b.x += b.vx; b.y += b.vy; b.vx *= 0.99; b.vy *= 0.99; });
+            balls.forEach(b => {
+                if (b.y + b.radius > canvas.height) { b.y = canvas.height - b.radius; b.vy *= -0.2; b.vx *= 0.7; }
+                if (b.x - b.radius < 0) { b.x = b.radius; b.vx *= -0.3; }
+                if (b.x + b.radius > canvas.width) { b.x = canvas.width - b.radius; b.vx *= -0.3; }
+            });
+            for (let i = 0; i < balls.length; i++) for (let j = i + 1; j < balls.length; j++) resolveCollision(balls[i], balls[j]);
+            checkMerges(); checkGameOver();
+            clouds.forEach(c => { c.x += c.speed; if (c.x > canvas.width + c.size * 2) c.x = -c.size * 2; });
+        }
+
+        function drawBackground() {
+            const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            g.addColorStop(0, '#4A90E2'); g.addColorStop(0.4, '#87CEEB'); g.addColorStop(0.7, '#B8E6B8'); g.addColorStop(0.85, '#5CB85C'); g.addColorStop(1, '#2E7D32');
+            ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const sx = canvas.width - 60, sy = 60, sg = ctx.createRadialGradient(sx, sy, 10, sx, sy, 50);
+            sg.addColorStop(0, 'rgba(255, 235, 59, 1)'); sg.addColorStop(0.5, 'rgba(255, 193, 7, 0.6)'); sg.addColorStop(1, 'rgba(255, 193, 7, 0)');
+            ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(sx, sy, 50, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(sx, sy, 25, 0, Math.PI * 2); ctx.fillStyle = '#FFEB3B'; ctx.fill();
+            clouds.forEach(c => {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; ctx.beginPath();
+                ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2); ctx.arc(c.x + c.size * 0.9, c.y + 5, c.size * 0.8, 0, Math.PI * 2);
+                ctx.arc(c.x - c.size * 0.9, c.y + 3, c.size * 0.7, 0, Math.PI * 2); ctx.arc(c.x + c.size * 0.4, c.y - c.size * 0.4, c.size * 0.6, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.fillStyle = '#66BB6A'; ctx.beginPath(); ctx.moveTo(0, canvas.height * 0.75);
+            ctx.quadraticCurveTo(canvas.width * 0.25, canvas.height * 0.65, canvas.width * 0.5, canvas.height * 0.72);
+            ctx.quadraticCurveTo(canvas.width * 0.75, canvas.height * 0.78, canvas.width, canvas.height * 0.7);
+            ctx.lineTo(canvas.width, canvas.height); ctx.lineTo(0, canvas.height); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#43A047'; ctx.beginPath(); ctx.moveTo(0, canvas.height * 0.82);
+            ctx.quadraticCurveTo(canvas.width * 0.3, canvas.height * 0.75, canvas.width * 0.6, canvas.height * 0.8);
+            ctx.quadraticCurveTo(canvas.width * 0.85, canvas.height * 0.85, canvas.width, canvas.height * 0.78);
+            ctx.lineTo(canvas.width, canvas.height); ctx.lineTo(0, canvas.height); ctx.closePath(); ctx.fill();
+        }
+
+        function drawFruit(b) {
+            ctx.beginPath(); ctx.ellipse(b.x, b.y + b.radius * 0.95, b.radius * 0.9, b.radius * 0.35, 0, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
+            const fg = ctx.createRadialGradient(b.x - b.radius * 0.3, b.y - b.radius * 0.3, b.radius * 0.1, b.x, b.y, b.radius);
+            fg.addColorStop(0, lightenColor(b.color, 40)); fg.addColorStop(0.7, b.color); fg.addColorStop(1, darkenColor(b.color, 30));
+            ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fillStyle = fg; ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 3; ctx.stroke();
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+            const fs = b.radius * 1.5; ctx.font = `bold ${fs}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 4; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
+            ctx.fillText(b.emoji, b.x, b.y + 2); ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.arc(b.x - b.radius * 0.35, b.y - b.radius * 0.35, b.radius * 0.3, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fill();
+        }
+
+        function lightenColor(c, p) { const n = parseInt(c.replace('#',''), 16), a = Math.round(2.55*p); return `rgb(${Math.min(255,(n>>16)+a)},${Math.min(255,((n>>8)&255)+a)},${Math.min(255,(n&255)+a)})`; }
+        function darkenColor(c, p) { const n = parseInt(c.replace('#',''), 16), a = Math.round(2.55*p); return `rgb(${Math.max(0,(n>>16)-a)},${Math.max(0,((n>>8)&255)-a)},${Math.max(0,(n&255)-a)})`; }
+
+        function draw() {
+            drawBackground();
+            ctx.beginPath(); ctx.moveTo(0, DANGER_LINE_Y); ctx.lineTo(canvas.width, DANGER_LINE_Y);
+            ctx.strokeStyle = 'rgba(255,50,50,0.7)'; ctx.lineWidth = 3; ctx.stroke(); ctx.lineWidth = 1;
+            ctx.fillStyle = 'rgba(255,50,50,0.8)'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left'; ctx.fillText('⚠️ BATAS', 10, DANGER_LINE_Y - 5);
+            balls.forEach(b => drawFruit(b));
+            if (!isDropping && !isGameOver) {
+                const f = getFruitByRadius(nextBallRadius);
+                const gg = ctx.createRadialGradient(aimX - nextBallRadius * 0.3, 50 - nextBallRadius * 0.3, nextBallRadius * 0.1, aimX, 50, nextBallRadius);
+                gg.addColorStop(0, lightenColor(f.color, 50)); gg.addColorStop(1, f.color);
+                ctx.beginPath(); ctx.arc(aimX, 50, nextBallRadius, 0, Math.PI*2); ctx.fillStyle = gg; ctx.fill();
+                ctx.strokeStyle = 'white'; ctx.lineWidth = 3; ctx.stroke(); ctx.lineWidth = 1;
+                ctx.font = `bold ${nextBallRadius * 1.5}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 4; ctx.fillText(f.emoji, aimX, 52); ctx.shadowBlur = 0;
+            }
+        }
+        function loop() { updatePhysics(); draw(); requestAnimationFrame(loop); }
+        
+        updateUI();
+        document.addEventListener('click', () => { initAudio(); if(soundEnabled && !bgMusicOscillator) startBgMusic(); }, { once: true });
+    </script>
+</body>
+</html>

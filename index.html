@@ -29,12 +29,14 @@
         }
         h1 { color: #ffd700; margin: 0 0 15px 0; font-size: 28px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); }
         .stat { font-size: 18px; color: #00ff88; margin: 10px 0; font-weight: bold; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; }
+        
+        /* ✅ TOMBOL SELALU AKTIF */
         .btn { 
             display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; 
             font-size: 16px; font-weight: bold; cursor: pointer; color: white; position: relative; z-index: 101; 
         }
         .btn:active { transform: scale(0.95); }
-        .btn-primary { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; }
+        .btn-primary { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; } /* KUNING TERANG */
         .btn-secondary { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); }
         .btn-danger { background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); }
         .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); }
@@ -81,7 +83,9 @@
                     <div id="wdProgressBar" style="height:100%; background:#00ff88; width:0%;"></div>
                 </div>
             </div>
-            <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS</button>
+            
+            <!-- ✅ TOMBOL BONUS & MAIN LANGSUNG AKTIF -->
+            <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS (200 KOIN)</button>
             <button class="btn btn-primary" onclick="startGame()">▶ MULAI MAIN</button>
             <button class="btn btn-wd" onclick="showWithdraw()">💸 TARIK SALDO</button>
         </div>
@@ -99,7 +103,7 @@
     <div id="bonusOverlay" class="center-overlay">
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
-            <h2 style="color:white;">🎁 BONUS HARIAN</h2>
+            <h2 style="color:white;"> BONUS HARIAN</h2>
             <div class="timer-text" id="bonusTimer">5</div>
             <button id="bonusBtn" class="overlay-btn" disabled>TUNGGU...</button>
         </div>
@@ -239,11 +243,10 @@
             btn.disabled = true;
             btn.classList.remove('ready');
             btn.innerText = "TUNGGU...";
-            btn.onclick = null; // Reset klik
+            btn.onclick = null;
 
             window.open('https://www.profitableratecpmnetwork.com/e2ij2swi?key=698a3fbdfb6f8c59827bbc600706ffe1', '_blank');
 
-            // Gunakan Waktu Asli (Timestamp) agar tidak macet saat tab di-background
             const waitTime = 5000; 
             const startTime = Date.now();
 

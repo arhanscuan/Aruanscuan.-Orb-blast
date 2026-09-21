@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mach Fruits - Tile Match</title>
     
-    <!-- ✅ IKLAN POPUNDER & SOCIAL BAR (ARUANSCUAN) -->
     <script src="https://pl31442264.profitableratecpmnetwork.com/a6/41/0d/a6410db42b68623bf2daa7e1fcff5615.js"></script>
     <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
 
@@ -16,7 +15,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
-        /* LANDING PAGE */
         #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
@@ -27,7 +25,6 @@
         .start-btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 18px 50px; border: none; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .start-btn:active { transform: scale(0.95); }
 
-        /* GAME UI */
         #topBar { background: rgba(255,255,255,0.95); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; }
         .info-box { display: flex; gap: 10px; align-items: center; }
         .level-badge { background: #ff4757; color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 #c0392b; }
@@ -76,7 +73,6 @@
 </head>
 <body>
 
-    <!-- LANDING PAGE -->
     <div id="landingPage">
         <div class="landing-logo">🍒</div>
         <h1 class="landing-title">MACH FRUITS</h1>
@@ -84,14 +80,13 @@
             <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;">📜 CARA BERMAIN</h3>
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk buah di papan untuk memindahkannya ke kotak bawah.</span></div>
             <div class="instruction-item"><span class="instruction-icon">3️⃣</span> <span>Kumpulkan <b>3 buah sama</b> di kotak bawah untuk dapat Koin!</span></div>
-            <div class="instruction-item"><span class="instruction-icon">️</span> <span>Jangan biarkan kotak bawah penuh (7 slot), atau Game Over!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan kotak bawah penuh (7 slot), atau Game Over!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Tonton iklan singkat untuk dapat hadiah & lanjut main.</span></div>
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
         <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 20px;">© 2024 Mach Fruits. All rights reserved.</p>
     </div>
 
-    <!-- GAME UI -->
     <div id="topBar">
         <div class="info-box">
             <div class="level-badge">Level <span id="levelDisplay">1</span></div>
@@ -113,11 +108,10 @@
 
     <div id="dockContainer"></div>
 
-    <!-- MODALS -->
     <div id="interstitialOverlay" class="interstitial-overlay">
         <div class="interstitial-box">
             <button class="emergency-close" onclick="forceCloseInterstitial()">✖</button>
-            <h2 id="interstitialTitle" style="color:white; margin-bottom:10px;"> HADIAH!</h2>
+            <h2 id="interstitialTitle" style="color:white; margin-bottom:10px;">🎁 HADIAH!</h2>
             <p id="interstitialDesc" style="color:#ddd; font-size:14px;">Tonton iklan singkat...</p>
             <div class="interstitial-timer" id="interstitialTimer">5</div>
             <button id="interstitialBtn" class="interstitial-btn" disabled>TUNGGU...</button>
@@ -147,7 +141,7 @@
 
     <div id="historyModal" class="modal">
         <div class="modal-box" style="max-height: 80vh; overflow-y: auto;">
-            <h2 style="color:#2ed573; margin-bottom:15px;"> Riwayat WD</h2>
+            <h2 style="color:#2ed573; margin-bottom:15px;">📜 Riwayat WD</h2>
             <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#aaa; text-align:center;">Memuat data...</p></div>
             <button class="btn-action btn-secondary" onclick="closeModal('historyModal')">TUTUP</button>
         </div>
@@ -165,7 +159,7 @@
         const ADS_REQUIRED = isFirstWD ? 30 : 50;
         let adsWatched = parseInt(localStorage.getItem('mach_ads_watched')) || 0;
         
-        const FRUITS = ['🍒', '🍓', '🍇', '🍊', '', '🍐', '🍑', '🍍', '🍉', ''];
+        const FRUITS = ['🍒', '🍓', '🍇', '🍊', '🍋', '🍐', '🍑', '🍍', '🍉', '🥝'];
         
         let boardTiles = []; let dockTiles = [];
         const MAX_DOCK = 7;
@@ -174,10 +168,8 @@
         let TILE_SIZE = 45; let CENTER_X = 0; let CENTER_Y = 0; let GAME_WIDTH = 0; let GAME_HEIGHT = 0;
         let audioCtx = null; let bgMusicOscillator = null;
 
-        // ✅ DIRECT LINK BARU (ARUANSCUAN)
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
 
-        // PLAYER ONLINE SYSTEM
         if (!playerId) {
             playerId = 'player_' + Date.now();
             localStorage.setItem('hans_player_id', playerId);
@@ -263,8 +255,16 @@
             playSound('click'); boardTiles = boardTiles.filter(t => t !== tile); tile.el.remove();
             let insertIdx = dockTiles.length; for(let i=0; i<dockTiles.length; i++) { if(dockTiles[i].type === tile.type) { insertIdx = i+1; break; } }
             dockTiles.splice(insertIdx, 0, tile); updateDockUI(); checkBlocked(); checkMatch();
-            if(dockTiles.length === 5) { setTimeout(() => showInterstitial('⚠️ KOTAK PENUH!', 'Tonton iklan untuk hapus 2 buah?', () => { dockTiles.splice(0, 2); updateDockUI(); }), 500); }
-            if(dockTiles.length >= MAX_DOCK) { playSound('gameover'); setTimeout(() => showInterstitial('💥 DOCK PENUH!', 'Tonton iklan untuk hapus 3 buah?', () => { dockTiles.splice(0, 3); updateDockUI(); }), 500); }
+            
+            // ✅ HAPUS IKLAN PERINGATAN SAAT DOCK === 5
+            // Iklan hanya muncul saat dock penuh (7 slot)
+            if(dockTiles.length >= MAX_DOCK) { 
+                playSound('gameover'); 
+                setTimeout(() => showInterstitial('💥 DOCK PENUH!', 'Tonton iklan untuk hapus 3 buah?', () => { 
+                    dockTiles.splice(0, 3); 
+                    updateDockUI(); 
+                }), 500); 
+            }
         }
 
         function checkMatch() {
@@ -276,8 +276,26 @@
                     let reward = 50; let currentRupiah = Math.floor(coins / 50);
                     if (currentRupiah < 100) reward = 50 * 5; else if (currentRupiah < 1000) reward = 50 * 2; else reward = Math.floor(50 * 0.2);
                     coins += reward; localStorage.setItem('hans_coins', coins); updateUI(); updateDockUI();
-                    if(matchCount % 2 === 0) { setTimeout(() => showInterstitial('🎁 HADIAH MATCH!', 'Kamu dapat bonus!', () => { coins += Math.floor(Math.random() * 201) + 100; localStorage.setItem('hans_coins', coins); updateUI(); }), 500); }
-                    if(boardTiles.length === 0 && dockTiles.length === 0) { playSound('levelup'); setTimeout(() => showInterstitial(' LEVEL SELESAI!', 'Klaim hadiah level!', () => { document.getElementById('nextLevelNum').innerText = currentLevel + 1; document.getElementById('levelModal').style.display = 'flex'; coins += 100; localStorage.setItem('hans_coins', coins); updateUI(); }), 500); }
+                    
+                    // ✅ IKLAN SETIAP 3 MATCH (BUKAN 2)
+                    if(matchCount % 3 === 0) { 
+                        setTimeout(() => showInterstitial('🎁 HADIAH MATCH!', 'Kamu dapat bonus!', () => { 
+                            coins += Math.floor(Math.random() * 201) + 100; 
+                            localStorage.setItem('hans_coins', coins); 
+                            updateUI(); 
+                        }), 500); 
+                    }
+                    
+                    if(boardTiles.length === 0 && dockTiles.length === 0) { 
+                        playSound('levelup'); 
+                        setTimeout(() => showInterstitial('🏆 LEVEL SELESAI!', 'Klaim hadiah level!', () => { 
+                            document.getElementById('nextLevelNum').innerText = currentLevel + 1; 
+                            document.getElementById('levelModal').style.display = 'flex'; 
+                            coins += 100; 
+                            localStorage.setItem('hans_coins', coins); 
+                            updateUI(); 
+                        }), 500); 
+                    }
                     break;
                 }
             }
@@ -303,7 +321,7 @@
             historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#aaa; text-align:center;">Belum ada riwayat.</p>'; return; }
                 snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = '⏳ Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = '↩️ Refund'; statusClass = 'status-refunded'; }
-                list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div style="font-size:13px; color:#7f8c8d;">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source"> Mach Fruits</span></div>`; });
+                list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div style="font-size:13px; color:#7f8c8d;">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍒 Mach Fruits</span></div>`; });
             }, err => { list.innerHTML = '<p style="color:#ff4757; text-align:center;">Gagal memuat riwayat.</p>'; });
         }
         window.addEventListener('resize', () => { initGame(); });

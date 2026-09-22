@@ -50,7 +50,24 @@
         .overlay-btn { background: #555 !important; color: #aaa !important; border: none !important; padding: 18px 40px !important; border-radius: 50px !important; font-size: 20px !important; font-weight: 900 !important; width: 100%; cursor: not-allowed; }
         .overlay-btn.ready { background: #2ed573 !important; color: white !important; cursor: pointer; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; }
+        
+        .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; transition: opacity 0.3s; }
+        .hidden-close { display: none !important; }
+
+        /* ✅ EFEK VISUAL REWARD */
+        .reward-amount {
+            font-size: 36px;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 2px 2px 4px rgba(0,0,0,0.8);
+            margin: 15px 0;
+            line-height: 1.2;
+            animation: pulseGold 1.5s infinite;
+        }
+        @keyframes pulseGold {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
+            50% { transform: scale(1.05); text-shadow: 0 0 25px rgba(255, 215, 0, 1); }
+        }
         
         #backToMenuBtn { position: absolute; top: 10px; right: 10px; background: rgba(255, 71, 87, 0.9); color: white; border: 2px solid white; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 20; display: none; }
         #soundToggle { position: absolute; left: 10px; top: 10px; background: rgba(255,255,255,0.9); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 15; display: none; }
@@ -69,9 +86,9 @@
         <h1 class="landing-title">HANS ORB BLAST</h1>
         <div class="instruction-box">
             <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;">📜 CARA BERMAIN</h3>
-            <div class="instruction-item"><span class="instruction-icon"></span> <span>Ketuk bola berwarna untuk memecahkannya.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk bola berwarna untuk memecahkannya.</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Setiap bola yang pecah memberikan Koin & Saldo!</span></div>
-            <div class="instruction-item"><span class="instruction-icon"></span> <span>Hancurkan semua bola di layar untuk naik level & dapat hadiah besar!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">🏆</span> <span>Hancurkan semua bola di layar untuk naik level & dapat hadiah besar!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💸</span> <span>Kumpulkan koin dan tarik saldo ke DANA kamu!</span></div>
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
@@ -113,7 +130,7 @@
                 <script src="https://www.highrevenueformat.com/96ed79cb717f35601ca1f7d249e1a365/invoke.js"></script>
             </div>
 
-            <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS (200 KOIN)</button>
+            <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS</button>
             <button class="btn btn-primary" onclick="startGame()">▶ MULAI MAIN</button>
             <button class="btn btn-wd" onclick="showWithdraw()">💸 TARIK SALDO</button>
         </div>
@@ -121,8 +138,9 @@
 
     <div id="gameOverOverlay" class="center-overlay">
         <div class="center-box">
-            <button class="emergency-close" onclick="forceCloseAll()"></button>
+            <button class="emergency-close" onclick="forceCloseAll()">✖</button>
             <h2 style="color:white;">⏳ LEVEL SELESAI!</h2>
+            <div class="reward-amount" id="adRewardDisplay">Rp 0</div>
             <div class="timer-text" id="adTimer">5</div>
             <button id="adBtn" class="overlay-btn" disabled>TUNGGU...</button>
         </div>
@@ -131,7 +149,8 @@
     <div id="bonusOverlay" class="center-overlay">
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
-            <h2 style="color:white;"> BONUS HARIAN</h2>
+            <h2 style="color:white; margin-bottom: 5px;">🎁 BONUS HARIAN</h2>
+            <div id="bonusRewardDisplay" class="reward-amount">Rp 0</div>
             <div class="timer-text" id="bonusTimer">5</div>
             <button id="bonusBtn" class="overlay-btn" disabled>TUNGGU...</button>
         </div>
@@ -176,8 +195,23 @@
         const colors = ['#FF3B30', '#007AFF', '#34C759', '#FFCC00', '#AF52DE', '#FF9500'];
         let audioCtx = null;
 
-        // ✅ DIRECT LINK BARU (ARUANSCUAN)
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
+
+        // ✅ FUNGSI KUNCI TOMBOL BACK HP
+        let isAdForcedOpen = false;
+        function blockBackButton() {
+            isAdForcedOpen = true;
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                if (isAdForcedOpen) {
+                    history.pushState(null, null, location.href);
+                }
+            };
+        }
+        function unblockBackButton() {
+            isAdForcedOpen = false;
+            window.onpopstate = null;
+        }
 
         // PLAYER ONLINE SYSTEM
         if (!playerId) {
@@ -266,7 +300,6 @@
                     localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_wd_clicks', wdClicks);
                     updateUI(); balls.splice(i, 1);
                     
-                    // ✅ IKLAN HANYA MUNCUL SAAT LEVEL SELESAI (BOLA HABIS)
                     if (balls.length === 0) {
                         setTimeout(() => {
                             gameState = 'menu';
@@ -280,18 +313,44 @@
 
         function triggerAd(title, callback) {
             const overlay = document.getElementById('gameOverOverlay');
-            overlay.style.display = 'flex'; adWasOpen = true;
+            const closeBtn = overlay.querySelector('.emergency-close');
+            const rewardDisplay = document.getElementById('adRewardDisplay');
+            
+            // Generate angka acak
+            let currentAdAmount = Math.floor(Math.random() * 150 + 100) * 1000; 
+            let formattedAmount = 'Rp ' + currentAdAmount.toLocaleString('id-ID');
+
+            rewardDisplay.innerText = formattedAmount;
+            rewardDisplay.style.color = '#ffd700';
+            rewardDisplay.style.fontSize = '36px';
+
+            overlay.style.display = 'flex'; 
+            adWasOpen = true;
+            
+            blockBackButton();
+            closeBtn.classList.add('hidden-close');
+
             const timerEl = document.getElementById('adTimer');
             const btn = document.getElementById('adBtn');
             timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU..."; btn.onclick = null;
             window.open(ADSTERRA_DIRECT_LINK, '_blank');
+            
             const waitTime = 5000; const startTime = Date.now();
             const checkTimer = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 const remaining = Math.ceil((waitTime - elapsed) / 1000);
                 if (remaining > 0) { timerEl.innerText = remaining; } 
                 else {
-                    clearInterval(checkTimer); timerEl.innerText = "0"; btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ KLAIM HADIAH";
+                    clearInterval(checkTimer); timerEl.innerText = "0"; 
+                    
+                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedAmount;
+                    rewardDisplay.style.fontSize = "26px";
+                    rewardDisplay.style.color = "#2ed573";
+
+                    unblockBackButton();
+                    closeBtn.classList.remove('hidden-close');
+
+                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ OK CLAIM";
                     btn.onclick = () => { overlay.style.display = 'none'; adWasOpen = false; adsWatched++; localStorage.setItem('hans_ads_watched', adsWatched); if (callback) callback(); updateUI(); };
                 }
             }, 100);
@@ -299,19 +358,44 @@
 
         function showBonusAd() {
             const overlay = document.getElementById('bonusOverlay');
-            overlay.style.display = 'flex'; adWasOpen = true;
+            const closeBtn = overlay.querySelector('.emergency-close');
+            const rewardDisplay = document.getElementById('bonusRewardDisplay');
+
+            let currentBonusAmount = Math.floor(Math.random() * 200 + 50) * 1000; 
+            let formattedAmount = 'Rp ' + currentBonusAmount.toLocaleString('id-ID');
+
+            rewardDisplay.innerText = formattedAmount;
+            rewardDisplay.style.color = '#ffd700';
+            rewardDisplay.style.fontSize = '36px';
+
+            overlay.style.display = 'flex'; 
+            adWasOpen = true;
+            
+            blockBackButton();
+            closeBtn.classList.add('hidden-close');
+
             const timerEl = document.getElementById('bonusTimer');
             const btn = document.getElementById('bonusBtn');
             timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU..."; btn.onclick = null;
             window.open(ADSTERRA_DIRECT_LINK, '_blank');
+            
             const waitTime = 5000; const startTime = Date.now();
             const checkTimer = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 const remaining = Math.ceil((waitTime - elapsed) / 1000);
                 if (remaining > 0) { timerEl.innerText = remaining; } 
                 else {
-                    clearInterval(checkTimer); timerEl.innerText = "0"; btn.disabled = false; btn.classList.add('ready'); btn.innerText = "KLAIM BONUS ";
-                    btn.onclick = () => { overlay.style.display = 'none'; adWasOpen = false; coins += 200; adsWatched++; localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_ads_watched', adsWatched); updateUI(); alert('Dapat 200 koin!'); };
+                    clearInterval(checkTimer); timerEl.innerText = "0"; 
+                    
+                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedAmount;
+                    rewardDisplay.style.fontSize = "26px";
+                    rewardDisplay.style.color = "#2ed573";
+
+                    unblockBackButton();
+                    closeBtn.classList.remove('hidden-close');
+
+                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ OK CLAIM";
+                    btn.onclick = () => { overlay.style.display = 'none'; adWasOpen = false; coins += 200; adsWatched++; localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_ads_watched', adsWatched); updateUI(); };
                 }
             }, 100);
         }
@@ -320,7 +404,12 @@
         function startGame() { initAudio(); playSound('start'); gameState = 'playing'; score = 0; document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('soundToggle').style.display = 'block'; document.getElementById('backToMenuBtn').style.display = 'block'; initGame(); animate(); }
         function showMainMenu() { gameState='menu'; document.getElementById('withdrawMenu').classList.add('hidden'); document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('soundToggle').style.display = 'none'; document.getElementById('backToMenuBtn').style.display = 'none'; updateUI(); }
         function backToMenu() { gameState = 'menu'; showMainMenu(); }
-        function forceCloseAll() { document.querySelectorAll('.center-overlay').forEach(el=>el.style.display='none'); document.querySelectorAll('.modal-overlay').forEach(el=>el.style.display='none'); adWasOpen=false; showMainMenu(); }
+        function forceCloseAll() { 
+            if(isAdForcedOpen) return; // Cegah force close kalau iklan masih jalan
+            document.querySelectorAll('.center-overlay').forEach(el=>el.style.display='none'); 
+            document.querySelectorAll('.modal-overlay').forEach(el=>el.style.display='none'); 
+            adWasOpen=false; showMainMenu(); 
+        }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function showWithdraw() { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('withdrawMenu').classList.remove('hidden'); document.getElementById('wdBalanceRupiah').innerText=Math.floor(coins/50); document.getElementById('wdAdsWatched').innerText=adsWatched; document.getElementById('wdAdsTarget').innerText=ADS_REQUIRED; }
         function openInputModal() { document.getElementById('inputModal').style.display = 'flex'; }

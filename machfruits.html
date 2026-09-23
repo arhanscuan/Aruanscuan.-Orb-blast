@@ -14,8 +14,17 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); }
+        body { 
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); 
+            font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            touch-action: none; /* Mencegah scroll/zoom tidak sengaja */
+        }
         
+        /* LANDING PAGE */
         #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
@@ -26,6 +35,7 @@
         .start-btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 18px 50px; border: none; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .start-btn:active { transform: scale(0.95); }
 
+        /* TOP BAR */
         #topBar { background: rgba(255,255,255,0.95); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; }
         .info-box { display: flex; gap: 10px; align-items: center; }
         .level-badge { background: #ff4757; color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 #c0392b; }
@@ -33,26 +43,44 @@
         .btn-wd { background: #2ed573; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 #26af61; }
         .btn-history { background: #007BFF; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 #0056b3; margin-left: 5px; }
         
-        #gameArea { flex: 1; position: relative; overflow: hidden; background: rgba(0,0,0,0.05); }
+        /* GAME AREA - DIBERI PADDING BAWAR AGAR BUAH TIDAK SPAWN DI BELAKANG DOCK */
+        #gameArea { 
+            flex: 1; 
+            position: relative; 
+            overflow: hidden; 
+            background: rgba(0,0,0,0.05); 
+            padding-bottom: 130px; /* ✅ Jarak aman untuk dock melayang */
+        }
         .tile { position: absolute; background: white; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 6px 0 #bdc3c7, 0 8px 10px rgba(0,0,0,0.2); border: 2px solid #fff; transition: transform 0.1s, filter 0.2s; user-select: none; }
         .tile:active { transform: scale(0.95); }
         .tile.blocked { filter: brightness(0.5) grayscale(0.8); cursor: not-allowed; box-shadow: 0 2px 0 #7f8c8d; border-color: #e74c3c; }
         
-        /* ✅ FIX DOCK: DINAIIKAN DAN DIBERI PADDING AMAN */
+        /* ✅ FIX DOCK: MELAYANG DI ATAS AREA AMAN (TIDAK AKAN KETUTUP BROWSER/IKLAN) */
         #dockContainer { 
-            background: rgba(255,255,255,0.95); 
-            padding: 15px 10px 25px 10px; /* Padding bawah ditambah */
-            display: flex; justify-content: center; gap: 6px; 
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.1); z-index: 10; 
-            margin-bottom: 10px; /* Jarak aman dari tepi bawah HP */
+            position: fixed;
+            bottom: 15vh; /* ✅ Dinaikan 15% dari bawah layar */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 380px;
+            background: rgba(255,255,255,0.95);
+            padding: 12px 8px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            border: 2px solid #ffd700;
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
         }
-        .dock-slot { width: 45px; height: 45px; background: #ecf0f1; border-radius: 10px; border: 2px dashed #bdc3c7; display: flex; justify-content: center; align-items: center; }
-        .dock-slot .tile { position: static; box-shadow: 0 2px 0 #bdc3c7; border: none; width: 40px; height: 40px; font-size: 24px; }
+        .dock-slot { width: 42px; height: 42px; background: #ecf0f1; border-radius: 10px; border: 2px dashed #bdc3c7; display: flex; justify-content: center; align-items: center; }
+        .dock-slot .tile { position: static; box-shadow: 0 2px 0 #bdc3c7; border: none; width: 38px; height: 38px; font-size: 22px; }
 
         #powerUps { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 10px; z-index: 5; }
         .power-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; display: flex; justify-content: center; align-items: center; }
         .power-badge { position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; border: 2px solid white; }
 
+        /* MODAL & OVERLAYS */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: white; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 320px; border: 4px solid #ffd700; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
         .btn-action { background: #2ed573; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 16px; font-weight: bold; margin-top: 10px; cursor: pointer; width: 100%; }
@@ -60,7 +88,14 @@
         .btn-next { background: #007BFF; }
         .btn-secondary { background: #95a5a6; }
         
-        .interstitial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        /* ✅ INTERSTITIAL AD OVERLAY - ANTI TAP OUTSIDE */
+        .interstitial-overlay { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: rgba(0,0,0,0.95); 
+            z-index: 99999999; 
+            display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; 
+            pointer-events: auto; /* Mencegah klik tembus ke belakang */
+        }
         .interstitial-box { background: linear-gradient(135deg, #667eea, #764ba2); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); position: relative; }
         .interstitial-timer { font-size: 56px; font-weight: bold; color: #ffd700; margin: 20px 0; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
         .interstitial-btn { background: #555; color: #aaa; border: none; padding: 18px 40px; border-radius: 50px; font-size: 20px; font-weight: bold; width: 100%; cursor: not-allowed; transition: all 0.3s; }
@@ -69,6 +104,7 @@
         
         #soundToggle { position: absolute; left: 10px; top: 10px; background: rgba(255,255,255,0.9); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 5; }
         .emergency-close { position: absolute; top: 10px; right: 15px; background: rgba(255, 0, 0, 0.8); color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer; z-index: 10000001 !important; }
+        .hidden-close { display: none !important; }
 
         .wd-input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
         .history-item { background: #f8f9fa; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #ffd700; }
@@ -82,7 +118,7 @@
 <body>
 
     <div id="landingPage">
-        <div class="landing-logo"></div>
+        <div class="landing-logo">🍒</div>
         <h1 class="landing-title">MACH FRUITS</h1>
         <div class="instruction-box">
             <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;"> CARA BERMAIN</h3>
@@ -107,15 +143,17 @@
     </div>
 
     <div id="gameArea">
-        <button id="soundToggle" onclick="toggleSound()"></button>
+        <button id="soundToggle" onclick="toggleSound()">🔊</button>
         <div id="board"></div>
         <div id="powerUps">
             <button class="power-btn" onclick="useShuffle()"><span class="power-badge" id="shuffleCount">3</span>🔀</button>
         </div>
     </div>
 
+    <!-- DOCK MELAYANG -->
     <div id="dockContainer"></div>
 
+    <!-- IKLAN OVERLAY -->
     <div id="interstitialOverlay" class="interstitial-overlay">
         <div class="interstitial-box">
             <button class="emergency-close hidden-close" id="adCloseBtn" onclick="forceCloseInterstitial()">✖</button>
@@ -129,7 +167,7 @@
     <div id="levelModal" class="modal">
         <div class="modal-box">
             <h2 style="color:#2ed573; margin-bottom:10px;">🎉 LEVEL SELESAI!</h2>
-            <p style="font-size:40px; margin:10px 0;">🏆</p>
+            <p style="font-size:40px; margin:10px 0;"></p>
             <p>Bonus +100 Koin!</p>
             <button class="btn-action btn-next" onclick="nextLevel()">▶ LANJUT LEVEL <span id="nextLevelNum">2</span></button>
         </div>
@@ -139,7 +177,7 @@
         <div class="modal-box">
             <h2 style="color:#2ed573;">💸 Tarik Saldo</h2>
             <p style="margin:10px 0; font-size:14px;">Saldo: Rp <span id="wdSaldo">0</span></p>
-            <p style="margin:10px 0; font-size:14px; color:#ff4757;">📺 Iklan: <span id="wdAdsCount">0</span>/<span id="wdAdsTarget">30</span></p>
+            <p style="margin:10px 0; font-size:14px; color:#ff4757;"> Iklan: <span id="wdAdsCount">0</span>/<span id="wdAdsTarget">30</span></p>
             <input type="number" id="wdDana" placeholder="Nomor DANA (min 10 digit)" class="wd-input">
             <input type="text" id="wdName" placeholder="Nama Pemilik (min 3 huruf)" class="wd-input">
             <button class="btn-action" onclick="processWD()">KIRIM PERMINTAAN</button>
@@ -167,7 +205,7 @@
         const ADS_REQUIRED = isFirstWD ? 30 : 50;
         let adsWatched = parseInt(localStorage.getItem('mach_ads_watched')) || 0;
         
-        const FRUITS = ['🍒', '🍓', '', '🍊', '🍋', '🍐', '🍑', '🍍', '🍉', ''];
+        const FRUITS = ['🍒', '🍓', '🍇', '', '🍋', '🍐', '🍑', '🍍', '', '🥝'];
         
         let boardTiles = []; let dockTiles = [];
         const MAX_DOCK = 7;
@@ -175,18 +213,19 @@
         let adWasOpen = false; let interstitialInterval = null; let historyListener = null;
         let TILE_SIZE = 45; let CENTER_X = 0; let CENTER_Y = 0; let GAME_WIDTH = 0; let GAME_HEIGHT = 0;
         let audioCtx = null; let bgMusicOscillator = null;
-        let isAdPlaying = false; // ✅ STATUS KUNCI TOMBOL BACK
+        let isAdPlaying = false;
 
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
 
-        // ✅ SISTEM KUNCI TOMBOL BACK HP
+        // ✅ DOUBLE LOCK BACK BUTTON
         function lockBackButton() {
             isAdPlaying = true;
             history.pushState(null, null, location.href);
+            history.pushState(null, null, location.href); // Tumpuk 2x biar susah ditembus
             window.onpopstate = function () {
                 if (isAdPlaying) {
                     history.pushState(null, null, location.href);
-                    // Pemain tekan back, tapi ditolak. Timer tetap jalan.
+                    history.pushState(null, null, location.href);
                 }
             };
         }
@@ -215,9 +254,9 @@
             else if(type === 'start') { [440, 554.37, 659.25].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.08); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.08); o.stop(now + 0.3); }); }
         }
         function startBgMusic() { if(!soundEnabled || !audioCtx || bgMusicOscillator) return; bgMusicOscillator = audioCtx.createOscillator(); const bgMusicGain = audioCtx.createGain(); bgMusicOscillator.connect(bgMusicGain); bgMusicGain.connect(audioCtx.destination); bgMusicOscillator.frequency.value = 220; bgMusicOscillator.type = 'sine'; bgMusicGain.gain.value = 0.05; bgMusicOscillator.start(); }
-        function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').innerText = soundEnabled ? '🔊' : '🔇'; if(soundEnabled) { initAudio(); startBgMusic(); } else { if(bgMusicOscillator) { bgMusicOscillator.stop(); bgMusicOscillator = null; } } }
+        function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').innerText = soundEnabled ? '🔊' : ''; if(soundEnabled) { initAudio(); startBgMusic(); } else { if(bgMusicOscillator) { bgMusicOscillator.stop(); bgMusicOscillator = null; } } }
 
-        // ✅ FUNGSI IKLAN PAKSA 8 DETIK (SIMULASI SINYAL ADSTERRA)
+        // ✅ FUNGSI IKLAN PAKSA 8 DETIK (ANTI FORCE CLOSE)
         function showInterstitial(title, desc, callback) {
             const overlay = document.getElementById('interstitialOverlay');
             document.getElementById('interstitialTitle').innerText = title;
@@ -228,16 +267,14 @@
             const btn = document.getElementById('interstitialBtn');
             const closeBtn = document.getElementById('adCloseBtn');
 
-            // ✅ KUNCI TOMBOL BACK & SEMBUNYIKAN TOMBOL X
             lockBackButton();
-            closeBtn.style.display = 'none'; 
+            closeBtn.classList.add('hidden-close'); 
 
             timerEl.innerText = "8"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU IKLAN..."; btn.onclick = null;
             
-            // Buka Iklan Adsterra
             window.open(ADSTERRA_DIRECT_LINK, '_blank');
             
-            let timeLeft = 8; // ✅ TIMER 8 DETIK (BIAR ADSTERRA NGITUNG)
+            let timeLeft = 8; 
             interstitialInterval = setInterval(() => {
                 timeLeft--;
                 timerEl.innerText = timeLeft;
@@ -245,9 +282,8 @@
                 if (timeLeft <= 0) {
                     clearInterval(interstitialInterval); timerEl.innerText = "0"; 
                     
-                    // ✅ SINYAL "SELESAI" DITERIMA: BUKA KUNCI & AKTIFKAN TOMBOL
                     unlockBackButton();
-                    closeBtn.style.display = 'block'; // Munculkan tombol X lagi
+                    closeBtn.classList.remove('hidden-close');
                     
                     btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ KLAIM HADIAH";
                     btn.onclick = () => { 
@@ -262,9 +298,10 @@
             }, 1000);
         }
         function forceCloseInterstitial() { 
+            if(isAdPlaying) return; // Cegah close paksa saat timer jalan
             document.getElementById('interstitialOverlay').style.display = 'none'; 
             clearInterval(interstitialInterval); 
-            unlockBackButton(); // Pastikan back button kebuka kalau dipaksa close
+            unlockBackButton(); 
             adWasOpen = false; 
         }
 
@@ -272,7 +309,7 @@
         function initGame() {
             initAudio(); playSound('start'); startBgMusic(); matchCount = 0;
             const screenWidth = window.innerWidth; const screenHeight = window.innerHeight;
-            GAME_WIDTH = screenWidth; GAME_HEIGHT = screenHeight - 160; // ✅ DINAIIKAN LAGI
+            GAME_WIDTH = screenWidth; GAME_HEIGHT = screenHeight - 160; 
             TILE_SIZE = Math.min(48, Math.floor((screenWidth - 40) / 6));
             CENTER_X = screenWidth / 2; CENTER_Y = GAME_HEIGHT / 2;
             document.getElementById('board').innerHTML = ''; boardTiles = []; dockTiles = [];
@@ -281,7 +318,7 @@
         function createDockSlots() { const dock = document.getElementById('dockContainer'); dock.innerHTML = ''; for(let i=0; i<MAX_DOCK; i++) { let slot = document.createElement('div'); slot.className = 'dock-slot'; slot.id = 'slot'+i; dock.appendChild(slot); } }
         function generateLevel() {
             document.getElementById('levelDisplay').innerText = currentLevel; 
-            localStorage.setItem('tile_level', currentLevel); // ✅ PASTIKAN LEVEL TERSIMPAN
+            localStorage.setItem('tile_level', currentLevel); 
             let numTypes = Math.min(FRUITS.length, 3 + currentLevel); let types = [];
             for(let i=0; i<numTypes; i++) { types.push(FRUITS[i], FRUITS[i], FRUITS[i]); }
             if(currentLevel > 5) { for(let i=0; i<3; i++) { let randomFruit = FRUITS[Math.floor(Math.random() * FRUITS.length)]; types.push(randomFruit, randomFruit, randomFruit); } }
@@ -313,7 +350,7 @@
             
             if(dockTiles.length >= MAX_DOCK) { 
                 playSound('gameover'); 
-                setTimeout(() => showInterstitial('💥 DOCK PENUH!', 'Tonton iklan untuk hapus 3 buah?', () => { 
+                setTimeout(() => showInterstitial(' DOCK PENUH!', 'Tonton iklan untuk hapus 3 buah?', () => { 
                     dockTiles.splice(0, 3); 
                     updateDockUI(); 
                 }), 500); 
@@ -331,7 +368,7 @@
                     coins += reward; localStorage.setItem('hans_coins', coins); updateUI(); updateDockUI();
                     
                     if(matchCount % 3 === 0) { 
-                        setTimeout(() => showInterstitial('🎁 HADIAH MATCH!', 'Kamu dapat bonus!', () => { 
+                        setTimeout(() => showInterstitial(' HADIAH MATCH!', 'Kamu dapat bonus!', () => { 
                             coins += Math.floor(Math.random() * 201) + 100; 
                             localStorage.setItem('hans_coins', coins); 
                             updateUI(); 
@@ -340,11 +377,10 @@
                     
                     if(boardTiles.length === 0 && dockTiles.length === 0) { 
                         playSound('levelup'); 
-                        // ✅ SIMPAN LEVEL SEBELUM IKLAN
                         currentLevel++;
                         localStorage.setItem('tile_level', currentLevel);
                         
-                        setTimeout(() => showInterstitial('🏆 LEVEL SELESAI!', 'Klaim hadiah level!', () => { 
+                        setTimeout(() => showInterstitial(' LEVEL SELESAI!', 'Klaim hadiah level!', () => { 
                             document.getElementById('nextLevelNum').innerText = currentLevel; 
                             document.getElementById('levelModal').style.display = 'flex'; 
                             coins += 100; 
@@ -364,19 +400,19 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function processWD() {
             let dana = document.getElementById('wdDana').value; let name = document.getElementById('wdName').value; let amount = Math.floor(coins/50);
-            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < ADS_REQUIRED) { alert(`🔒 Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
+            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < ADS_REQUIRED) { alert(` Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
             db.collection('withdrawals').add({ playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: amount, amountCoins: coins, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending', source: 'MachFruits', gameName: 'Mach Fruits', adsWatched: ADS_REQUIRED }).then(() => {
                 coins = 0; adsWatched = 0; localStorage.setItem('hans_coins', 0); localStorage.setItem('mach_ads_watched', 0);
                 if(isFirstWD) { localStorage.setItem('hans_first_wd_done', 'true'); isFirstWD = false; }
                 updateUI(); alert('✅ WD Terkirim! Tunggu diproses Admin.'); closeModal('wdModal');
-            }).catch(err => alert(' Error: ' + err.message));
+            }).catch(err => alert('❌ Error: ' + err.message));
         }
         function showHistory() {
             document.getElementById('historyModal').style.display = 'flex'; const list = document.getElementById('historyList');
             if (historyListener) historyListener();
             historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#aaa; text-align:center;">Belum ada riwayat.</p>'; return; }
-                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = '⏳ Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = '↩️ Refund'; statusClass = 'status-refunded'; }
+                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = ' Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = '↩️ Refund'; statusClass = 'status-refunded'; }
                 list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div style="font-size:13px; color:#7f8c8d;">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍒 Mach Fruits</span></div>`; });
             }, err => { list.innerHTML = '<p style="color:#ff4757; text-align:center;">Gagal memuat riwayat.</p>'; });
         }

@@ -16,6 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
         
+        /* LANDING PAGE */
         #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
@@ -26,6 +27,7 @@
         .start-btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 18px 50px; border: none; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .start-btn:active { transform: scale(0.95); }
 
+        /* GAME UI */
         #gameContainer { display: none; height: 100vh; flex-direction: column; }
         #gameArea { flex: 1; position: relative; margin: 10px; border-radius: 15px; overflow: hidden; border: 4px solid #5d3a1a; box-shadow: 0 0 25px rgba(0,0,0,0.6); touch-action: none; background: #87CEEB; }
         canvas { display: block; width: 100%; height: 100%; }
@@ -59,7 +61,6 @@
         .interstitial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; pointer-events: auto; }
         .interstitial-box { background: linear-gradient(135deg, #667eea, #764ba2); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); position: relative; }
         
-        /* ✅ TAMPILAN REWARD VISUAL */
         .reward-amount {
             font-size: 36px; font-weight: 900; color: #ffd700;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 2px 2px 4px rgba(0,0,0,0.8);
@@ -116,7 +117,7 @@
                 <div style="display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;">
                     <button class="btn btn-bonus" onclick="showBonusAd()">🎁 BONUS</button>
                     <button class="btn btn-wd" onclick="showWithdraw()">💸 WD</button>
-                    <button class="btn btn-history" onclick="showHistory()"></button>
+                    <button class="btn btn-history" onclick="showHistory()">📜</button>
                 </div>
             </div>
             <div class="progress-container"><div class="progress-bar" id="wdProgressBar"></div></div>
@@ -127,9 +128,8 @@
     <!-- MODAL IKLAN PAKSA (UNIFIED) -->
     <div id="interstitialOverlay" class="interstitial-overlay">
         <div class="interstitial-box">
-            <button class="emergency-close hidden-close" id="adCloseBtn" onclick="forceCloseAds()"></button>
+            <button class="emergency-close hidden-close" id="adCloseBtn" onclick="forceCloseAds()">✖</button>
             <h2 id="interstitialTitle" style="color:white; margin-bottom:5px;">🎁 HADIAH!</h2>
-            <!-- Tampilan Reward Visual -->
             <div id="fusionRewardDisplay" class="reward-amount">Rp 0</div>
             <p id="interstitialDesc" style="color:#ddd; font-size:14px;">Tonton iklan singkat...</p>
             <div class="interstitial-timer" id="interstitialTimer">8</div>
@@ -177,7 +177,6 @@
 
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
 
-        // ✅ SISTEM KUNCI TOMBOL BACK HP (DOUBLE LOCK)
         function lockBackButton() {
             isAdPlaying = true;
             history.pushState(null, null, location.href);
@@ -227,7 +226,7 @@
             historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#aaa; text-align:center;">Belum ada riwayat WD.</p>'; return; }
                 snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = '⏳ Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = '↩️ Refund'; statusClass = 'status-refunded'; }
-                list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br> ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source"> Fusion Fruit</span></div>`; });
+                list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍉 Fusion Fruit</span></div>`; });
             }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
         }
 
@@ -235,7 +234,7 @@
 
         function processWD() {
             let dana = document.getElementById('wdDana').value; let name = document.getElementById('wdName').value; let amount = Math.floor(coins/50);
-            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < ADS_REQUIRED) { alert(`🔒 Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
+            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < ADS_REQUIRED) { alert(` Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
             db.collection('withdrawals').add({ playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: amount, amountCoins: coins, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending', source: 'FusionFruit', gameName: 'Fusion Fruit', adsWatched: ADS_REQUIRED }).then(() => {
                 coins = 0; adsWatched = 0; wdClicks = 0; localStorage.setItem('hans_coins', 0); localStorage.setItem('fusion_ads_watched', 0); localStorage.setItem('hans_wd_clicks', 0);
                 if(isFirstWD) { localStorage.setItem('hans_first_wd_done', 'true'); isFirstWD = false; }
@@ -243,13 +242,11 @@
             }).catch(err => alert('❌ Error: ' + err.message));
         }
 
-        // ✅ FUNGSI IKLAN PAKSA 8 DETIK (REWARD SETELAH TIMER)
         function showInterstitial(title, visualRewardText, callback) {
             const overlay = document.getElementById('interstitialOverlay');
             const rewardDisplay = document.getElementById('fusionRewardDisplay');
             document.getElementById('interstitialTitle').innerText = title;
             
-            // Tampilkan angka Rupiah berdenyut emas
             rewardDisplay.innerText = visualRewardText;
             rewardDisplay.style.color = '#ffd700';
             rewardDisplay.style.fontSize = '36px';
@@ -275,7 +272,6 @@
                 if (timeLeft <= 0) {
                     clearInterval(interstitialInterval); timerEl.innerText = "0";
                     
-                    // ✅ UBAH TAMPILAN JADI HIJAU SETELAH TIMER SELESAI
                     rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + visualRewardText;
                     rewardDisplay.style.fontSize = "26px";
                     rewardDisplay.style.color = "#2ed573";
@@ -288,7 +284,6 @@
                         overlay.style.display = 'none'; adWasOpen = false;
                         adsWatched++;
                         localStorage.setItem('fusion_ads_watched', adsWatched);
-                        // ✅ REWARD DI BERIKAN DI SINI (SETELAH TIMER & KLIK)
                         if(callback) callback();
                         updateUI();
                     };
@@ -297,13 +292,13 @@
         }
 
         function showBonusAd() {
-            showInterstitial(' BONUS HARIAN', 'Rp 150.000', () => {
+            showInterstitial('🎁 BONUS HARIAN', 'Rp 150.000', () => {
                 coins += 200;
                 updatePlayerCoins(200);
             });
         }
 
-        // GAME LOGIC (SUIKA STYLE)
+        // GAME LOGIC
         const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
         let balls = [], isAiming = false, aimX = 0, nextBallRadius = 15, isDropping = false, isGameOver = false, DANGER_LINE_Y = 100;
         
@@ -356,9 +351,18 @@
             }
         }
 
-        function restartGame() { balls = []; maxUnlockedIndex = 0; localStorage.setItem('fusion_max_unlocked', 0); nextBallRadius = 15; aimX = canvas.width / 2; isGameOver = false; isDropping = false; mergeCount = 0; }
+        // ✅ FIX: RESTART GAME TIDAK MERESPET UNLOCKED FRUITS (LEVEL)
+        function restartGame() { 
+            balls = []; 
+            // maxUnlockedIndex = 0; // DIHAPUS BIAR PROGRESS TERSIMPAN
+            // localStorage.setItem('fusion_max_unlocked', 0); // DIHAPUS
+            nextBallRadius = 15; 
+            aimX = canvas.width / 2; 
+            isGameOver = false; 
+            isDropping = false; 
+            mergeCount = 0; 
+        }
 
-        // ✅ LOGIKA FUSION + IKLAN SETIAP 3 KALI GABUNG
         function checkMerges() {
             let merged = new Set();
             for (let i = 0; i < balls.length; i++) {
@@ -373,7 +377,6 @@
                         balls.push({ x: newX, y: newY, radius: newR, emoji: nf.emoji, color: nf.color, vx: 0, vy: 0, mass: newR, aboveLineTime: 0 });
                         unlockFruit(newR); 
                         
-                        // ✅ HITUNG FUSION
                         mergeCount++;
                         
                         let baseReward = newR * 5; let currentRupiah = Math.floor(coins / 50); let reward = baseReward;
@@ -382,12 +385,11 @@
                         localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_wd_clicks', wdClicks);
                         updatePlayerCoins(reward); updateUI();
 
-                        // ✅ TRIGGER IKLAN SETIAP 3 KALI FUSION
                         if (mergeCount % 3 === 0) {
-                            let visualReward = 'Rp ' + (Math.floor(Math.random() * 150) + 100) * 1000; // Rp 100.000 - 250.000
+                            let visualReward = 'Rp ' + (Math.floor(Math.random() * 150) + 100) * 1000;
                             setTimeout(() => {
                                 showInterstitial('🎉 FUSION HEBAT!', visualReward, () => {
-                                    coins += 100; // Reward koin setelah timer selesai
+                                    coins += 100;
                                     updatePlayerCoins(100);
                                 });
                             }, 500);
@@ -442,19 +444,29 @@
             ctx.strokeStyle = 'rgba(255, 82, 82, 0.8)'; ctx.lineWidth = 3; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.setLineDash([]);
         }
 
+        // ✅ FIX: GAMBAR BUAH LEBIH REALISTIS (EMOJI BESAR + OUTLINE PUTIH)
         function drawFruit(b) {
-            const fg = ctx.createRadialGradient(b.x - b.radius * 0.3, b.y - b.radius * 0.3, b.radius * 0.1, b.x, b.y, b.radius);
-            fg.addColorStop(0, '#fff'); fg.addColorStop(1, b.color);
-            ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fillStyle = fg; ctx.fill();
-            ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.stroke();
-            
-            const fontSize = b.radius * 1.3; 
+            // Glow effect sesuai warna buah
+            ctx.shadowColor = b.color;
+            ctx.shadowBlur = 15;
+
+            // Gambar Emoji Besar
+            const fontSize = b.radius * 1.4; 
             ctx.font = `bold ${fontSize}px "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif`;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.strokeStyle = 'white'; ctx.lineWidth = fontSize * 0.15; ctx.lineJoin = 'round';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Outline Putih Tebal (Biar kontras & jelas)
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = fontSize * 0.15;
+            ctx.lineJoin = 'round';
             ctx.strokeText(b.emoji, b.x, b.y + b.radius * 0.1);
+            
+            // Isi Emoji
             ctx.fillStyle = 'white'; 
             ctx.fillText(b.emoji, b.x, b.y + b.radius * 0.1);
+            
+            ctx.shadowBlur = 0; // Reset shadow
         }
 
         function draw() {

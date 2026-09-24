@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Fusion Fruit - Main & Menang!</title>
     
-    <!-- ✅ IKLAN POPUNDER & SOCIAL BAR (ARUANSCUAN) -->
-    <script src="https://pl31442264.profitableratecpmnetwork.com/a6/41/0d/a6410db42b68623bf2daa7e1fcff5615.js"></script>
+    <!-- ✅ IKLAN SOCIAL BAR & BANNER (NON-INTRUSIVE) -->
     <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -14,75 +13,74 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
+        body { background: #f0f4f8; color: #333; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
         
-        /* LANDING PAGE */
-        #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
+        /* LANDING PAGE - VISUAL MACH FRUITS STYLE */
+        #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        .landing-title { font-size: 36px; font-weight: bold; color: #ffd700; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); margin-bottom: 20px; }
-        .instruction-box { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; border: 1px solid rgba(255,255,255,0.3); }
-        .instruction-item { color: white; margin: 12px 0; font-size: 15px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.4; }
-        .instruction-icon { font-size: 20px; min-width: 25px; }
-        .start-btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 18px 50px; border: none; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .landing-title { font-size: 36px; font-weight: 800; color: #2c3e50; text-shadow: 2px 2px 4px rgba(255,255,255,0.8); margin-bottom: 20px; }
+        .instruction-box { background: rgba(255,255,255,0.9); padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); }
+        .instruction-item { color: #555; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+        .instruction-icon { font-size: 20px; }
+        .start-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(118, 75, 162, 0.4); }
         .start-btn:active { transform: scale(0.95); }
 
-        /* GAME UI */
+        /* GAME UI - CLEAN & PASTEL */
         #gameContainer { display: none; height: 100vh; flex-direction: column; }
-        #gameArea { flex: 1; position: relative; margin: 10px; border-radius: 15px; overflow: hidden; border: 4px solid #5d3a1a; box-shadow: 0 0 25px rgba(0,0,0,0.6); touch-action: none; background: #87CEEB; }
+        #gameArea { flex: 1; position: relative; margin: 10px; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); touch-action: none; background: #fff; }
         canvas { display: block; width: 100%; height: 100%; }
         
-        .ui-panel { background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%); padding: 15px; border-radius: 20px 20px 0 0; text-align: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 10; border-top: 3px solid #ffd700; }
-        .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
-        .coin-badge { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: #333; padding: 8px 15px; border-radius: 20px; font-weight: bold; box-shadow: 0 3px 10px rgba(243, 156, 18, 0.4); display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
-        .coin-amount { font-size: 16px; font-weight: bold; } .coin-rupiah { font-size: 10px; color: #555; margin-top: 2px; }
-        .btn { border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; transition: transform 0.1s; box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
+        .ui-panel { background: white; padding: 15px; border-radius: 20px 20px 0 0; text-align: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 10; display: flex; flex-direction: column; gap: 10px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .coin-badge { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3); display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+        .coin-amount { font-size: 16px; } .coin-rupiah { font-size: 10px; opacity: 0.9; }
+        .btn { border: none; padding: 10px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; transition: transform 0.1s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn:active { transform: scale(0.95); }
         .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); }
-        .btn-bonus { background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); }
+        .btn-bonus { background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%); }
         .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); }
         
-        .progress-container { width: 100%; height: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; margin-top: 5px; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #00ff88 0%, #00cc66 100%); width: 0%; transition: width 0.3s; }
-        .wd-text { font-size: 12px; color: #ddd; margin-top: 5px; }
+        .progress-container { width: 100%; height: 10px; background: #ecf0f1; border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #2ed573 0%, #7bed9f 100%); width: 0%; transition: width 0.3s; }
+        .wd-text { font-size: 11px; color: #7f8c8d; margin-top: 5px; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: #2c3e50; border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; border: 2px solid #ffd700; text-align: center; position: relative; }
+        /* MODAL & OVERLAYS - CLEAN STYLE */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
-        .history-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #ffd700; }
+        .history-item { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-left: 4px solid #f1c40f; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .history-amount { color: #ffd700; font-weight: bold; font-size: 16px; }
-        .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; }
-        .status-pending { background: #f39c12; color: white; } .status-success { background: #2ed573; color: white; } .status-refunded { background: #3498db; color: white; } .status-rejected { background: #e74c3c; color: white; }
-        .history-details { font-size: 12px; color: #aaa; }
-        .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #00d2ff, #3a7bd5); margin-top: 5px; }
+        .history-amount { color: #2c3e50; font-weight: bold; font-size: 16px; }
+        .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
+        .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-refunded { background: #3498db; } .status-rejected { background: #e74c3c; }
+        .history-details { font-size: 12px; color: #95a5a6; }
+        .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); margin-top: 5px; }
 
-        /* ✅ INTERSTITIAL OVERLAY */
-        .interstitial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; pointer-events: auto; }
-        .interstitial-box { background: linear-gradient(135deg, #667eea, #764ba2); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); position: relative; }
+        /* ✅ IKLAN OVERLAY - SOPAN & JELAS (TANPA PAKSA) */
+        .interstitial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 99999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .interstitial-box { background: white; padding: 30px; border-radius: 25px; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; }
         
         .reward-amount {
-            font-size: 36px; font-weight: 900; color: #ffd700;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 2px 2px 4px rgba(0,0,0,0.8);
+            font-size: 32px; font-weight: 900; color: #f39c12;
             margin: 15px 0; line-height: 1.2;
-            animation: pulseGold 1.5s infinite; white-space: pre-line;
+            animation: pulseGold 1.5s infinite;
         }
         @keyframes pulseGold {
-            0%, 100% { transform: scale(1); text-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
-            50% { transform: scale(1.05); text-shadow: 0 0 25px rgba(255, 215, 0, 1); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
-        .interstitial-timer { font-size: 56px; font-weight: bold; color: #ffd700; margin: 10px 0; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        .interstitial-btn { background: #555; color: #aaa; border: none; padding: 18px 40px; border-radius: 50px; font-size: 20px; font-weight: bold; width: 100%; cursor: not-allowed; transition: all 0.3s; }
-        .interstitial-btn.ready { background: #2ed573; color: white; cursor: pointer; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .emergency-close { position: absolute; top: 10px; right: 15px; background: rgba(255, 0, 0, 0.8); color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer; z-index: 10000001 !important; }
-        .hidden-close { display: none !important; }
+        .interstitial-timer { font-size: 48px; font-weight: 800; color: #667eea; margin: 10px 0; }
+        .interstitial-btn { background: #bdc3c7; color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 18px; font-weight: bold; width: 100%; cursor: not-allowed; transition: all 0.3s; }
+        .interstitial-btn.ready { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; cursor: pointer; animation: pulse 1.5s infinite; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4); }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        .close-btn { position: absolute; top: 15px; right: 15px; background: #ecf0f1; color: #7f8c8d; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
         
-        .btn-action { background: #2ed573; color: white; border: none; padding: 12px; border-radius: 25px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
-        .btn-close { background: #e74c3c; }
-        .btn-secondary { background: #95a5a6; }
-        .wd-input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); }
+        .btn-close { background: #ecf0f1; color: #7f8c8d; box-shadow: none; }
+        .wd-input { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 16px; outline: none; }
+        .wd-input:focus { border-color: #667eea; }
     </style>
 </head>
 <body>
@@ -90,16 +88,15 @@
     <!-- LANDING PAGE -->
     <div id="landingPage">
         <div class="landing-logo">🍉</div>
-        <h1 class="landing-title">FUSION FRUIT</h1>
+        <h1 class="landing-title">Fusion Fruit</h1>
         <div class="instruction-box">
-            <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;"> CARA BERMAIN</h3>
-            <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk layar untuk menjatuhkan buah.</span></div>
-            <div class="instruction-item"><span class="instruction-icon">🍇</span> <span>Gabungkan <b>2 buah yang sama</b> untuk menjadi buah yang lebih besar!</span></div>
-            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan buah menumpuk melewati <b>garis merah</b>!</span></div>
-            <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Semakin besar buah, semakin banyak Koin yang kamu dapat!</span></div>
+            <div class="instruction-item"><span class="instruction-icon"></span> <span>Ketuk layar untuk menjatuhkan buah.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">🍇</span> <span>Gabungkan <b>2 buah sama</b> jadi lebih besar!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan sampai numpuk lewat garis merah!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Tonton iklan, kumpulkan Rupiah, dan Tarik Saldo!</span></div>
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
-        <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 20px;">© 2024 Fusion Fruit. All rights reserved.</p>
+        <p style="color: rgba(0,0,0,0.4); font-size: 11px; margin-top: 20px;">© 2024 Fusion Fruit. All rights reserved.</p>
     </div>
 
     <!-- GAME CONTAINER -->
@@ -114,56 +111,58 @@
                     <div class="coin-amount">🪙 <span id="coinDisplay">0</span></div>
                     <div class="coin-rupiah">Rp <span id="rupiahDisplay">0</span></div>
                 </div>
-                <div style="display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;">
-                    <button class="btn btn-bonus" onclick="showBonusAd()">🎁 BONUS</button>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-bonus" onclick="showBonusAd()">🎁 Bonus</button>
                     <button class="btn btn-wd" onclick="showWithdraw()">💸 WD</button>
                     <button class="btn btn-history" onclick="showHistory()">📜</button>
                 </div>
             </div>
-            <div class="progress-container"><div class="progress-bar" id="wdProgressBar"></div></div>
-            <div class="wd-text">Fusion: <span id="wdProgressText">0</span>/50</div>
+            <div>
+                <div class="progress-container"><div class="progress-bar" id="wdProgressBar"></div></div>
+                <div class="wd-text">Target WD: <span id="wdProgressText">0</span>/50 Fusion</div>
+            </div>
         </div>
     </div>
 
-    <!-- ✅ MODAL GAME OVER (BIAR GAK LANGSUNG RESTART PAKSA) -->
+    <!-- MODAL GAME OVER -->
     <div id="gameOverModal" class="modal-overlay">
         <div class="modal-box">
-            <h2 style="color:#ff4757; margin-bottom:10px;">💥 BUAH MELEWATI BATAS!</h2>
-            <p style="color:#ddd; margin-bottom:20px;">Tonton iklan singkat untuk lanjut main dan simpan progressmu.</p>
-            <button class="btn-action" onclick="showGameOverAd()">📺 LANJUT DENGAN IKLAN</button>
-            <button class="btn-action btn-close" onclick="backToMenu()"> KEMBALI KE MENU</button>
+            <h2 style="color:#e74c3c; margin-bottom:10px; font-size: 24px;">💥 Game Over!</h2>
+            <p style="color:#7f8c8d; margin-bottom:20px;">Buah menumpuk melewati batas.</p>
+            <button class="btn-action" onclick="showAdForContinue()">📺 Lanjut Main & Klaim Hadiah</button>
+            <button class="btn-action btn-close" onclick="backToMenu()">🏠 Kembali ke Menu</button>
         </div>
     </div>
 
-    <!-- MODAL IKLAN PAKSA (UNIFIED) -->
+    <!-- MODAL IKLAN (SOPAN) -->
     <div id="interstitialOverlay" class="interstitial-overlay">
         <div class="interstitial-box">
-            <button class="emergency-close hidden-close" id="adCloseBtn" onclick="forceCloseAds()">✖</button>
-            <h2 id="interstitialTitle" style="color:white; margin-bottom:5px;">🎁 HADIAH!</h2>
+            <button class="close-btn" id="adCloseBtn" onclick="forceCloseAds()" style="display:none;">✖</button>
+            <h2 id="interstitialTitle" style="color:#2c3e50; margin-bottom:5px; font-size: 22px;">🎁 Hadiah Spesial!</h2>
+            <p id="interstitialDesc" style="color:#7f8c8d; font-size:14px;">Tonton iklan singkat ini...</p>
             <div id="fusionRewardDisplay" class="reward-amount">Rp 0</div>
-            <p id="interstitialDesc" style="color:#ddd; font-size:14px;">Tonton iklan singkat...</p>
-            <div class="interstitial-timer" id="interstitialTimer">8</div>
-            <button id="interstitialBtn" class="interstitial-btn" disabled>TUNGGU IKLAN...</button>
+            <div class="interstitial-timer" id="interstitialTimer">5</div>
+            <button id="interstitialBtn" class="interstitial-btn" disabled>Tunggu Iklan...</button>
         </div>
     </div>
 
     <div id="wdModal" class="modal-overlay">
         <div class="modal-box">
-            <h2 style="color:#ffd700;">💸 Tarik Saldo</h2>
-            <p style="margin:10px 0;">Saldo: Rp <span id="wdSaldo">0</span></p>
-            <p style="margin:10px 0; color:#ffd700;">📺 Iklan: <span id="wdAdsCount">0</span>/<span id="wdAdsTarget">30</span></p>
-            <input type="number" id="wdDana" placeholder="Nomor DANA (min 10 digit)" class="wd-input">
-            <input type="text" id="wdName" placeholder="Nama Pemilik (min 3 huruf)" class="wd-input">
-            <button class="btn-action" onclick="processWD()">KIRIM PERMINTAAN</button>
-            <button class="btn-action btn-close" onclick="closeModal('wdModal')">BATAL</button>
+            <h2 style="color:#2c3e50; margin-bottom:15px;">💸 Tarik Saldo</h2>
+            <p style="margin:10px 0; font-size:14px;">Saldo: Rp <span id="wdSaldo">0</span></p>
+            <p style="margin:10px 0; font-size:14px; color:#e74c3c;"> Iklan: <span id="wdAdsCount">0</span>/30</p>
+            <input type="number" id="wdDana" placeholder="Nomor DANA" class="wd-input">
+            <input type="text" id="wdName" placeholder="Nama Pemilik" class="wd-input">
+            <button class="btn-action" onclick="processWD()">Kirim Permintaan</button>
+            <button class="btn-action btn-close" onclick="closeModal('wdModal')">Batal</button>
         </div>
     </div>
 
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box scrollable">
-            <h2 style="color:#ffd700; margin-bottom:15px;">📜 Riwayat WD</h2>
-            <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#aaa; text-align:center;">Memuat data...</p></div>
-            <button class="btn-action btn-secondary" onclick="closeModal('historyModal')">TUTUP</button>
+            <h2 style="color:#2c3e50; margin-bottom:15px;"> Riwayat WD</h2>
+            <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center;">Memuat data...</p></div>
+            <button class="btn-action btn-close" onclick="closeModal('historyModal')">Tutup</button>
         </div>
     </div>
 
@@ -174,40 +173,37 @@
         let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
         let wdClicks = parseInt(localStorage.getItem('hans_wd_clicks')) || 0;
         const WD_TARGET = 50;
-        let isFirstWD = !localStorage.getItem('hans_first_wd_done');
-        const ADS_REQUIRED = isFirstWD ? 30 : 50;
         let adsWatched = parseInt(localStorage.getItem('fusion_ads_watched')) || 0;
+        let totalClaimed = parseInt(localStorage.getItem('fusion_total_claimed')) || 0; // ✅ TRACK TOTAL KLAIM
         let playerId = localStorage.getItem('hans_player_id');
         
         let mergeCount = 0;
         let adWasOpen = false;
         let historyListener = null;
         let interstitialInterval = null;
-        let isAdPlaying = false;
 
-        const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
+        // ✅ STRATEGI PANCINGAN & PERLAMBATAN REWARD
+        function calculateBaitReward() {
+            let reward = 0;
+            if (adsWatched < 5) {
+                // FASE 1: PANCINGAN (IKLAN 1-5) - Hadiah Besar
+                reward = (Math.floor(Math.random() * 5) + 5) * 10000; // Rp 50.000 - 90.000
+            } else if (totalClaimed < 800) {
+                // FASE 2: TRANSISI - Hadiah Menengah
+                reward = (Math.floor(Math.random() * 3) + 2) * 1000; // Rp 2.000 - 4.000
+            } else {
+                // FASE 3: RECEHAN - Hadiah Kecil (Psikologi: "Sayang kalau berhenti")
+                reward = Math.floor(Math.random() * 4) + 1; // Rp 1 - 4
+            }
+            return reward;
+        }
 
-        function lockBackButton() {
-            isAdPlaying = true;
-            history.pushState(null, null, location.href);
-            history.pushState(null, null, location.href);
-            window.onpopstate = function () {
-                if (isAdPlaying) {
-                    history.pushState(null, null, location.href);
-                    history.pushState(null, null, location.href);
-                }
-            };
-        }
-        function unlockBackButton() {
-            isAdPlaying = false;
-            window.onpopstate = null;
-        }
+        function lockBackButton() { /* TIDAK DIPAKAI LAGI - BIAR PEMAIN BEBAS */ }
+        function unlockBackButton() { /* TIDAK DIPAKAI LAGI */ }
 
         function forceCloseAds() { 
-            if(isAdPlaying) return; 
             document.getElementById('interstitialOverlay').style.display = 'none'; 
             clearInterval(interstitialInterval); 
-            unlockBackButton(); 
             adWasOpen = false; 
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -233,7 +229,6 @@
             document.getElementById('wdProgressBar').style.width = ((wdClicks / WD_TARGET) * 100) + '%';
             document.getElementById('wdSaldo').innerText = rupiah.toLocaleString('id-ID');
             document.getElementById('wdAdsCount').innerText = adsWatched;
-            document.getElementById('wdAdsTarget').innerText = ADS_REQUIRED;
         }
         function updatePlayerCoins(earned) { db.collection('players').doc(playerId).update({ totalCoins: firebase.firestore.FieldValue.increment(earned), lastVisit: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {}); }
 
@@ -241,9 +236,9 @@
             document.getElementById('historyModal').style.display = 'flex'; const list = document.getElementById('historyList');
             if (historyListener) historyListener();
             historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-                list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#aaa; text-align:center;">Belum ada riwayat WD.</p>'; return; }
+                list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>'; return; }
                 snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = '⏳ Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = '↩️ Refund'; statusClass = 'status-refunded'; }
-                list.innerHTML += `<div class="history-item" style="border-left-color: ${w.status === 'success' ? '#2ed573' : w.status === 'refunded' ? '#3498db' : '#ffd700'}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍉 Fusion Fruit</span></div>`; });
+                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br> ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source"> Fusion Fruit</span></div>`; });
             }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
         }
 
@@ -251,22 +246,26 @@
 
         function processWD() {
             let dana = document.getElementById('wdDana').value; let name = document.getElementById('wdName').value; let amount = Math.floor(coins/50);
-            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < ADS_REQUIRED) { alert(`🔒 Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
-            db.collection('withdrawals').add({ playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: amount, amountCoins: coins, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending', source: 'FusionFruit', gameName: 'Fusion Fruit', adsWatched: ADS_REQUIRED }).then(() => {
+            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
+            db.collection('withdrawals').add({ playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: amount, amountCoins: coins, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending', source: 'FusionFruit', gameName: 'Fusion Fruit', adsWatched: adsWatched }).then(() => {
                 coins = 0; adsWatched = 0; wdClicks = 0; localStorage.setItem('hans_coins', 0); localStorage.setItem('fusion_ads_watched', 0); localStorage.setItem('hans_wd_clicks', 0);
-                if(isFirstWD) { localStorage.setItem('hans_first_wd_done', 'true'); isFirstWD = false; }
                 updateUI(); alert('✅ WD Terkirim! Tunggu diproses Admin.'); closeModal('wdModal');
             }).catch(err => alert('❌ Error: ' + err.message));
         }
 
-        function showInterstitial(title, visualRewardText, callback) {
+        // ✅ FUNGSI IKLAN SOPAN (TANPA PAKSA, DENGAN BAIT REWARD)
+        function showInterstitial(title, callback) {
             const overlay = document.getElementById('interstitialOverlay');
             const rewardDisplay = document.getElementById('fusionRewardDisplay');
             document.getElementById('interstitialTitle').innerText = title;
             
-            rewardDisplay.innerText = visualRewardText;
-            rewardDisplay.style.color = '#ffd700';
-            rewardDisplay.style.fontSize = '36px';
+            // Hitung hadiah berdasarkan strategi pancingan
+            const baitReward = calculateBaitReward();
+            const formattedReward = 'Rp ' + baitReward.toLocaleString('id-ID');
+
+            // Tampilkan "Hadiah hingga Rp XXX" untuk memancing
+            rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward;
+            rewardDisplay.style.color = '#f39c12';
 
             overlay.style.display = 'flex'; adWasOpen = true;
 
@@ -274,14 +273,15 @@
             const btn = document.getElementById('interstitialBtn');
             const closeBtn = document.getElementById('adCloseBtn');
 
-            lockBackButton();
-            closeBtn.classList.add('hidden-close');
+            // Tombol X tetap ada, pemain bebas keluar (tapi sayang kan kalau keluar?)
+            closeBtn.style.display = 'block'; 
 
-            timerEl.innerText = "8"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU IKLAN..."; btn.onclick = null;
+            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
             
-            window.open(ADSTERRA_DIRECT_LINK, '_blank');
+            // Buka Iklan di Tab Baru (Social Bar / Banner akan muncul di sini)
+            window.open('https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3', '_blank');
 
-            let timeLeft = 8;
+            let timeLeft = 5;
             interstitialInterval = setInterval(() => {
                 timeLeft--;
                 timerEl.innerText = timeLeft;
@@ -289,18 +289,23 @@
                 if (timeLeft <= 0) {
                     clearInterval(interstitialInterval); timerEl.innerText = "0";
                     
-                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + visualRewardText;
-                    rewardDisplay.style.fontSize = "26px";
+                    // Tampilkan hadiah asli yang sudah dihitung
+                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward;
                     rewardDisplay.style.color = "#2ed573";
 
-                    unlockBackButton();
-                    closeBtn.classList.remove('hidden-close');
-                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ KLAIM HADIAH";
+                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ Klaim Hadiah";
                     
                     btn.onclick = () => {
                         overlay.style.display = 'none'; adWasOpen = false;
                         adsWatched++;
+                        totalClaimed += baitReward; // ✅ TAMBAH KE TOTAL KLAIM
                         localStorage.setItem('fusion_ads_watched', adsWatched);
+                        localStorage.setItem('fusion_total_claimed', totalClaimed); // ✅ SIMPAN TOTAL KLAIM
+                        
+                        // Tambah koin ke saldo pemain
+                        coins += Math.max(10, Math.floor(baitReward / 10)); 
+                        localStorage.setItem('hans_coins', coins);
+                        
                         if(callback) callback();
                         updateUI();
                     };
@@ -309,9 +314,13 @@
         }
 
         function showBonusAd() {
-            showInterstitial('🎁 BONUS HARIAN', 'Rp 150.000', () => {
-                coins += 200;
-                updatePlayerCoins(200);
+            showInterstitial('🎁 Bonus Harian', () => {});
+        }
+
+        function showAdForContinue() {
+            showInterstitial('💥 Lanjut Main!', () => {
+                document.getElementById('gameOverModal').style.display = 'none';
+                restartGame();
             });
         }
 
@@ -322,14 +331,14 @@
         const FRUITS = [
             { radius: 15, emoji: '🍒', color: '#FF3B30' }, 
             { radius: 22, emoji: '🍓', color: '#FF2D55' },
-            { radius: 30, emoji: '', color: '#AF52DE' }, 
+            { radius: 30, emoji: '🍇', color: '#AF52DE' }, 
             { radius: 38, emoji: '🍊', color: '#FF9500' },
-            { radius: 46, emoji: '🍎', color: '#FF3B30' }, 
+            { radius: 46, emoji: '', color: '#FF3B30' }, 
             { radius: 54, emoji: '🍐', color: '#34C759' },
             { radius: 62, emoji: '🍑', color: '#FF9500' }, 
             { radius: 70, emoji: '🍍', color: '#FFCC00' },
-            { radius: 80, emoji: '', color: '#E5F9E0' }, 
-            { radius: 95, emoji: '🍉', color: '#34C759' }
+            { radius: 80, emoji: '🍈', color: '#E5F9E0' }, 
+            { radius: 95, emoji: '', color: '#34C759' }
         ];
         
         let maxUnlockedIndex = parseInt(localStorage.getItem('fusion_max_unlocked')) || 0;
@@ -337,8 +346,7 @@
         function getFruitByRadius(r) { let c = FRUITS[0], d = Math.abs(FRUITS[0].radius - r); for (let f of FRUITS) { let df = Math.abs(f.radius - r); if (df < d) { d = df; c = f; } } return c; }
         
         function getRandomUnlockedFruit() {
-            // ✅ SELALU JATUHKAN BUAH TERKECIL (CHERRY) BIAR GAMEPLAY SEIMBANG
-            return FRUITS[0]; 
+            return FRUITS[0]; // Selalu mulai dari Cherry
         }
         
         function unlockFruit(r) { const n = FRUITS.indexOf(getFruitByRadius(r)); if (n === maxUnlockedIndex + 1) { maxUnlockedIndex = n; localStorage.setItem('fusion_max_unlocked', n); } }
@@ -364,22 +372,12 @@
             balls.forEach(b => { if (b.y < 120) return; if (b.y - b.radius < DANGER_LINE_Y) { b.aboveLineTime++; if (b.aboveLineTime > 60) danger++; } else b.aboveLineTime = 0; });
             if (danger > 0 && !isGameOver) {
                 isGameOver = true;
-                // ✅ TAMPILKAN MODAL GAME OVER DULU, BARU IKLAN
                 document.getElementById('gameOverModal').style.display = 'flex';
             }
         }
 
-        function showGameOverAd() {
-            showInterstitial('💥 GAME OVER!', 'Rp 50.000', () => {
-                document.getElementById('gameOverModal').style.display = 'none';
-                restartGame();
-            });
-        }
-
-        // ✅ FIX: RESTART GAME TIDAK MERESPET UNLOCKED FRUITS (LEVEL)
         function restartGame() { 
             balls = []; 
-            // maxUnlockedIndex TIDAK DIRESET! Progress tersimpan.
             nextBallRadius = 15; 
             aimX = canvas.width / 2; 
             isGameOver = false; 
@@ -410,12 +408,8 @@
                         updatePlayerCoins(reward); updateUI();
 
                         if (mergeCount % 3 === 0) {
-                            let visualReward = 'Rp ' + (Math.floor(Math.random() * 150) + 100) * 1000;
                             setTimeout(() => {
-                                showInterstitial('🎉 FUSION HEBAT!', visualReward, () => {
-                                    coins += 100;
-                                    updatePlayerCoins(100);
-                                });
+                                showInterstitial(' Fusion Hebat!', () => {});
                             }, 500);
                         }
                         break;
@@ -448,41 +442,39 @@
             checkMerges(); checkGameOver();
         }
 
+        // ✅ BACKGROUND PASTEL ALAM (SENYAMAN MACH FRUITS)
         function drawNatureBackground() {
             let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            skyGrad.addColorStop(0, '#87CEEB'); skyGrad.addColorStop(0.6, '#E0F7FA'); skyGrad.addColorStop(1, '#FFF9C4');
+            skyGrad.addColorStop(0, '#E0F7FA'); skyGrad.addColorStop(0.6, '#FFF9C4'); skyGrad.addColorStop(1, '#F1F8E9');
             ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.beginPath(); ctx.arc(canvas.width - 40, 40, 25, 0, Math.PI * 2);
-            ctx.fillStyle = '#FFD700'; ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 20; ctx.fill(); ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.arc(canvas.width - 50, 50, 30, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFF59D'; ctx.shadowColor = '#FFF59D'; ctx.shadowBlur = 20; ctx.fill(); ctx.shadowBlur = 0;
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.beginPath(); ctx.arc(50, 60, 20, 0, Math.PI*2); ctx.arc(80, 60, 25, 0, Math.PI*2); ctx.arc(110, 60, 20, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(canvas.width/2, 80, 15, 0, Math.PI*2); ctx.arc(canvas.width/2 + 25, 80, 20, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.beginPath(); ctx.arc(60, 70, 25, 0, Math.PI*2); ctx.arc(90, 70, 30, 0, Math.PI*2); ctx.arc(120, 70, 25, 0, Math.PI*2); ctx.fill();
 
             let grassGrad = ctx.createLinearGradient(0, canvas.height - 40, 0, canvas.height);
-            grassGrad.addColorStop(0, '#8BC34A'); grassGrad.addColorStop(1, '#33691E');
+            grassGrad.addColorStop(0, '#AED581'); grassGrad.addColorStop(1, '#7CB342');
             ctx.fillStyle = grassGrad; ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
 
             ctx.beginPath(); ctx.moveTo(0, DANGER_LINE_Y); ctx.lineTo(canvas.width, DANGER_LINE_Y);
-            ctx.strokeStyle = 'rgba(255, 82, 82, 0.8)'; ctx.lineWidth = 3; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.setLineDash([]);
+            ctx.strokeStyle = 'rgba(231, 76, 60, 0.6)'; ctx.lineWidth = 3; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.setLineDash([]);
         }
 
-        // ✅ FIX: GAMBAR BUAH WARNA ASLI + OUTLINE PUTIH (TIDAK TRANSPARAN LAGI)
+        // ✅ GAMBAR BUAH REALISTIS & KONTRAS
         function drawFruit(b) {
             const fontSize = b.radius * 1.5; 
-            ctx.font = `bold ${fontSize}px "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif`;
+            ctx.font = `bold ${fontSize}px "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // 1. Gambar Outline Putih Dulu (Biar ada di belakang)
             ctx.strokeStyle = 'white';
             ctx.lineWidth = Math.max(3, fontSize * 0.12);
             ctx.lineJoin = 'round';
             ctx.strokeText(b.emoji, b.x, b.y + 2);
             
-            // 2. Gambar Emoji Warna Asli (JANGAN pakai fillStyle white!)
-            ctx.fillStyle = 'black'; // Black aman untuk rendering emoji di semua browser
+            ctx.fillStyle = 'black'; 
             ctx.fillText(b.emoji, b.x, b.y + 2);
         }
 

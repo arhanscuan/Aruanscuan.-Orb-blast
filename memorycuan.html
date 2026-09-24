@@ -16,14 +16,24 @@
         body { background: #f0f4f8; color: #333; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
         
         /* LANDING PAGE - PASTEL LAVENDER */
-        #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
+        #landingPage { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 9999999; padding: 20px; text-align: center; 
+        }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         .landing-title { font-size: 36px; font-weight: 800; color: #fff; text-shadow: 2px 2px 8px rgba(142, 197, 252, 0.6); margin-bottom: 20px; }
         .instruction-box { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .instruction-item { color: #555; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 10px; }
         .instruction-icon { font-size: 20px; }
-        .start-btn { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(161, 140, 209, 0.4); }
+        .start-btn { 
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; 
+            padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; 
+            cursor: pointer; box-shadow: 0 10px 20px rgba(161, 140, 209, 0.4); 
+            touch-action: manipulation; /* ✅ FIX: Biar tombol bisa diklik di HP */
+        }
         .start-btn:active { transform: scale(0.95); }
 
         /* GAME UI */
@@ -34,16 +44,439 @@
         .moves-badge { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
         .saldo-box { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 13px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
         .saldo-rupiah { font-size: 10px; opacity: 0.9; }
-        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; }
-        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; }
+        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; touch-action: manipulation; }
+        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; touch-action: manipulation; }
         
-        #gameArea { flex: 1; position: relative; overflow: hidden; background: linear-gradient(180deg, #fdfbfb 0%, #ebedee 100%); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #gameArea { 
+            flex: 1; position: relative; overflow: hidden; 
+            background: linear-gradient(180deg, #fdfbfb 0%, #ebedee 100%); 
+            display: flex; align-items: center; justify-content: center; 
+            padding: 10px; 
+        }
         
-        /* MEMORY GRID */
+        /* ✅ FIX: MEMORY GRID PAKAI TINGGI TETAP BIAR GAK BLANK */
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            max-width: 350px;
-            aspect-r
+            max-width: 340px;
+            height: 340px; /* ✅ Tinggi fix biar selalu muncul */
+        }
+        .card {
+            background-color: transparent;
+            perspective: 1000px;
+            cursor: pointer;
+            position: relative;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.4s;
+            transform-style: preserve-3d;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+        .card.matched .card-inner { transform: rotateY(180deg); box-shadow: 0 0 15px rgba(46, 213, 115, 0.6); }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+        .card-front {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            transform: rotateY(0deg);
+        }
+        .card-back {
+            background: white;
+            border: 2px solid #f1c40f;
+            transform: rotateY(180deg);
+        }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
+        .history-item { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-left: 4px solid #f1c40f; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .history-amount { color: #2c3e50; font-weight: bold; font-size: 16px; }
+        .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
+        .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-rejected { background: #e74c3c; }
+        .history-details { font-size: 12px; color: #95a5a6; }
+        .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); margin-top: 5px; }
+
+        /* IKLAN OVERLAY */
+        .interstitial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 99999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .interstitial-box { background: white; padding: 30px; border-radius: 25px; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; }
+        .reward-amount { font-size: 32px; font-weight: 900; color: #f39c12; margin: 15px 0; line-height: 1.2; animation: pulseGold 1.5s infinite; }
+        @keyframes pulseGold { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .interstitial-timer { font-size: 48px; font-weight: 800; color: #a55eea; margin: 10px 0; }
+        .interstitial-btn { background: #bdc3c7; color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 18px; font-weight: bold; width: 100%; cursor: not-allowed; transition: all 0.3s; }
+        .interstitial-btn.ready { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; cursor: pointer; animation: pulse 1.5s infinite; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4); }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        .close-btn { position: absolute; top: 15px; right: 15px; background: #ecf0f1; color: #7f8c8d; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
+        
+        .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); touch-action: manipulation; }
+        .btn-close { background: #ecf0f1; color: #7f8c8d; box-shadow: none; }
+        .wd-input { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 16px; outline: none; }
+        .wd-input:focus { border-color: #a55eea; }
+    </style>
+</head>
+<body>
+
+    <div id="landingPage">
+        <div class="landing-logo"></div>
+        <h1 class="landing-title">Memory Cuan</h1>
+        <div class="instruction-box">
+            <div class="instruction-item"><span class="instruction-icon"></span> <span>Ketuk kartu untuk membaliknya.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">🍓</span> <span>Cocokkan 2 kartu dengan gambar sama!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">️</span> <span>Hati-hati, langkahmu terbatas!</span></div>
+            <div class="instruction-item"><span class="instruction-icon"></span> <span>Tonton iklan, kumpulkan Rupiah, dan Tarik Saldo!</span></div>
+        </div>
+        <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
+    </div>
+
+    <div id="gameContainer">
+        <div id="topBar">
+            <div class="info-box">
+                <div class="level-badge">Lv <span id="levelDisplay">1</span></div>
+                <div class="moves-badge">Langkah: <span id="movesDisplay">20</span></div>
+            </div>
+            <div class="saldo-box"> <span id="coinDisplay">0</span><div class="saldo-rupiah">Rp <span id="rupiahDisplay">0</span></div></div>
+            <div>
+                <button class="btn-wd" onclick="showWithdraw()">💸 WD</button>
+                <button class="btn-history" onclick="showHistory()"></button>
+            </div>
+        </div>
+
+        <div id="gameArea">
+            <div class="grid" id="grid"></div>
+        </div>
+    </div>
+
+    <!-- MODAL GAME OVER / LEVEL UP -->
+    <div id="endGameModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2 id="endGameTitle" style="color:#e74c3c; margin-bottom:10px; font-size: 24px;">💥 Langkah Habis!</h2>
+            <p id="endGameDesc" style="color:#7f8c8d; margin-bottom:20px;">Kamu gagal mencocokkan semua kartu.</p>
+            <button class="btn-action" id="endGameBtn" onclick="showAdForContinue()"> Lanjut Main & Klaim Hadiah</button>
+            <button class="btn-action btn-close" onclick="backToMenu()">🏠 Kembali ke Menu</button>
+        </div>
+    </div>
+
+    <!-- MODAL IKLAN -->
+    <div id="interstitialOverlay" class="interstitial-overlay">
+        <div class="interstitial-box">
+            <button class="close-btn" id="adCloseBtn" onclick="forceCloseAds()" style="display:none;">✖</button>
+            <h2 id="interstitialTitle" style="color:#2c3e50; margin-bottom:5px; font-size: 22px;">🎁 Hadiah Spesial!</h2>
+            <p id="interstitialDesc" style="color:#7f8c8d; font-size:14px;">Tonton iklan singkat ini...</p>
+            <div id="rewardDisplay" class="reward-amount">Rp 0</div>
+            <div class="interstitial-timer" id="interstitialTimer">5</div>
+            <button id="interstitialBtn" class="interstitial-btn" disabled>Tunggu Iklan...</button>
+        </div>
+    </div>
+
+    <div id="wdModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:#2c3e50; margin-bottom:15px;">💸 Tarik Saldo</h2>
+            <p style="margin:10px 0; font-size:14px;">Saldo: Rp <span id="wdSaldo">0</span></p>
+            <p style="margin:10px 0; font-size:14px; color:#e74c3c;">Iklan: <span id="wdAdsCount">0</span>/30</p>
+            <input type="number" id="wdDana" placeholder="Nomor DANA" class="wd-input">
+            <input type="text" id="wdName" placeholder="Nama Pemilik" class="wd-input">
+            <button class="btn-action" onclick="processWD()">Kirim Permintaan</button>
+            <button class="btn-action btn-close" onclick="closeModal('wdModal')">Batal</button>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-box scrollable">
+            <h2 style="color:#2c3e50; margin-bottom:15px;">📜 Riwayat WD</h2>
+            <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center;">Memuat data...</p></div>
+            <button class="btn-action btn-close" onclick="closeModal('historyModal')">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
+        firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
+
+        // ==========================================
+        // 🔐 SISTEM ENKRIPSI FAST TRACK WD (UNIVERSAL)
+        // ==========================================
+        const SECRET_SALT = "ARHUANSCUAN_CUAN_2024_XYZ_RANDOM"; 
+        
+        function getLuckyScore(playerId) {
+            let hash = 0;
+            const str = playerId + SECRET_SALT;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0; 
+            }
+            return Math.abs(hash) % 100;
+        }
+
+        function isFastTrackPlayer(playerId) {
+            return getLuckyScore(playerId) < 20; 
+        }
+
+        let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
+        let currentLevel = parseInt(localStorage.getItem('memory_level')) || 1;
+        let playerId = localStorage.getItem('hans_player_id');
+        let adsWatched = parseInt(localStorage.getItem('memory_ads_watched')) || 0;
+        
+        let adWasOpen = false; let interstitialInterval = null; let historyListener = null;
+        let isGameOver = false;
+
+        function calculateBaitReward() {
+            const isLucky = isFastTrackPlayer(playerId);
+            let reward = 0;
+            if (isLucky) {
+                if (adsWatched < 5) reward = (Math.floor(Math.random() * 5) + 5) * 10000; 
+                else reward = (Math.floor(Math.random() * 3) + 2) * 1000; 
+            } else {
+                if (adsWatched < 3) reward = 500; 
+                else reward = Math.floor(Math.random() * 40) + 10; 
+            }
+            return { amount: reward, isLucky: isLucky };
+        }
+
+        function forceCloseAds() { 
+            document.getElementById('interstitialOverlay').style.display = 'none'; 
+            clearInterval(interstitialInterval); 
+            adWasOpen = false; 
+        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function startGameFromLanding() {
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'flex';
+            document.getElementById('endGameModal').style.display = 'none';
+            initGame();
+        }
+
+        function backToMenu() {
+            document.getElementById('endGameModal').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('landingPage').style.display = 'flex';
+        }
+
+        function updateUI() {
+            const rupiah = Math.floor(coins / 50);
+            document.getElementById('coinDisplay').innerText = coins.toLocaleString('id-ID');
+            document.getElementById('rupiahDisplay').innerText = rupiah.toLocaleString('id-ID');
+            document.getElementById('wdSaldo').innerText = rupiah.toLocaleString('id-ID');
+            document.getElementById('wdAdsCount').innerText = adsWatched;
+            document.getElementById('levelDisplay').innerText = currentLevel;
+        }
+
+        function showHistory() {
+            document.getElementById('historyModal').style.display = 'flex'; const list = document.getElementById('historyList');
+            if (historyListener) historyListener();
+            historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>'; return; }
+                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = '⏳ Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses (VIP)'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; }
+                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source"> Memory Cuan</span></div>`; });
+            }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
+        }
+
+        function showWithdraw() { updateUI(); document.getElementById('wdModal').style.display = 'flex'; }
+
+        function processWD() {
+            let dana = document.getElementById('wdDana').value; 
+            let name = document.getElementById('wdName').value; 
+            let amount = Math.floor(coins/50);
+            
+            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } 
+            if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } 
+            if(adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
+
+            const isLucky = isFastTrackPlayer(playerId);
+            const wdStatus = isLucky ? 'success' : 'pending'; 
+
+            if (isLucky) alert('🎉 SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
+            else alert('✅ Permintaan WD terkirim! Antrian reguler (1-3 hari kerja).');
+
+            db.collection('withdrawals').add({ 
+                playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), 
+                amountRupiah: amount, amountCoins: coins, 
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
+                status: wdStatus, source: 'MemoryCuan', gameName: 'Memory Cuan', adsWatched: adsWatched 
+            }).then(() => {
+                coins = 0; adsWatched = 0; 
+                localStorage.setItem('hans_coins', 0); localStorage.setItem('memory_ads_watched', 0); 
+                updateUI(); alert('WD Terkirim!'); closeModal('wdModal');
+            }).catch(err => alert('❌ Error: ' + err.message));
+        }
+
+        function showInterstitial(title, callback) {
+            const overlay = document.getElementById('interstitialOverlay');
+            const rewardDisplay = document.getElementById('rewardDisplay');
+            document.getElementById('interstitialTitle').innerText = title;
+            
+            const baitData = calculateBaitReward();
+            const formattedReward = 'Rp ' + baitData.amount.toLocaleString('id-ID');
+
+            rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward;
+            rewardDisplay.style.color = '#f39c12';
+
+            overlay.style.display = 'flex'; adWasOpen = true;
+
+            const timerEl = document.getElementById('interstitialTimer');
+            const btn = document.getElementById('interstitialBtn');
+            const closeBtn = document.getElementById('adCloseBtn');
+
+            closeBtn.style.display = 'block'; 
+            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
+            
+            window.open('https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3', '_blank');
+
+            let timeLeft = 5;
+            interstitialInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(interstitialInterval); timerEl.innerText = "0";
+                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward;
+                    rewardDisplay.style.color = "#2ed573";
+                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ Klaim Hadiah";
+                    btn.onclick = () => {
+                        overlay.style.display = 'none'; adWasOpen = false;
+                        adsWatched++;
+                        localStorage.setItem('memory_ads_watched', adsWatched);
+                        coins += Math.max(10, Math.floor(baitData.amount / 10)); 
+                        localStorage.setItem('hans_coins', coins);
+                        if(callback) callback();
+                        updateUI();
+                    };
+                }
+            }, 1000);
+        }
+
+        function showAdForContinue() {
+            showInterstitial('💥 Lanjut Main!', () => {
+                document.getElementById('endGameModal').style.display = 'none';
+                initGame(); 
+            });
+        }
+
+        // ==========================================
+        // 🧠 GAME LOGIC: MEMORY CUAN (FIXED)
+        // ==========================================
+        // ✅ FIX: EMOJI DIISI SEMUA, TIDAK ADA YANG KOSONG
+        const EMOJIS = ['🍎', '🍋', '', '🍊', '🍉', '🍍', '🥝', ''];
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let movesLeft = 20;
+        let isLocked = false;
+
+        function initGame() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            cards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            movesLeft = 20 - (currentLevel * 2); 
+            if (movesLeft < 10) movesLeft = 10; 
+            isLocked = false;
+            isGameOver = false;
+
+            document.getElementById('movesDisplay').innerText = movesLeft;
+            updateUI();
+
+            let gameEmojis = [...EMOJIS, ...EMOJIS];
+            gameEmojis.sort(() => Math.random() - 0.5);
+
+            gameEmojis.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">?</div>
+                        <div class="card-back">${emoji}</div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => flipCard(card));
+                grid.appendChild(card);
+                cards.push(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (isLocked || isGameOver) return;
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            if (flippedCards.length >= 2) return;
+
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                movesLeft--;
+                document.getElementById('movesDisplay').innerText = movesLeft;
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            isLocked = true;
+            const [card1, card2] = flippedCards;
+            const isMatch = card1.dataset.emoji === card2.dataset.emoji;
+
+            if (isMatch) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                coins += 20; 
+                localStorage.setItem('hans_coins', coins);
+                updateUI();
+                flippedCards = [];
+                isLocked = false;
+
+                if (matchedPairs === 8) {
+                    setTimeout(() => {
+                        currentLevel++;
+                        localStorage.setItem('memory_level', currentLevel);
+                        showInterstitial('🎉 Level Selesai!', () => {
+                            initGame();
+                        });
+                    }, 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                    isLocked = false;
+
+                    if (movesLeft <= 0) {
+                        isGameOver = true;
+                        document.getElementById('endGameTitle').innerText = "💥 Langkah Habis!";
+                        document.getElementById('endGameDesc').innerText = "Kamu gagal mencocokkan semua kartu.";
+                        document.getElementById('endGameBtn').innerText = "📺 Lanjut Main & Klaim Hadiah";
+                        document.getElementById('endGameBtn').onclick = showAdForContinue;
+                        document.getElementById('endGameModal').style.display = 'flex';
+                    }
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -92,7 +92,7 @@
         <div class="landing-logo">🍉</div>
         <h1 class="landing-title">FUSION FRUIT</h1>
         <div class="instruction-box">
-            <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;">📜 CARA BERMAIN</h3>
+            <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;"> CARA BERMAIN</h3>
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk layar untuk menjatuhkan buah.</span></div>
             <div class="instruction-item"><span class="instruction-icon">🍇</span> <span>Gabungkan <b>2 buah yang sama</b> untuk menjadi buah yang lebih besar!</span></div>
             <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan buah menumpuk melewati <b>garis merah</b>!</span></div>
@@ -122,6 +122,16 @@
             </div>
             <div class="progress-container"><div class="progress-bar" id="wdProgressBar"></div></div>
             <div class="wd-text">Fusion: <span id="wdProgressText">0</span>/50</div>
+        </div>
+    </div>
+
+    <!-- ✅ MODAL GAME OVER (BIAR GAK LANGSUNG RESTART PAKSA) -->
+    <div id="gameOverModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:#ff4757; margin-bottom:10px;">💥 BUAH MELEWATI BATAS!</h2>
+            <p style="color:#ddd; margin-bottom:20px;">Tonton iklan singkat untuk lanjut main dan simpan progressmu.</p>
+            <button class="btn-action" onclick="showGameOverAd()">📺 LANJUT DENGAN IKLAN</button>
+            <button class="btn-action btn-close" onclick="backToMenu()"> KEMBALI KE MENU</button>
         </div>
     </div>
 
@@ -205,7 +215,14 @@
         function startGameFromLanding() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'flex';
+            document.getElementById('gameOverModal').style.display = 'none';
             initGame();
+        }
+
+        function backToMenu() {
+            document.getElementById('gameOverModal').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('landingPage').style.display = 'flex';
         }
 
         function updateUI() {
@@ -234,7 +251,7 @@
 
         function processWD() {
             let dana = document.getElementById('wdDana').value; let name = document.getElementById('wdName').value; let amount = Math.floor(coins/50);
-            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < ADS_REQUIRED) { alert(` Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
+            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < ADS_REQUIRED) { alert(`🔒 Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
             db.collection('withdrawals').add({ playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: amount, amountCoins: coins, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending', source: 'FusionFruit', gameName: 'Fusion Fruit', adsWatched: ADS_REQUIRED }).then(() => {
                 coins = 0; adsWatched = 0; wdClicks = 0; localStorage.setItem('hans_coins', 0); localStorage.setItem('fusion_ads_watched', 0); localStorage.setItem('hans_wd_clicks', 0);
                 if(isFirstWD) { localStorage.setItem('hans_first_wd_done', 'true'); isFirstWD = false; }
@@ -305,14 +322,14 @@
         const FRUITS = [
             { radius: 15, emoji: '🍒', color: '#FF3B30' }, 
             { radius: 22, emoji: '🍓', color: '#FF2D55' },
-            { radius: 30, emoji: '🍇', color: '#AF52DE' }, 
+            { radius: 30, emoji: '', color: '#AF52DE' }, 
             { radius: 38, emoji: '🍊', color: '#FF9500' },
-            { radius: 46, emoji: '', color: '#FF3B30' }, 
+            { radius: 46, emoji: '🍎', color: '#FF3B30' }, 
             { radius: 54, emoji: '🍐', color: '#34C759' },
             { radius: 62, emoji: '🍑', color: '#FF9500' }, 
             { radius: 70, emoji: '🍍', color: '#FFCC00' },
-            { radius: 80, emoji: '🍈', color: '#E5F9E0' }, 
-            { radius: 95, emoji: '', color: '#34C759' }
+            { radius: 80, emoji: '', color: '#E5F9E0' }, 
+            { radius: 95, emoji: '🍉', color: '#34C759' }
         ];
         
         let maxUnlockedIndex = parseInt(localStorage.getItem('fusion_max_unlocked')) || 0;
@@ -320,8 +337,8 @@
         function getFruitByRadius(r) { let c = FRUITS[0], d = Math.abs(FRUITS[0].radius - r); for (let f of FRUITS) { let df = Math.abs(f.radius - r); if (df < d) { d = df; c = f; } } return c; }
         
         function getRandomUnlockedFruit() {
-            let limit = Math.min(maxUnlockedIndex, FRUITS.length - 2); 
-            return FRUITS[Math.floor(Math.random() * (limit + 1))];
+            // ✅ SELALU JATUHKAN BUAH TERKECIL (CHERRY) BIAR GAMEPLAY SEIMBANG
+            return FRUITS[0]; 
         }
         
         function unlockFruit(r) { const n = FRUITS.indexOf(getFruitByRadius(r)); if (n === maxUnlockedIndex + 1) { maxUnlockedIndex = n; localStorage.setItem('fusion_max_unlocked', n); } }
@@ -347,15 +364,22 @@
             balls.forEach(b => { if (b.y < 120) return; if (b.y - b.radius < DANGER_LINE_Y) { b.aboveLineTime++; if (b.aboveLineTime > 60) danger++; } else b.aboveLineTime = 0; });
             if (danger > 0 && !isGameOver) {
                 isGameOver = true;
-                setTimeout(() => showInterstitial('💥 GAME OVER!', 'Rp 50.000', () => { restartGame(); }), 500);
+                // ✅ TAMPILKAN MODAL GAME OVER DULU, BARU IKLAN
+                document.getElementById('gameOverModal').style.display = 'flex';
             }
+        }
+
+        function showGameOverAd() {
+            showInterstitial('💥 GAME OVER!', 'Rp 50.000', () => {
+                document.getElementById('gameOverModal').style.display = 'none';
+                restartGame();
+            });
         }
 
         // ✅ FIX: RESTART GAME TIDAK MERESPET UNLOCKED FRUITS (LEVEL)
         function restartGame() { 
             balls = []; 
-            // maxUnlockedIndex = 0; // DIHAPUS BIAR PROGRESS TERSIMPAN
-            // localStorage.setItem('fusion_max_unlocked', 0); // DIHAPUS
+            // maxUnlockedIndex TIDAK DIRESET! Progress tersimpan.
             nextBallRadius = 15; 
             aimX = canvas.width / 2; 
             isGameOver = false; 
@@ -444,29 +468,22 @@
             ctx.strokeStyle = 'rgba(255, 82, 82, 0.8)'; ctx.lineWidth = 3; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.setLineDash([]);
         }
 
-        // ✅ FIX: GAMBAR BUAH LEBIH REALISTIS (EMOJI BESAR + OUTLINE PUTIH)
+        // ✅ FIX: GAMBAR BUAH WARNA ASLI + OUTLINE PUTIH (TIDAK TRANSPARAN LAGI)
         function drawFruit(b) {
-            // Glow effect sesuai warna buah
-            ctx.shadowColor = b.color;
-            ctx.shadowBlur = 15;
-
-            // Gambar Emoji Besar
-            const fontSize = b.radius * 1.4; 
+            const fontSize = b.radius * 1.5; 
             ctx.font = `bold ${fontSize}px "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // Outline Putih Tebal (Biar kontras & jelas)
+            // 1. Gambar Outline Putih Dulu (Biar ada di belakang)
             ctx.strokeStyle = 'white';
-            ctx.lineWidth = fontSize * 0.15;
+            ctx.lineWidth = Math.max(3, fontSize * 0.12);
             ctx.lineJoin = 'round';
-            ctx.strokeText(b.emoji, b.x, b.y + b.radius * 0.1);
+            ctx.strokeText(b.emoji, b.x, b.y + 2);
             
-            // Isi Emoji
-            ctx.fillStyle = 'white'; 
-            ctx.fillText(b.emoji, b.x, b.y + b.radius * 0.1);
-            
-            ctx.shadowBlur = 0; // Reset shadow
+            // 2. Gambar Emoji Warna Asli (JANGAN pakai fillStyle white!)
+            ctx.fillStyle = 'black'; // Black aman untuk rendering emoji di semua browser
+            ctx.fillText(b.emoji, b.x, b.y + 2);
         }
 
         function draw() {

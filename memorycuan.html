@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Memory Cuan - Cocokkan & Menang!</title>
+    
+    <!-- ✅ IKLAN SOCIAL BAR & BANNER -->
+    <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #f0f4f8; color: #333; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
+        
+        /* LANDING PAGE - PASTEL LAVENDER */
+        #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
+        .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .landing-title { font-size: 36px; font-weight: 800; color: #fff; text-shadow: 2px 2px 8px rgba(142, 197, 252, 0.6); margin-bottom: 20px; }
+        .instruction-box { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .instruction-item { color: #555; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+        .instruction-icon { font-size: 20px; }
+        .start-btn { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(161, 140, 209, 0.4); }
+        .start-btn:active { transform: scale(0.95); }
+
+        /* GAME UI */
+        #gameContainer { display: none; height: 100vh; flex-direction: column; }
+        #topBar { background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
+        .info-box { display: flex; gap: 10px; align-items: center; }
+        .level-badge { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
+        .moves-badge { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
+        .saldo-box { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 13px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+        .saldo-rupiah { font-size: 10px; opacity: 0.9; }
+        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; }
+        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; }
+        
+        #gameArea { flex: 1; position: relative; overflow: hidden; background: linear-gradient(180deg, #fdfbfb 0%, #ebedee 100%); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        
+        /* MEMORY GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 350px;
+            aspect-r

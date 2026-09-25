@@ -4,18 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Goldbrick - Hancurkan & Menang!</title>
-    
-    <!-- ✅ IKLAN SOCIAL BAR & BANNER -->
     <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: #f0f4f8; color: #333; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
-        
-        /* LANDING PAGE - GOLDEN HOUR */
         #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
@@ -23,31 +17,18 @@
         .instruction-box { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .instruction-item { color: #555; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 10px; }
         .instruction-icon { font-size: 20px; }
-        .start-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4); }
+        .start-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4); touch-action: manipulation; }
         .start-btn:active { transform: scale(0.95); }
-
-        /* GAME UI */
         #gameContainer { display: none; height: 100vh; flex-direction: column; }
         #topBar { background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
         .info-box { display: flex; gap: 10px; align-items: center; }
         .level-badge { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
         .saldo-box { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 13px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
         .saldo-rupiah { font-size: 10px; opacity: 0.9; }
-        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; }
-        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; }
-        
-        /* ✅ FIX: GAME AREA DENGAN PADDING BAWAH BIAR PADDLE GAK KETUTUP */
-        #gameArea { 
-            flex: 1; 
-            position: relative; 
-            overflow: hidden; 
-            background: linear-gradient(180deg, #fff1eb 0%, #ace0f9 100%); 
-            padding-bottom: 40px; /* Jarak aman dari tepi bawah HP */
-            box-sizing: border-box;
-        }
+        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; touch-action: manipulation; }
+        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; touch-action: manipulation; }
+        #gameArea { flex: 1; position: relative; overflow: hidden; background: linear-gradient(180deg, #fff1eb 0%, #ace0f9 100%); padding-bottom: 40px; box-sizing: border-box; }
         canvas { display: block; width: 100%; height: 100%; }
-
-        /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
@@ -58,8 +39,6 @@
         .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-rejected { background: #e74c3c; }
         .history-details { font-size: 12px; color: #95a5a6; }
         .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); margin-top: 5px; }
-
-        /* IKLAN OVERLAY */
         .interstitial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 99999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .interstitial-box { background: white; padding: 30px; border-radius: 25px; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; }
         .reward-amount { font-size: 32px; font-weight: 900; color: #f39c12; margin: 15px 0; line-height: 1.2; animation: pulseGold 1.5s infinite; }
@@ -69,27 +48,24 @@
         .interstitial-btn.ready { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; cursor: pointer; animation: pulse 1.5s infinite; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4); }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
         .close-btn { position: absolute; top: 15px; right: 15px; background: #ecf0f1; color: #7f8c8d; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
-        
-        .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); }
+        .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); touch-action: manipulation; }
         .btn-close { background: #ecf0f1; color: #7f8c8d; box-shadow: none; }
         .wd-input { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 16px; outline: none; }
         .wd-input:focus { border-color: #f5576c; }
     </style>
 </head>
 <body>
-
     <div id="landingPage">
         <div class="landing-logo">🧱</div>
         <h1 class="landing-title">Goldbrick</h1>
         <div class="instruction-box">
-            <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Geser paddle di bawah untuk memantulkan bola.</span></div>
+            <div class="instruction-item"><span class="instruction-icon"></span> <span>Geser paddle di bawah untuk memantulkan bola.</span></div>
             <div class="instruction-item"><span class="instruction-icon">💥</span> <span>Hancurkan bata emas untuk dapat Koin!</span></div>
             <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan bola jatuh ke bawah!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Tonton iklan, kumpulkan Rupiah, dan Tarik Saldo!</span></div>
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI PECAHKAN</button>
     </div>
-
     <div id="gameContainer">
         <div id="topBar">
             <div class="info-box">
@@ -101,13 +77,10 @@
                 <button class="btn-history" onclick="showHistory()">📜</button>
             </div>
         </div>
-
         <div id="gameArea">
             <canvas id="gameCanvas"></canvas>
         </div>
     </div>
-
-    <!-- MODAL GAME OVER -->
     <div id="gameOverModal" class="modal-overlay">
         <div class="modal-box">
             <h2 style="color:#e74c3c; margin-bottom:10px; font-size: 24px;">💥 Bola Jatuh!</h2>
@@ -116,8 +89,6 @@
             <button class="btn-action btn-close" onclick="backToMenu()">🏠 Kembali ke Menu</button>
         </div>
     </div>
-
-    <!-- MODAL IKLAN -->
     <div id="interstitialOverlay" class="interstitial-overlay">
         <div class="interstitial-box">
             <button class="close-btn" id="adCloseBtn" onclick="forceCloseAds()" style="display:none;">✖</button>
@@ -128,7 +99,6 @@
             <button id="interstitialBtn" class="interstitial-btn" disabled>Tunggu Iklan...</button>
         </div>
     </div>
-
     <div id="wdModal" class="modal-overlay">
         <div class="modal-box">
             <h2 style="color:#2c3e50; margin-bottom:15px;">💸 Tarik Saldo</h2>
@@ -140,7 +110,6 @@
             <button class="btn-action btn-close" onclick="closeModal('wdModal')">Batal</button>
         </div>
     </div>
-
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box scrollable">
             <h2 style="color:#2c3e50; margin-bottom:15px;">📜 Riwayat WD</h2>
@@ -153,39 +122,48 @@
         const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        // ==========================================
-        //  SISTEM ENKRIPSI FAST TRACK WD (UNIVERSAL)
-        // ==========================================
         const SECRET_SALT = "ARHUANSCUAN_CUAN_2024_XYZ_RANDOM"; 
-        
-        function getLuckyScore(playerId) {
-            let hash = 0;
-            const str = playerId + SECRET_SALT;
-            for (let i = 0; i < str.length; i++) {
-                hash = ((hash << 5) - hash) + str.charCodeAt(i);
-                hash |= 0; 
-            }
-            return Math.abs(hash) % 100;
-        }
+        function getLuckyScore(playerId) { let hash = 0; const str = playerId + SECRET_SALT; for (let i = 0; i < str.length; i++) { hash = ((hash << 5) - hash) + str.charCodeAt(i); hash |= 0; } return Math.abs(hash) % 100; }
+        function isFastTrackPlayer(playerId) { return getLuckyScore(playerId) < 20; }
 
-        function isFastTrackPlayer(playerId) {
-            return getLuckyScore(playerId) < 20; 
+        // ✅ SISTEM ADMIN TERHUBUNG (FIX NAMA GAME MASUK)
+        function initPlayer() {
+            let pid = localStorage.getItem('hans_player_id');
+            if (!pid) {
+                pid = 'player_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+                localStorage.setItem('hans_player_id', pid);
+            }
+            db.collection('players').doc(pid).set({
+                playerId: pid,
+                totalCoins: parseInt(localStorage.getItem('hans_coins')) || 0,
+                firstVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'active'
+            }, { merge: true }).catch(err => console.error(err));
+            return pid;
+        }
+        let playerId = initPlayer();
+
+        function trackGamePlay(gameName) {
+            if (!playerId) return;
+            db.collection('players').doc(playerId).set({
+                lastPlayedGame: gameName,
+                lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
+                gamesPlayed: firebase.firestore.FieldValue.arrayUnion(gameName)
+            }, { merge: true }).catch(err => console.error(err));
         }
 
         let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
         let currentLevel = parseInt(localStorage.getItem('goldbrick_level')) || 1;
-        let playerId = localStorage.getItem('hans_player_id');
         let adsWatched = parseInt(localStorage.getItem('goldbrick_ads_watched')) || 0;
-        
         let score = 0;
         let adWasOpen = false; let interstitialInterval = null; let historyListener = null;
         let isGameOver = false;
-        let isLevelComplete = false; 
+        let isLevelComplete = false;
 
         function calculateBaitReward() {
             const isLucky = isFastTrackPlayer(playerId);
             let reward = 0;
-            
             if (isLucky) {
                 if (adsWatched < 5) reward = (Math.floor(Math.random() * 5) + 5) * 10000; 
                 else reward = (Math.floor(Math.random() * 3) + 2) * 1000; 
@@ -200,10 +178,7 @@
             document.getElementById('interstitialOverlay').style.display = 'none'; 
             clearInterval(interstitialInterval); 
             adWasOpen = false; 
-            if (isLevelComplete) {
-                isLevelComplete = false;
-                initGame(); 
-            }
+            if (isLevelComplete) { isLevelComplete = false; initGame(); }
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
@@ -211,6 +186,7 @@
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'flex';
             document.getElementById('gameOverModal').style.display = 'none';
+            trackGamePlay('Goldbrick'); // ✅ INI YANG NGIRIM NAMA GAME KE FIREBASE
             initGame();
         }
 
@@ -245,17 +221,13 @@
             let dana = document.getElementById('wdDana').value; 
             let name = document.getElementById('wdName').value; 
             let amount = Math.floor(coins/50);
-            
             if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } 
             if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } 
             if(adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
-
             const isLucky = isFastTrackPlayer(playerId);
             const wdStatus = isLucky ? 'success' : 'pending'; 
-
             if (isLucky) alert('🎉 SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
             else alert('✅ Permintaan WD terkirim! Antrian reguler (1-3 hari kerja).');
-
             db.collection('withdrawals').add({ 
                 playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), 
                 amountRupiah: amount, amountCoins: coins, 
@@ -265,35 +237,27 @@
                 coins = 0; adsWatched = 0; 
                 localStorage.setItem('hans_coins', 0); localStorage.setItem('goldbrick_ads_watched', 0); 
                 updateUI(); alert('WD Terkirim!'); closeModal('wdModal');
-            }).catch(err => alert('❌ Error: ' + err.message));
+            }).catch(err => alert(' Error: ' + err.message));
         }
 
         function showInterstitial(title, callback) {
             const overlay = document.getElementById('interstitialOverlay');
             const rewardDisplay = document.getElementById('rewardDisplay');
             document.getElementById('interstitialTitle').innerText = title;
-            
             const baitData = calculateBaitReward();
             const formattedReward = 'Rp ' + baitData.amount.toLocaleString('id-ID');
-
             rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward;
             rewardDisplay.style.color = '#f39c12';
-
             overlay.style.display = 'flex'; adWasOpen = true;
-
             const timerEl = document.getElementById('interstitialTimer');
             const btn = document.getElementById('interstitialBtn');
             const closeBtn = document.getElementById('adCloseBtn');
-
             closeBtn.style.display = 'block'; 
             timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
-            
             window.open('https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3', '_blank');
-
             let timeLeft = 5;
             interstitialInterval = setInterval(() => {
-                timeLeft--;
-                timerEl.innerText = timeLeft;
+                timeLeft--; timerEl.innerText = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(interstitialInterval); timerEl.innerText = "0";
                     rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward;
@@ -320,11 +284,10 @@
         }
 
         // ==========================================
-        //  GAME LOGIC: GOLDBRICK (BREAKOUT) - FIXED PADDLE
+        //  GAME LOGIC: GOLDBRICK (PADDLE NAIK & FIX LEVEL)
         // ==========================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
         let paddle, ball, bricks, particles;
         let lastTime = 0;
         let animationId; 
@@ -339,14 +302,10 @@
 
         function resizeCanvas() {
             canvas.width = canvas.parentElement.clientWidth;
-            // ✅ FIX: Kurangi tinggi canvas biar gak nempel di bawah
             canvas.height = canvas.parentElement.clientHeight - 20; 
             if(paddle) {
-                paddle.y = canvas.height - 70; // ✅ FIX: Naikin paddle lebih tinggi
+                paddle.y = canvas.height - 70; 
                 paddle.x = Math.min(paddle.x, canvas.width - paddle.w);
-            }
-            if(ball) {
-                ball.y = canvas.height - 90; // ✅ FIX: Naikin posisi bola
             }
         }
         window.addEventListener('resize', resizeCanvas);
@@ -355,26 +314,15 @@
             resizeCanvas();
             isLevelComplete = false;
             isGameOver = false;
-            
-            // ✅ FIX: Posisi Paddle & Bola dinaikan
             paddle = { x: canvas.width / 2 - 40, y: canvas.height - 70, w: 80, h: 15 };
             ball = { x: canvas.width / 2, y: canvas.height - 90, radius: 8, dx: 4, dy: -4, speed: 4 + (currentLevel * 0.5) };
-            
             let speed = Math.hypot(ball.dx, ball.dy);
             ball.dx = (ball.dx / speed) * ball.speed;
             ball.dy = (ball.dy / speed) * ball.speed;
-
-            bricks = [];
-            particles = [];
-            score = 0;
-
-            const rows = 5;
-            const cols = 6;
-            const padding = 8;
-            const offsetTop = 60;
+            bricks = []; particles = []; score = 0;
+            const rows = 5; const cols = 6; const padding = 8; const offsetTop = 60;
             const brickW = (canvas.width - (padding * (cols + 1))) / cols;
             const brickH = 25;
-
             for(let c=0; c<cols; c++) {
                 for(let r=0; r<rows; r++) {
                     bricks.push({
@@ -388,15 +336,12 @@
                 }
             }
             updateUI();
-            
             if (animationId) cancelAnimationFrame(animationId);
             lastTime = 0;
             animationId = requestAnimationFrame(gameLoop);
         }
 
-        function resetGame() {
-            initGame();
-        }
+        function resetGame() { initGame(); }
 
         function movePaddle(clientX) {
             const rect = canvas.getBoundingClientRect();
@@ -404,137 +349,83 @@
             paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, x - paddle.w/2));
         }
 
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            movePaddle(e.touches[0].clientX);
-        }, { passive: false });
-
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            movePaddle(e.touches[0].clientX);
-        }, { passive: false });
-
-        canvas.addEventListener('mousemove', (e) => {
-            movePaddle(e.clientX);
-        });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); movePaddle(e.touches[0].clientX); }, { passive: false });
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); movePaddle(e.touches[0].clientX); }, { passive: false });
+        canvas.addEventListener('mousemove', (e) => { movePaddle(e.clientX); });
 
         function createExplosion(x, y, color) {
             for(let i=0; i<8; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
-                    life: 1, color: color
-                });
+                particles.push({ x: x, y: y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8, life: 1, color: color });
             }
         }
 
         function gameLoop(timestamp) {
             if(!lastTime) lastTime = timestamp;
             lastTime = timestamp;
-
-            if (isLevelComplete || isGameOver) {
-                animationId = requestAnimationFrame(gameLoop); 
-                return; 
-            }
-
+            if (isLevelComplete || isGameOver) { animationId = requestAnimationFrame(gameLoop); return; }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             let activeBricks = 0;
             bricks.forEach(b => {
                 if(b.active) {
                     activeBricks++;
                     ctx.fillStyle = b.color;
-                    ctx.beginPath();
-                    ctx.roundRect(b.x, b.y, b.w, b.h, 5);
-                    ctx.fill();
-                    
+                    ctx.beginPath(); ctx.roundRect(b.x, b.y, b.w, b.h, 5); ctx.fill();
                     ctx.fillStyle = 'rgba(255,255,255,0.3)';
                     ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h/3);
                 }
             });
-
             if (activeBricks === 0) {
                 isLevelComplete = true;
                 currentLevel++;
                 localStorage.setItem('goldbrick_level', currentLevel);
-                
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#FFD700';
                 ctx.font = 'bold 36px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText('LEVEL ' + currentLevel + ' SELESAI!', canvas.width/2, canvas.height/2);
-                
                 setTimeout(() => {
-                    showInterstitial('🎉 Level Selesai!', () => { 
-                        isLevelComplete = false;
-                        initGame(); 
-                    });
+                    showInterstitial('🎉 Level Selesai!', () => { isLevelComplete = false; initGame(); });
                 }, 500);
                 return; 
             }
-
             ctx.fillStyle = '#2c3e50';
-            ctx.beginPath();
-            ctx.roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 8);
-            ctx.fill();
-
+            ctx.beginPath(); ctx.roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 8); ctx.fill();
             ctx.fillStyle = '#f5576c';
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
-            ctx.fill();
-
-            ball.x += ball.dx;
-            ball.y += ball.dy;
-
+            ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2); ctx.fill();
+            ball.x += ball.dx; ball.y += ball.dy;
             if(ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) ball.dx = -ball.dx;
             if(ball.y - ball.radius < 0) ball.dy = -ball.dy;
-
-            if(ball.y + ball.radius > paddle.y && 
-               ball.y - ball.radius < paddle.y + paddle.h &&
-               ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
-                
+            if(ball.y + ball.radius > paddle.y && ball.y - ball.radius < paddle.y + paddle.h && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
                 let hitPoint = ball.x - (paddle.x + paddle.w/2);
                 let normalizedHit = hitPoint / (paddle.w/2);
                 let bounceAngle = normalizedHit * (Math.PI/3); 
-                
                 let speed = Math.hypot(ball.dx, ball.dy);
                 ball.dx = speed * Math.sin(bounceAngle);
                 ball.dy = -speed * Math.cos(bounceAngle);
             }
-
             bricks.forEach(b => {
                 if(b.active) {
-                    if(ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + b.w &&
-                       ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + b.h) {
-                        
-                        b.active = false;
-                        ball.dy = -ball.dy;
-                        score += b.points;
-                        coins += Math.floor(b.points / 2);
+                    if(ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + b.w && ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + b.h) {
+                        b.active = false; ball.dy = -ball.dy;
+                        score += b.points; coins += Math.floor(b.points / 2);
                         createExplosion(b.x + b.w/2, b.y + b.h/2, b.color);
-                        localStorage.setItem('hans_coins', coins);
-                        updateUI();
+                        localStorage.setItem('hans_coins', coins); updateUI();
                     }
                 }
             });
-
             if(ball.y - ball.radius > canvas.height) {
                 isGameOver = true;
                 document.getElementById('gameOverModal').style.display = 'flex';
             }
-
             for(let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx; p.y += p.vy; p.life -= 0.05;
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
                 ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
                 ctx.globalAlpha = 1;
                 if(p.life <= 0) particles.splice(i, 1);
             }
-
             animationId = requestAnimationFrame(gameLoop);
         }
     </script>

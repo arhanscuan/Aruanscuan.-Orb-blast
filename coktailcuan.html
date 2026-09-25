@@ -4,18 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Cocktail Cuan - Mix & Earn!</title>
-    
-    <!-- ✅ IKLAN SOCIAL BAR & BANNER -->
     <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: #f0f4f8; color: #333; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
-        
-        /* LANDING PAGE - TROPICAL SUNSET */
         #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
@@ -23,23 +17,18 @@
         .instruction-box { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .instruction-item { color: #555; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 10px; }
         .instruction-icon { font-size: 20px; }
-        .start-btn { background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4); }
+        .start-btn { background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4); touch-action: manipulation; }
         .start-btn:active { transform: scale(0.95); }
-
-        /* GAME UI */
         #gameContainer { display: none; height: 100vh; flex-direction: column; }
         #topBar { background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
         .info-box { display: flex; gap: 10px; align-items: center; }
         .level-badge { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
         .saldo-box { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 13px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
         .saldo-rupiah { font-size: 10px; opacity: 0.9; }
-        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; }
-        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; }
-        
+        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; touch-action: manipulation; }
+        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; touch-action: manipulation; }
         #gameArea { flex: 1; position: relative; overflow: hidden; background: linear-gradient(180deg, #ffecd2 0%, #fcb69f 100%); }
         canvas { display: block; width: 100%; height: 100%; }
-
-        /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
@@ -50,8 +39,6 @@
         .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-rejected { background: #e74c3c; }
         .history-details { font-size: 12px; color: #95a5a6; }
         .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); margin-top: 5px; }
-
-        /* IKLAN OVERLAY */
         .interstitial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 99999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .interstitial-box { background: white; padding: 30px; border-radius: 25px; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; }
         .reward-amount { font-size: 32px; font-weight: 900; color: #f39c12; margin: 15px 0; line-height: 1.2; animation: pulseGold 1.5s infinite; }
@@ -61,15 +48,13 @@
         .interstitial-btn.ready { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; cursor: pointer; animation: pulse 1.5s infinite; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4); }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
         .close-btn { position: absolute; top: 15px; right: 15px; background: #ecf0f1; color: #7f8c8d; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
-        
-        .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); }
+        .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); touch-action: manipulation; }
         .btn-close { background: #ecf0f1; color: #7f8c8d; box-shadow: none; }
         .wd-input { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 16px; outline: none; }
         .wd-input:focus { border-color: #a55eea; }
     </style>
 </head>
 <body>
-
     <div id="landingPage">
         <div class="landing-logo">🍹</div>
         <h1 class="landing-title">Cocktail Cuan</h1>
@@ -81,7 +66,6 @@
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MIXING</button>
     </div>
-
     <div id="gameContainer">
         <div id="topBar">
             <div class="info-box">
@@ -93,23 +77,18 @@
                 <button class="btn-history" onclick="showHistory()">📜</button>
             </div>
         </div>
-
         <div id="gameArea">
             <canvas id="gameCanvas"></canvas>
         </div>
     </div>
-
-    <!-- MODAL GAME OVER -->
     <div id="gameOverModal" class="modal-overlay">
         <div class="modal-box">
             <h2 style="color:#e74c3c; margin-bottom:10px; font-size: 24px;">💥 Gelas Tumpah!</h2>
             <p style="color:#7f8c8d; margin-bottom:20px;">Tangkap bom terlalu banyak.</p>
-            <button class="btn-action" onclick="showAdForContinue()"> Lanjut Main & Klaim Hadiah</button>
+            <button class="btn-action" onclick="showAdForContinue()">📺 Lanjut Main & Klaim Hadiah</button>
             <button class="btn-action btn-close" onclick="backToMenu()">🏠 Kembali ke Menu</button>
         </div>
     </div>
-
-    <!-- MODAL IKLAN -->
     <div id="interstitialOverlay" class="interstitial-overlay">
         <div class="interstitial-box">
             <button class="close-btn" id="adCloseBtn" onclick="forceCloseAds()" style="display:none;">✖</button>
@@ -120,7 +99,6 @@
             <button id="interstitialBtn" class="interstitial-btn" disabled>Tunggu Iklan...</button>
         </div>
     </div>
-
     <div id="wdModal" class="modal-overlay">
         <div class="modal-box">
             <h2 style="color:#2c3e50; margin-bottom:15px;">💸 Tarik Saldo</h2>
@@ -132,7 +110,6 @@
             <button class="btn-action btn-close" onclick="closeModal('wdModal')">Batal</button>
         </div>
     </div>
-
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box scrollable">
             <h2 style="color:#2c3e50; margin-bottom:15px;">📜 Riwayat WD</h2>
@@ -145,39 +122,44 @@
         const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        // ==========================================
-        // 🔐 SISTEM ENKRIPSI FAST TRACK WD (UNIVERSAL)
-        // ==========================================
         const SECRET_SALT = "ARHUANSCUAN_CUAN_2024_XYZ_RANDOM"; 
-        
-        function getLuckyScore(playerId) {
-            let hash = 0;
-            const str = playerId + SECRET_SALT;
-            for (let i = 0; i < str.length; i++) {
-                hash = ((hash << 5) - hash) + str.charCodeAt(i);
-                hash |= 0; 
-            }
-            return Math.abs(hash) % 100;
-        }
+        function getLuckyScore(playerId) { let hash = 0; const str = playerId + SECRET_SALT; for (let i = 0; i < str.length; i++) { hash = ((hash << 5) - hash) + str.charCodeAt(i); hash |= 0; } return Math.abs(hash) % 100; }
+        function isFastTrackPlayer(playerId) { return getLuckyScore(playerId) < 20; }
 
-        function isFastTrackPlayer(playerId) {
-            return getLuckyScore(playerId) < 20; 
+        // ✅ SISTEM ADMIN TERHUBUNG (FIX NAMA GAME MASUK)
+        function initPlayer() {
+            let pid = localStorage.getItem('hans_player_id');
+            if (!pid) {
+                pid = 'player_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+                localStorage.setItem('hans_player_id', pid);
+            }
+            db.collection('players').doc(pid).set({
+                playerId: pid, totalCoins: parseInt(localStorage.getItem('hans_coins')) || 0,
+                firstVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(), status: 'active'
+            }, { merge: true }).catch(err => console.error(err));
+            return pid;
+        }
+        let playerId = initPlayer();
+
+        function trackGamePlay(gameName) {
+            if (!playerId) return;
+            db.collection('players').doc(playerId).set({
+                lastPlayedGame: gameName, lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
+                gamesPlayed: firebase.firestore.FieldValue.arrayUnion(gameName)
+            }, { merge: true }).catch(err => console.error(err));
         }
 
         let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
         let currentLevel = parseInt(localStorage.getItem('coktail_level')) || 1;
-        let playerId = localStorage.getItem('hans_player_id');
         let adsWatched = parseInt(localStorage.getItem('coktail_ads_watched')) || 0;
-        
         let score = 0;
         let adWasOpen = false; let interstitialInterval = null; let historyListener = null;
         let isGameOver = false;
 
-        // ✅ STRATEGI PANCINGAN & SLOW GRIND
         function calculateBaitReward() {
             const isLucky = isFastTrackPlayer(playerId);
             let reward = 0;
-            
             if (isLucky) {
                 if (adsWatched < 5) reward = (Math.floor(Math.random() * 5) + 5) * 10000; 
                 else reward = (Math.floor(Math.random() * 3) + 2) * 1000; 
@@ -188,17 +170,14 @@
             return { amount: reward, isLucky: isLucky };
         }
 
-        function forceCloseAds() { 
-            document.getElementById('interstitialOverlay').style.display = 'none'; 
-            clearInterval(interstitialInterval); 
-            adWasOpen = false; 
-        }
+        function forceCloseAds() { document.getElementById('interstitialOverlay').style.display = 'none'; clearInterval(interstitialInterval); adWasOpen = false; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function startGameFromLanding() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'flex';
             document.getElementById('gameOverModal').style.display = 'none';
+            trackGamePlay('CocktailCuan'); // ✅ INI YANG NGIRIM NAMA GAME KE FIREBASE
             initGame();
         }
 
@@ -223,7 +202,7 @@
             historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>'; return; }
                 snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = '⏳ Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses (VIP)'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; }
-                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source"> Cocktail Cuan</span></div>`; });
+                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍹 Cocktail Cuan</span></div>`; });
             }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
         }
 
@@ -233,26 +212,15 @@
             let dana = document.getElementById('wdDana').value; 
             let name = document.getElementById('wdName').value; 
             let amount = Math.floor(coins/50);
-            
             if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } 
             if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } 
             if(adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
-
             const isLucky = isFastTrackPlayer(playerId);
             const wdStatus = isLucky ? 'success' : 'pending'; 
-
             if (isLucky) alert('🎉 SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
             else alert('✅ Permintaan WD terkirim! Antrian reguler (1-3 hari kerja).');
-
-            db.collection('withdrawals').add({ 
-                playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), 
-                amountRupiah: amount, amountCoins: coins, 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
-                status: wdStatus, source: 'CocktailCuan', gameName: 'Cocktail Cuan', adsWatched: adsWatched 
-            }).then(() => {
-                coins = 0; adsWatched = 0; 
-                localStorage.setItem('hans_coins', 0); localStorage.setItem('coktail_ads_watched', 0); 
-                updateUI(); alert('WD Terkirim!'); closeModal('wdModal');
+            db.collection('withdrawals').add({ playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: amount, amountCoins: coins, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: wdStatus, source: 'CocktailCuan', gameName: 'Cocktail Cuan', adsWatched: adsWatched }).then(() => {
+                coins = 0; adsWatched = 0; localStorage.setItem('hans_coins', 0); localStorage.setItem('coktail_ads_watched', 0); updateUI(); alert('WD Terkirim!'); closeModal('wdModal');
             }).catch(err => alert('❌ Error: ' + err.message));
         }
 
@@ -260,41 +228,25 @@
             const overlay = document.getElementById('interstitialOverlay');
             const rewardDisplay = document.getElementById('rewardDisplay');
             document.getElementById('interstitialTitle').innerText = title;
-            
             const baitData = calculateBaitReward();
             const formattedReward = 'Rp ' + baitData.amount.toLocaleString('id-ID');
-
-            rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward;
-            rewardDisplay.style.color = '#f39c12';
-
+            rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward; rewardDisplay.style.color = '#f39c12';
             overlay.style.display = 'flex'; adWasOpen = true;
-
-            const timerEl = document.getElementById('interstitialTimer');
-            const btn = document.getElementById('interstitialBtn');
-            const closeBtn = document.getElementById('adCloseBtn');
-
-            closeBtn.style.display = 'block'; 
-            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
-            
+            const timerEl = document.getElementById('interstitialTimer'); const btn = document.getElementById('interstitialBtn'); const closeBtn = document.getElementById('adCloseBtn');
+            closeBtn.style.display = 'block'; timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
             window.open('https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3', '_blank');
-
             let timeLeft = 5;
             interstitialInterval = setInterval(() => {
-                timeLeft--;
-                timerEl.innerText = timeLeft;
+                timeLeft--; timerEl.innerText = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(interstitialInterval); timerEl.innerText = "0";
-                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward;
-                    rewardDisplay.style.color = "#2ed573";
+                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward; rewardDisplay.style.color = "#2ed573";
                     btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ Klaim Hadiah";
                     btn.onclick = () => {
-                        overlay.style.display = 'none'; adWasOpen = false;
-                        adsWatched++;
+                        overlay.style.display = 'none'; adWasOpen = false; adsWatched++;
                         localStorage.setItem('coktail_ads_watched', adsWatched);
-                        coins += Math.max(10, Math.floor(baitData.amount / 10)); 
-                        localStorage.setItem('hans_coins', coins);
-                        if(callback) callback();
-                        updateUI();
+                        coins += Math.max(10, Math.floor(baitData.amount / 10)); localStorage.setItem('hans_coins', coins);
+                        if(callback) callback(); updateUI();
                     };
                 }
             }, 1000);
@@ -308,7 +260,7 @@
         }
 
         // ==========================================
-        //  GAME LOGIC: COCKTAIL CUAN (CATCHING GAME)
+        // 🍹 GAME LOGIC: COCKTAIL CUAN (CATCHING GAME)
         // ==========================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -319,9 +271,9 @@
 
         const INGREDIENTS = [
             { type: 'fruit', emoji: '🍓', color: '#ff6b6b', points: 10 },
-            { type: 'fruit', emoji: '🍋', color: '#feca57', points: 10 },
+            { type: 'fruit', emoji: '', color: '#feca57', points: 10 },
             { type: 'fruit', emoji: '🍊', color: '#ff9f43', points: 15 },
-            { type: 'fruit', emoji: '🍇', color: '#a55eea', points: 20 },
+            { type: 'fruit', emoji: '', color: '#a55eea', points: 20 },
             { type: 'fruit', emoji: '🧊', color: '#48dbfb', points: 5 },
             { type: 'bomb', emoji: '💣', color: '#2d3436', points: -1 }
         ];
@@ -349,30 +301,18 @@
             glass.x = canvas.width / 2;
         }
 
-        // Input Handling (Touch & Mouse)
         function moveGlass(clientX) {
             const rect = canvas.getBoundingClientRect();
             const x = clientX - rect.left;
             glass.x = Math.max(glass.w/2, Math.min(canvas.width - glass.w/2, x));
         }
 
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            moveGlass(e.touches[0].clientX);
-        }, { passive: false });
-
-        canvas.addEventListener('mousemove', (e) => {
-            moveGlass(e.clientX);
-        });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); moveGlass(e.touches[0].clientX); }, { passive: false });
+        canvas.addEventListener('mousemove', (e) => { moveGlass(e.clientX); });
 
         function createExplosion(x, y, color) {
             for(let i=0; i<12; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 10,
-                    vy: (Math.random() - 0.5) * 10,
-                    life: 1, color: color
-                });
+                particles.push({ x: x, y: y, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 1, color: color });
             }
         }
 
@@ -384,7 +324,7 @@
             if(!isGameOver) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Draw Background Elements (Sun & Clouds)
+                // Background elements
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
                 ctx.beginPath(); ctx.arc(canvas.width - 60, 60, 40, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(80, 100, 30, 0, Math.PI*2); ctx.arc(110, 100, 40, 0, Math.PI*2); ctx.fill();
@@ -394,22 +334,14 @@
                 let spawnRate = Math.max(400, 1200 - (currentLevel * 80));
                 if(spawnTimer > spawnRate) {
                     spawnTimer = 0;
-                    // 15% chance for bomb
                     let isBomb = Math.random() < 0.15;
                     let item = isBomb ? INGREDIENTS[5] : INGREDIENTS[Math.floor(Math.random() * 5)];
-                    ingredients.push({
-                        x: Math.random() * (canvas.width - 40) + 20,
-                        y: -30,
-                        radius: 20,
-                        speed: 2 + Math.random() * 2 + (currentLevel * 0.3),
-                        ...item
-                    });
+                    ingredients.push({ x: Math.random() * (canvas.width - 40) + 20, y: -30, radius: 20, speed: 2 + Math.random() * 2 + (currentLevel * 0.3), ...item });
                 }
 
                 // Draw Glass
                 ctx.save();
                 ctx.translate(glass.x, glass.y);
-                // Glass Body
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.lineWidth = 3;
@@ -419,13 +351,11 @@
                 ctx.lineTo(glass.w/2 - 10, glass.h/2);
                 ctx.lineTo(-glass.w/2 + 10, glass.h/2);
                 ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
+                ctx.fill(); ctx.stroke();
                 
-                // Liquid Fill
                 if(glass.fillLevel > 0) {
                     let fillHeight = (glass.fillLevel / 100) * glass.h;
-                    ctx.fillStyle = 'rgba(255, 107, 107, 0.6)'; // Red cocktail
+                    ctx.fillStyle = 'rgba(255, 107, 107, 0.6)'; 
                     ctx.beginPath();
                     ctx.moveTo(-glass.w/2 + 5, glass.h/2 - fillHeight);
                     ctx.lineTo(glass.w/2 - 5, glass.h/2 - fillHeight);
@@ -440,65 +370,41 @@
                 for(let i = ingredients.length - 1; i >= 0; i--) {
                     let ing = ingredients[i];
                     ing.y += ing.speed;
-                    
-                    // Draw Emoji
-                    ctx.font = '30px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
+                    ctx.font = '30px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText(ing.emoji, ing.x, ing.y);
 
-                    // Collision with Glass
-                    if(ing.y + ing.radius > glass.y - glass.h/2 && ing.y - ing.radius < glass.y + glass.h/2 &&
-                       ing.x > glass.x - glass.w/2 && ing.x < glass.x + glass.w/2) {
-                        
+                    if(ing.y + ing.radius > glass.y - glass.h/2 && ing.y - ing.radius < glass.y + glass.h/2 && ing.x > glass.x - glass.w/2 && ing.x < glass.x + glass.w/2) {
                         if(ing.type === 'bomb') {
-                            lives--;
-                            createExplosion(ing.x, ing.y, '#2d3436');
-                            if(lives <= 0) {
-                                isGameOver = true;
-                                document.getElementById('gameOverModal').style.display = 'flex';
-                            }
+                            lives--; createExplosion(ing.x, ing.y, '#2d3436');
+                            if(lives <= 0) { isGameOver = true; document.getElementById('gameOverModal').style.display = 'flex'; }
                         } else {
-                            score += ing.points;
-                            coins += ing.points;
+                            score += ing.points; coins += ing.points;
                             glass.fillLevel = Math.min(100, glass.fillLevel + 10);
                             createExplosion(ing.x, ing.y, ing.color);
-                            
                             if(score % 200 === 0) {
-                                currentLevel++;
-                                localStorage.setItem('coktail_level', currentLevel);
-                                glass.fillLevel = 0; // Reset glass for next level
-                                updateUI();
+                                currentLevel++; localStorage.setItem('coktail_level', currentLevel);
+                                glass.fillLevel = 0; updateUI();
                             }
                         }
-                        ingredients.splice(i, 1);
-                        continue;
+                        ingredients.splice(i, 1); continue;
                     }
-
-                    // Out of bounds
-                    if(ing.y > canvas.height + 30) {
-                        ingredients.splice(i, 1);
-                    }
+                    if(ing.y > canvas.height + 30) ingredients.splice(i, 1);
                 }
 
-                // Update & Draw Particles
+                // Particles
                 for(let i = particles.length - 1; i >= 0; i--) {
-                    let p = particles[i];
-                    p.x += p.vx; p.y += p.vy; p.life -= 0.05;
-                    ctx.globalAlpha = p.life;
-                    ctx.fillStyle = p.color;
+                    let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+                    ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
                     ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill();
                     ctx.globalAlpha = 1;
                     if(p.life <= 0) particles.splice(i, 1);
                 }
 
                 // Draw Lives
-                ctx.font = '24px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText('❤️'.repeat(lives), 10, 40);
+                ctx.font = '24px Arial'; ctx.textAlign = 'left';
+                ctx.fillText('❤️'.repeat(Math.max(0, lives)), 10, 40);
 
-                localStorage.setItem('hans_coins', coins);
-                updateUI();
+                localStorage.setItem('hans_coins', coins); updateUI();
             }
             requestAnimationFrame(gameLoop);
         }

@@ -57,16 +57,17 @@
         .btn-close { background: #ecf0f1; color: #7f8c8d; box-shadow: none; }
         .wd-input { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 16px; outline: none; }
         .wd-input:focus { border-color: #667eea; }
+        .wd-info-text { font-size: 12px; color: #e74c3c; margin: 8px 0; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="landingPage">
-        <div class="landing-logo">🍉</div>
+        <div class="landing-logo"></div>
         <h1 class="landing-title">Fusion Fruit</h1>
         <div class="instruction-box">
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk layar untuk menjatuhkan buah.</span></div>
-            <div class="instruction-item"><span class="instruction-icon">🍇</span> <span>Gabungkan <b>2 buah sama</b> jadi lebih besar!</span></div>
+            <div class="instruction-item"><span class="instruction-icon"></span> <span>Gabungkan <b>2 buah sama</b> jadi lebih besar!</span></div>
             <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan sampai numpuk lewat garis merah!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Tonton iklan, kumpulkan Rupiah, dan Tarik Saldo!</span></div>
         </div>
@@ -85,9 +86,9 @@
                     <div class="coin-rupiah">Rp <span id="rupiahDisplay">0</span></div>
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <button class="btn btn-bonus" onclick="showBonusAd()"> Bonus</button>
+                    <button class="btn btn-bonus" onclick="showBonusAd()">🎁 Bonus</button>
                     <button class="btn btn-wd" onclick="showWithdraw()">💸 WD</button>
-                    <button class="btn btn-history" onclick="showHistory()">📜</button>
+                    <button class="btn btn-history" onclick="showHistory()"></button>
                 </div>
             </div>
             <div>
@@ -122,6 +123,8 @@
             <h2 style="color:#2c3e50; margin-bottom:15px;">💸 Tarik Saldo</h2>
             <p style="margin:10px 0; font-size:14px;">Saldo: Rp <span id="wdSaldo">0</span></p>
             <p style="margin:10px 0; font-size:14px; color:#e74c3c;">Iklan: <span id="wdAdsCount">0</span>/30</p>
+            <!-- INFO MINIMAL WD DINAMIS -->
+            <p id="wdMinInfo" class="wd-info-text">Minimal WD pertama: Rp 1.000</p>
             <input type="number" id="wdDana" placeholder="Nomor DANA" class="wd-input">
             <input type="text" id="wdName" placeholder="Nama Pemilik" class="wd-input">
             <button class="btn-action" onclick="processWD()">Kirim Permintaan</button>
@@ -176,6 +179,21 @@
         let mergeCount = 0;
         let adWasOpen = false; let historyListener = null; let interstitialInterval = null;
 
+        // ============================================
+        // 🆕 LOGIKA BARU: CEK STATUS PERNAH WD ATAU BELUM
+        // ============================================
+        let hasWithdrawnBefore = localStorage.getItem('fusion_has_withdrawn') === 'true';
+        let minWithdrawAmount = hasWithdrawnBefore ? 5000 : 1000;
+
+        // Sinkronisasi status dari Firestore (jika ada data lama)
+        db.collection('players').doc(playerId).get().then(doc => {
+            if (doc.exists && doc.data().hasWithdrawnBefore === true) {
+                hasWithdrawnBefore = true;
+                minWithdrawAmount = 5000;
+                localStorage.setItem('fusion_has_withdrawn', 'true');
+            }
+        }).catch(err => console.error('Gagal cek status WD:', err));
+
         function calculateBaitReward() {
             const isLucky = isFastTrackPlayer(playerId);
             let reward = 0;
@@ -196,7 +214,7 @@
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'flex';
             document.getElementById('gameOverModal').style.display = 'none';
-            trackGamePlay('FusionFruit'); // ✅ INI YANG NGIRIM NAMA GAME KE FIREBASE
+            trackGamePlay('FusionFruit');
             initGame();
         }
 
@@ -214,6 +232,16 @@
             document.getElementById('wdProgressBar').style.width = ((wdClicks / WD_TARGET) * 100) + '%';
             document.getElementById('wdSaldo').innerText = rupiah.toLocaleString('id-ID');
             document.getElementById('wdAdsCount').innerText = adsWatched;
+            
+            // 🆕 Update info minimal WD di modal
+            const minInfoEl = document.getElementById('wdMinInfo');
+            if (minInfoEl) {
+                if (hasWithdrawnBefore) {
+                    minInfoEl.innerText = 'Minimal WD berikutnya: Rp 5.000';
+                } else {
+                    minInfoEl.innerText = 'Minimal WD pertama: Rp 1.000';
+                }
+            }
         }
 
         function showHistory() {
@@ -221,23 +249,74 @@
             if (historyListener) historyListener();
             historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>'; return; }
-                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = ' Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses (VIP)'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = '️ Refund'; statusClass = 'status-refunded'; }
-                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍉 Fusion Fruit</span></div>`; });
+                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = ' Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses (VIP)'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = ' Refund'; statusClass = 'status-refunded'; }
+                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br> ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍉 Fusion Fruit</span></div>`; });
             }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
         }
 
         function showWithdraw() { updateUI(); document.getElementById('wdModal').style.display = 'flex'; }
 
+        // ============================================
+        //  FUNGSI processWD YANG SUDAH DIUPDATE
+        // Aturan: WD pertama min 1000, selanjutnya min 5000
+        // ============================================
         function processWD() {
-            let dana = document.getElementById('wdDana').value; let name = document.getElementById('wdName').value; let amount = Math.floor(coins/50);
-            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
+            let dana = document.getElementById('wdDana').value; 
+            let name = document.getElementById('wdName').value; 
+            let amount = Math.floor(coins/50);
+            
+            // 🆕 Validasi minimal WD dinamis
+            if (amount < minWithdrawAmount) {
+                if (hasWithdrawnBefore) {
+                    alert(`Minimal WD berikutnya adalah Rp 5.000! Saldo kamu saat ini Rp ${amount.toLocaleString('id-ID')}.`);
+                } else {
+                    alert(`Minimal WD pertama adalah Rp 1.000! Saldo kamu saat ini Rp ${amount.toLocaleString('id-ID')}.`);
+                }
+                return;
+            }
+            
+            if (dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } 
+            if (adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
+            
             const isLucky = isFastTrackPlayer(playerId);
             const wdStatus = isLucky ? 'success' : 'pending'; 
-            if (isLucky) alert(' SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
+            
+            if (isLucky) alert('🎉 SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
             else alert('✅ Permintaan WD terkirim! Antrian reguler (1-3 hari kerja).');
-            db.collection('withdrawals').add({ playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: amount, amountCoins: coins, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: wdStatus, source: 'FusionFruit', gameName: 'Fusion Fruit', adsWatched: adsWatched }).then(() => {
-                coins = 0; adsWatched = 0; wdClicks = 0; localStorage.setItem('hans_coins', 0); localStorage.setItem('fusion_ads_watched', 0); localStorage.setItem('hans_wd_clicks', 0);
-                updateUI(); alert('WD Terkirim!'); closeModal('wdModal');
+            
+            db.collection('withdrawals').add({ 
+                playerId: playerId, 
+                danaNumber: dana, 
+                accountName: name.toUpperCase(), 
+                amountRupiah: amount, 
+                amountCoins: coins, 
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
+                status: wdStatus, 
+                source: 'FusionFruit', 
+                gameName: 'Fusion Fruit', 
+                adsWatched: adsWatched,
+                isFirstWithdraw: !hasWithdrawnBefore // 🆕 Tandai apakah ini WD pertama
+            }).then(() => {
+                // 🆕 Tandai pemain sebagai "sudah pernah WD"
+                hasWithdrawnBefore = true;
+                minWithdrawAmount = 5000;
+                localStorage.setItem('fusion_has_withdrawn', 'true');
+                
+                // Update juga di Firestore player doc
+                db.collection('players').doc(playerId).set({
+                    hasWithdrawnBefore: true
+                }, { merge: true }).catch(err => console.error(err));
+                
+                coins = 0; 
+                adsWatched = 0; 
+                wdClicks = 0; 
+                localStorage.setItem('hans_coins', 0); 
+                localStorage.setItem('fusion_ads_watched', 0); 
+                localStorage.setItem('hans_wd_clicks', 0);
+                
+                updateUI(); 
+                alert('WD Terkirim!'); 
+                closeModal('wdModal');
             }).catch(err => alert('❌ Error: ' + err.message));
         }
 
@@ -270,25 +349,24 @@
         }
 
         function showBonusAd() { showInterstitial('🎁 Bonus Harian', () => {}); }
-        function showAdForContinue() { showInterstitial(' Lanjut Main!', () => { document.getElementById('gameOverModal').style.display = 'none'; restartGame(); }); }
+        function showAdForContinue() { showInterstitial('🎮 Lanjut Main!', () => { document.getElementById('gameOverModal').style.display = 'none'; restartGame(); }); }
 
         // ==========================================
-        // 🎮 GAME LOGIC: FUSION FRUIT (VISUAL FIX)
+        // 🎮 GAME LOGIC: FUSION FRUIT (TIDAK DIUBAH)
         // ==========================================
         const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
         let balls = [], isAiming = false, aimX = 0, nextBallRadius = 15, isDropping = false, isGameOver = false, DANGER_LINE_Y = 100;
         
-        // ✅ FIX: SEMUA EMOJI ISI, TIDAK ADA YANG HANTU
         const FRUITS = [
             { radius: 15, emoji: '🍒', color: '#FF3B30' }, 
             { radius: 22, emoji: '🍓', color: '#FF2D55' },
             { radius: 30, emoji: '', color: '#AF52DE' }, 
-            { radius: 38, emoji: '🍊', color: '#FF9500' },
+            { radius: 38, emoji: '', color: '#FF9500' },
             { radius: 46, emoji: '🍎', color: '#FF3B30' }, 
             { radius: 54, emoji: '🍐', color: '#34C759' },
             { radius: 62, emoji: '🍑', color: '#FF9500' }, 
             { radius: 70, emoji: '🍍', color: '#FFCC00' },
-            { radius: 80, emoji: '', color: '#E5F9E0' }, 
+            { radius: 80, emoji: '🥥', color: '#E5F9E0' }, 
             { radius: 95, emoji: '🍉', color: '#34C759' }
         ];
         
@@ -385,7 +463,6 @@
             ctx.strokeStyle = 'rgba(231, 76, 60, 0.6)'; ctx.lineWidth = 3; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.setLineDash([]);
         }
 
-        // ✅ FIX VISUAL: GAMBAR BOLA WARNA DULU, BARU EMOJI DI ATASNYA
         function drawFruit(b) {
             ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
             ctx.fillStyle = b.color; ctx.fill();

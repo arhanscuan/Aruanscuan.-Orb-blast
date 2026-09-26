@@ -45,6 +45,12 @@ canvas{display:block;background:#000;touch-action:none}
 </div>
 
 <div id="mainMenu" class="menu">
+<!-- IKLAN NATIVE BANNER ATAS -->
+<div style="text-align:center; margin-bottom: 15px; width: 100%;">
+    <script async="async" data-cfasync="false" src="https://pl31518381.profitableratecpmnetwork.com/97cc32141a5a6a037e54df1360212764/invoke.js"></script>
+    <div id="container-97cc32141a5a6a037e54df1360212764"></div>
+</div>
+
 <h1>⭐ STAR ENEMY</h1>
 <h2>SPACE BATTLE</h2>
 <div class="box">
@@ -57,7 +63,7 @@ canvas{display:block;background:#000;touch-action:none}
 <p>👹 Final Boss level 20!</p>
 </div>
 <div class="box">
-<h3>🎮 KONTROL</h3>
+<h3> KONTROL</h3>
 <p>📱 Sentuh & geser = Gerak + Tembak</p>
 <p>⌨️ Arrow/WASD + Space</p>
 </div>
@@ -291,7 +297,6 @@ function spawnEnemy() {
 
     if (rand < carrierChance) {
         const types = ['spread', 'laser', 'homing', 'shield', 'bomb', 'life'];
-        const item = types[Math.floor(Math.random() * types.length)];
         const colors = { spread: '#ff8800', laser: '#ff0044', homing: '#00ff88', shield: '#00ccff', bomb: '#ff4400', life: '#ff00ff' };
         enemy = {
             x: 30 + Math.random() * (W - 60), y: -40, w: 42, h: 42,
@@ -852,7 +857,7 @@ function gameLoop() {
             ctx.font = 'bold 16px monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            const icons = { spread: '⬆', laser: '⚡', homing: '◎', shield: '◈', bomb: '💣', life: '❤' };
+            const icons = { spread: '⬆', laser: '', homing: '◎', shield: '', bomb: '💣', life: '❤' };
             ctx.fillText(icons[e.carriedItem] || '?', 0, 0);
         } else if (e.type === 'basic') {
             ctx.beginPath();
@@ -996,7 +1001,7 @@ function gameLoop() {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ff0';
     ctx.font = 'bold 14px monospace';
-    ctx.fillText('💰' + coins, W / 2, 14 + hudOffset);
+    ctx.fillText('' + coins, W / 2, 14 + hudOffset);
 
     // HP bar
     const hpBarX = W - 110, hpBarW = 100, hpBarH = 8;
@@ -1016,7 +1021,7 @@ function gameLoop() {
     let weaponX = 8;
     if (player.activeWeapon === 'spread' && player.spreadLv > 0) {
         ctx.fillStyle = '#ff8800';
-        ctx.fillText('⬆' + player.spreadLv, weaponX, weaponY);
+        ctx.fillText('' + player.spreadLv, weaponX, weaponY);
         weaponX += 50;
     } else if (player.activeWeapon === 'laser' && player.laserLv > 0) {
         ctx.fillStyle = '#ff0044';
@@ -1029,7 +1034,7 @@ function gameLoop() {
     }
     if (player.shieldLv > 0 && player.shieldTimer > 0) {
         ctx.fillStyle = '#0cf';
-        ctx.fillText('◈' + player.shieldLv + '[' + Math.ceil(player.shieldTimer / 60) + 's]', weaponX, weaponY);
+        ctx.fillText('' + player.shieldLv + '[' + Math.ceil(player.shieldTimer / 60) + 's]', weaponX, weaponY);
     }
 
     // Lives
@@ -1135,5 +1140,7 @@ document.addEventListener('gestureend', e => e.preventDefault());
 initStars();
 gameLoop();
 </script>
+<!-- IKLAN SOCIAL BAR -->
+<script src="https://pl31518382.profitableratecpmnetwork.com/0f/36/d0/0f36d0aec4f656ad74721fb1481557c5.js"></script>
 </body>
 </html>

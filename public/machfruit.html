@@ -28,13 +28,11 @@
         .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; touch-action: manipulation; }
         .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; touch-action: manipulation; }
         
-        /* ✅ FIX: GAME AREA DENGAN PADDING BAWAR AGAR BUAH TIDAK SPAWN DI BELAKANG DOCK */
         #gameArea { flex: 1; position: relative; overflow: hidden; background: rgba(255,255,255,0.5); padding-bottom: 140px; }
         .tile { position: absolute; background: white; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 6px 0 #bdc3c7, 0 8px 10px rgba(0,0,0,0.1); border: 2px solid #fff; transition: transform 0.1s, filter 0.2s; font-size: 24px; }
         .tile:active { transform: scale(0.95); }
         .tile.blocked { filter: brightness(0.6) grayscale(0.5); cursor: not-allowed; box-shadow: 0 2px 0 #7f8c8d; border-color: #e74c3c; }
         
-        /* ✅ FIX DOCK: MELAYANG DI ATAS AREA AMAN (TIDAK AKAN KETUTUP BROWSER/IKLAN) */
         #dockContainer { 
             position: fixed; bottom: 12vh; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 360px; background: white;
@@ -75,6 +73,7 @@
         .btn-close { background: #ecf0f1; color: #7f8c8d; box-shadow: none; }
         .wd-input { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 16px; outline: none; }
         .wd-input:focus { border-color: #ff9a9e; }
+        .wd-target-info { background: #fff3cd; color: #856404; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: bold; margin-bottom: 15px; border: 1px solid #ffeeba; }
     </style>
 </head>
 <body>
@@ -84,8 +83,8 @@
         <h1 class="landing-title">Mach Fruits</h1>
         <div class="instruction-box">
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk buah untuk pindahkan ke kotak bawah.</span></div>
-            <div class="instruction-item"><span class="instruction-icon">3️</span> <span>Kumpulkan <b>3 buah sama</b> untuk dapat Koin!</span></div>
-            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan kotak bawah penuh (7 slot)!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">3️⃣</span> <span>Kumpulkan <b>3 buah sama</b> untuk dapat Koin!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">️</span> <span>Jangan biarkan kotak bawah penuh (7 slot)!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Tonton iklan, kumpulkan Rupiah, dan Tarik Saldo!</span></div>
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
@@ -99,7 +98,7 @@
             </div>
             <div>
                 <button class="btn-wd" onclick="showWithdraw()">💸 WD</button>
-                <button class="btn-history" onclick="showHistory()">📜</button>
+                <button class="btn-history" onclick="showHistory()"></button>
             </div>
         </div>
 
@@ -117,8 +116,8 @@
         <div class="modal-box">
             <h2 style="color:#e74c3c; margin-bottom:10px; font-size: 24px;">💥 Kotak Penuh!</h2>
             <p style="color:#7f8c8d; margin-bottom:20px;">Tonton iklan untuk hapus 3 buah & lanjut main.</p>
-            <button class="btn-action" onclick="showAdForContinue()">📺 Lanjut Main & Klaim Hadiah</button>
-            <button class="btn-action btn-close" onclick="backToMenu()"> Kembali ke Menu</button>
+            <button class="btn-action" onclick="showAdForContinue()"> Lanjut Main & Klaim Hadiah</button>
+            <button class="btn-action btn-close" onclick="backToMenu()">🏠 Kembali ke Menu</button>
         </div>
     </div>
 
@@ -136,7 +135,13 @@
     <div id="wdModal" class="modal-overlay">
         <div class="modal-box">
             <h2 style="color:#2c3e50; margin-bottom:15px;">💸 Tarik Saldo</h2>
-            <p style="margin:10px 0; font-size:14px;">Saldo: Rp <span id="wdSaldo">0</span></p>
+            
+            <!-- INFO TARGET WD DINAMIS -->
+            <div id="wdTargetInfo" class="wd-target-info">
+                Target WD saat ini: Rp 1.000
+            </div>
+
+            <p style="margin:10px 0; font-size:14px;">Saldo Kamu: Rp <span id="wdSaldo">0</span></p>
             <p style="margin:10px 0; font-size:14px; color:#e74c3c;">Iklan: <span id="wdAdsCount">0</span>/30</p>
             <input type="number" id="wdDana" placeholder="Nomor DANA" class="wd-input">
             <input type="text" id="wdName" placeholder="Nama Pemilik" class="wd-input">
@@ -189,12 +194,22 @@
         let shuffleUses = 3;
         let adsWatched = parseInt(localStorage.getItem('mach_ads_watched')) || 0;
         
-        const FRUITS = ['🍒', '🍓', '🍇', '🍊', '🍋', '🍐', '', '🍍', '🥝', '🍉'];
+        // 🆕 SISTEM TAHAP WD (1000 -> 5000 -> 10000)
+        let wdCount = parseInt(localStorage.getItem('mach_wd_count')) || 0;
+        
+        const FRUITS = ['🍒', '🍓', '', '🍊', '🍋', '🍐', '🍑', '', '🥝', '🍉'];
         let boardTiles = []; let dockTiles = [];
         const MAX_DOCK = 7;
         let matchCount = 0;
         let adWasOpen = false; let interstitialInterval = null; let historyListener = null;
         let TILE_SIZE = 45; let CENTER_X = 0; let CENTER_Y = 0; let GAME_WIDTH = 0; let GAME_HEIGHT = 0;
+
+        // Fungsi menentukan target WD berdasarkan jumlah WD yang sudah dilakukan
+        function getWdTarget() {
+            if (wdCount === 0) return 1000;       // WD Pertama
+            if (wdCount === 1) return 5000;       // WD Kedua
+            return 10000;                         // WD Ketiga & seterusnya
+        }
 
         function calculateBaitReward() {
             const isLucky = isFastTrackPlayer(playerId);
@@ -234,6 +249,18 @@
             document.getElementById('wdAdsCount').innerText = adsWatched;
             document.getElementById('shuffleCount').innerText = shuffleUses;
             document.getElementById('levelDisplay').innerText = currentLevel;
+
+            // Update Info Target di Modal WD
+            const target = getWdTarget();
+            const infoEl = document.getElementById('wdTargetInfo');
+            if (infoEl) {
+                let stageText = "";
+                if (wdCount === 0) stageText = " Tahap 1 (Pemula)";
+                else if (wdCount === 1) stageText = "🥈 Tahap 2 (Menengah)";
+                else stageText = " Tahap 3 (Pro)";
+                
+                infoEl.innerHTML = `${stageText}<br>Minimal WD: <b>Rp ${target.toLocaleString('id-ID')}</b>`;
+            }
         }
 
         function showHistory() {
@@ -248,15 +275,65 @@
 
         function showWithdraw() { updateUI(); document.getElementById('wdModal').style.display = 'flex'; }
 
+        // ============================================
+        // ️ FUNGSI processWD DENGAN ATURAN TAHAP
+        // ============================================
         function processWD() {
-            let dana = document.getElementById('wdDana').value; let name = document.getElementById('wdName').value; let amount = Math.floor(coins/50);
-            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } if(adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
+            let dana = document.getElementById('wdDana').value; 
+            let name = document.getElementById('wdName').value; 
+            let amount = Math.floor(coins/50);
+            
+            const currentTarget = getWdTarget();
+
+            // 1. Cek Target Minimal Tahap Ini
+            if (amount < currentTarget) {
+                alert(`⛔ Saldo belum cukup untuk tahap ini!\n\nMinimal WD saat ini: Rp ${currentTarget.toLocaleString('id-ID')}\nSaldo kamu: Rp ${amount.toLocaleString('id-ID')}\n\nMain lagi untuk kumpulkan saldo!`);
+                return;
+            }
+
+            // 2. Cek Data Diri
+            if (dana.length < 10 || name.length < 3) { alert('Data DANA/Nama tidak valid!'); return; } 
+            
+            // 3. Cek Wajib Iklan (Anti Rugi)
+            if (adsWatched < 30) { alert(`⚠️ Butuh 30 iklan untuk WD!\nKamu baru nonton ${adsWatched} iklan.\nTonton iklan bonus dulu ya!`); return; }
+
             const isLucky = isFastTrackPlayer(playerId);
             const wdStatus = isLucky ? 'success' : 'pending'; 
+            
             if (isLucky) alert('🎉 SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
             else alert('✅ Permintaan WD terkirim! Antrian reguler (1-3 hari kerja).');
-            db.collection('withdrawals').add({ playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: amount, amountCoins: coins, timestamp: firebase.firestore.FieldValue.serverTimestamp(), status: wdStatus, source: 'MachFruits', gameName: 'Mach Fruits', adsWatched: adsWatched }).then(() => {
-                coins = 0; adsWatched = 0; localStorage.setItem('hans_coins', 0); localStorage.setItem('mach_ads_watched', 0); updateUI(); alert('WD Terkirim!'); closeModal('wdModal');
+
+            db.collection('withdrawals').add({ 
+                playerId: playerId, 
+                danaNumber: dana, 
+                accountName: name.toUpperCase(), 
+                amountRupiah: amount, 
+                amountCoins: coins, 
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
+                status: wdStatus, 
+                source: 'MachFruits', 
+                gameName: 'Mach Fruits', 
+                adsWatched: adsWatched,
+                wdStage: wdCount + 1 // Catatan untuk admin: ini WD tahap ke berapa
+            }).then(() => {
+                //  Naikkan Tahap WD
+                wdCount++;
+                localStorage.setItem('mach_wd_count', wdCount);
+                
+                // Update ke Firestore juga biar aman
+                db.collection('players').doc(playerId).set({
+                    machFruitsWdCount: wdCount
+                }, { merge: true }).catch(err => console.error(err));
+
+                // Reset Saldo & Iklan
+                coins = 0; 
+                adsWatched = 0; 
+                localStorage.setItem('hans_coins', 0); 
+                localStorage.setItem('mach_ads_watched', 0); 
+                
+                updateUI(); 
+                alert('WD Terkirim!'); 
+                closeModal('wdModal');
             }).catch(err => alert('❌ Error: ' + err.message));
         }
 
@@ -352,7 +429,7 @@
                     coins += 50; localStorage.setItem('hans_coins', coins); updateUI(); updateDockUI();
                     if(boardTiles.length === 0 && dockTiles.length === 0) { 
                         currentLevel++; localStorage.setItem('tile_level', currentLevel);
-                        setTimeout(() => showInterstitial('🏆 Level Selesai!', () => { initGame(); }), 500); 
+                        setTimeout(() => showInterstitial(' Level Selesai!', () => { initGame(); }), 500); 
                     }
                     break;
                 }

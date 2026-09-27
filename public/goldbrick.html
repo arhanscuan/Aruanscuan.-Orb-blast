@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Goldbrick - Hancurkan & Menang!</title>
+    <title>Gold Brick - Main & Menang!</title>
     <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -13,22 +13,27 @@
         #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        .landing-title { font-size: 36px; font-weight: 800; color: #fff; text-shadow: 2px 2px 8px rgba(253, 160, 133, 0.6); margin-bottom: 20px; }
-        .instruction-box { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .landing-title { font-size: 36px; font-weight: 800; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        .instruction-box { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); }
         .instruction-item { color: #555; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 10px; }
         .instruction-icon { font-size: 20px; }
-        .start-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4); touch-action: manipulation; }
+        .start-btn { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(253, 160, 133, 0.4); touch-action: manipulation; }
         .start-btn:active { transform: scale(0.95); }
         #gameContainer { display: none; height: 100vh; flex-direction: column; }
-        #topBar { background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
-        .info-box { display: flex; gap: 10px; align-items: center; }
-        .level-badge { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
-        .saldo-box { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 13px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
-        .saldo-rupiah { font-size: 10px; opacity: 0.9; }
-        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 12px; touch-action: manipulation; }
-        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.1); margin-left: 5px; font-size: 12px; touch-action: manipulation; }
-        #gameArea { flex: 1; position: relative; overflow: hidden; background: linear-gradient(180deg, #fff1eb 0%, #ace0f9 100%); padding-bottom: 40px; box-sizing: border-box; }
+        #gameArea { flex: 1; position: relative; margin: 10px; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); touch-action: none; background: #fff; }
         canvas { display: block; width: 100%; height: 100%; }
+        .ui-panel { background: white; padding: 15px; border-radius: 20px 20px 0 0; text-align: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 10; display: flex; flex-direction: column; gap: 10px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .coin-badge { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3); display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+        .coin-amount { font-size: 16px; } .coin-rupiah { font-size: 10px; opacity: 0.9; }
+        .btn { border: none; padding: 10px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; transition: transform 0.1s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); touch-action: manipulation; }
+        .btn:active { transform: scale(0.95); }
+        .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); }
+        .btn-bonus { background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%); }
+        .btn-history { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); }
+        .progress-container { width: 100%; height: 10px; background: #ecf0f1; border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #2ed573 0%, #7bed9f 100%); width: 0%; transition: width 0.3s; }
+        .wd-text { font-size: 11px; color: #7f8c8d; margin-top: 5px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
@@ -36,14 +41,14 @@
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .history-amount { color: #2c3e50; font-weight: bold; font-size: 16px; }
         .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
-        .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-rejected { background: #e74c3c; }
+        .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-refunded { background: #3498db; } .status-rejected { background: #e74c3c; }
         .history-details { font-size: 12px; color: #95a5a6; }
         .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); margin-top: 5px; }
         .interstitial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 99999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .interstitial-box { background: white; padding: 30px; border-radius: 25px; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); position: relative; }
         .reward-amount { font-size: 32px; font-weight: 900; color: #f39c12; margin: 15px 0; line-height: 1.2; animation: pulseGold 1.5s infinite; }
         @keyframes pulseGold { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .interstitial-timer { font-size: 48px; font-weight: 800; color: #f5576c; margin: 10px 0; }
+        .interstitial-timer { font-size: 48px; font-weight: 800; color: #fda085; margin: 10px 0; }
         .interstitial-btn { background: #bdc3c7; color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 18px; font-weight: bold; width: 100%; cursor: not-allowed; transition: all 0.3s; }
         .interstitial-btn.ready { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; cursor: pointer; animation: pulse 1.5s infinite; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4); }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
@@ -51,58 +56,78 @@
         .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); touch-action: manipulation; }
         .btn-close { background: #ecf0f1; color: #7f8c8d; box-shadow: none; }
         .wd-input { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 16px; outline: none; }
-        .wd-input:focus { border-color: #f5576c; }
+        .wd-input:focus { border-color: #fda085; }
+        .wd-target-info { background: #fff3cd; color: #856404; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: bold; margin-bottom: 15px; border: 1px solid #ffeeba; }
     </style>
 </head>
 <body>
+
     <div id="landingPage">
         <div class="landing-logo">🧱</div>
-        <h1 class="landing-title">Goldbrick</h1>
+        <h1 class="landing-title">Gold Brick</h1>
         <div class="instruction-box">
-            <div class="instruction-item"><span class="instruction-icon"></span> <span>Geser paddle di bawah untuk memantulkan bola.</span></div>
-            <div class="instruction-item"><span class="instruction-icon">💥</span> <span>Hancurkan bata emas untuk dapat Koin!</span></div>
-            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan bola jatuh ke bawah!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk layar untuk menjatuhkan bata.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">🧱</span> <span>Gabungkan <b>2 bata sama</b> jadi lebih besar!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan sampai numpuk lewat garis merah!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Tonton iklan, kumpulkan Rupiah, dan Tarik Saldo!</span></div>
         </div>
-        <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI PECAHKAN</button>
+        <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
+        <p style="color: rgba(0,0,0,0.4); font-size: 11px; margin-top: 20px;">© 2024 Gold Brick. All rights reserved.</p>
     </div>
+
     <div id="gameContainer">
-        <div id="topBar">
-            <div class="info-box">
-                <div class="level-badge">Lv <span id="levelDisplay">1</span></div>
-            </div>
-            <div class="saldo-box"> <span id="coinDisplay">0</span><div class="saldo-rupiah">Rp <span id="rupiahDisplay">0</span></div></div>
-            <div>
-                <button class="btn-wd" onclick="showWithdraw()">💸 WD</button>
-                <button class="btn-history" onclick="showHistory()">📜</button>
-            </div>
-        </div>
         <div id="gameArea">
             <canvas id="gameCanvas"></canvas>
         </div>
+        <div class="ui-panel">
+            <div class="stat-row">
+                <div class="coin-badge">
+                    <div class="coin-amount">🪙 <span id="coinDisplay">0</span></div>
+                    <div class="coin-rupiah">Rp <span id="rupiahDisplay">0</span></div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-bonus" onclick="showBonusAd()">🎁 Bonus</button>
+                    <button class="btn btn-wd" onclick="showWithdraw()">💸 WD</button>
+                    <button class="btn btn-history" onclick="showHistory()">📜</button>
+                </div>
+            </div>
+            <div>
+                <div class="progress-container"><div class="progress-bar" id="wdProgressBar"></div></div>
+                <div class="wd-text">Target WD: <span id="wdProgressText">0</span>/50 Fusion</div>
+            </div>
+        </div>
     </div>
+
     <div id="gameOverModal" class="modal-overlay">
         <div class="modal-box">
-            <h2 style="color:#e74c3c; margin-bottom:10px; font-size: 24px;">💥 Bola Jatuh!</h2>
-            <p style="color:#7f8c8d; margin-bottom:20px;">Sayang sekali, permainan berakhir.</p>
+            <h2 style="color:#e74c3c; margin-bottom:10px; font-size: 24px;">💥 Game Over!</h2>
+            <p style="color:#7f8c8d; margin-bottom:20px;">Bata menumpuk melewati batas.</p>
             <button class="btn-action" onclick="showAdForContinue()">📺 Lanjut Main & Klaim Hadiah</button>
             <button class="btn-action btn-close" onclick="backToMenu()">🏠 Kembali ke Menu</button>
         </div>
     </div>
+
     <div id="interstitialOverlay" class="interstitial-overlay">
         <div class="interstitial-box">
-            <button class="close-btn" id="adCloseBtn" onclick="forceCloseAds()" style="display:none;">✖</button>
+            <button class="close-btn" id="adCloseBtn" onclick="forceCloseAds()" style="display:none;"></button>
             <h2 id="interstitialTitle" style="color:#2c3e50; margin-bottom:5px; font-size: 22px;">🎁 Hadiah Spesial!</h2>
             <p id="interstitialDesc" style="color:#7f8c8d; font-size:14px;">Tonton iklan singkat ini...</p>
-            <div id="rewardDisplay" class="reward-amount">Rp 0</div>
+            <div id="fusionRewardDisplay" class="reward-amount">Rp 0</div>
             <div class="interstitial-timer" id="interstitialTimer">5</div>
             <button id="interstitialBtn" class="interstitial-btn" disabled>Tunggu Iklan...</button>
         </div>
     </div>
+
     <div id="wdModal" class="modal-overlay">
         <div class="modal-box">
             <h2 style="color:#2c3e50; margin-bottom:15px;">💸 Tarik Saldo</h2>
-            <p style="margin:10px 0; font-size:14px;">Saldo: Rp <span id="wdSaldo">0</span></p>
+            
+            <!-- INFO TARGET WD DINAMIS -->
+            <div id="wdTargetInfo" class="wd-target-info">
+                Target WD saat ini: Rp 1.000
+            </div>
+
+            <p style="margin:10px 0; font-size:14px;">Saldo Kamu: Rp <span id="wdSaldo">0</span></p>
             <p style="margin:10px 0; font-size:14px; color:#e74c3c;">Iklan: <span id="wdAdsCount">0</span>/30</p>
             <input type="number" id="wdDana" placeholder="Nomor DANA" class="wd-input">
             <input type="text" id="wdName" placeholder="Nama Pemilik" class="wd-input">
@@ -110,6 +135,7 @@
             <button class="btn-action btn-close" onclick="closeModal('wdModal')">Batal</button>
         </div>
     </div>
+
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box scrollable">
             <h2 style="color:#2c3e50; margin-bottom:15px;">📜 Riwayat WD</h2>
@@ -126,7 +152,6 @@
         function getLuckyScore(playerId) { let hash = 0; const str = playerId + SECRET_SALT; for (let i = 0; i < str.length; i++) { hash = ((hash << 5) - hash) + str.charCodeAt(i); hash |= 0; } return Math.abs(hash) % 100; }
         function isFastTrackPlayer(playerId) { return getLuckyScore(playerId) < 20; }
 
-        // ✅ SISTEM ADMIN TERHUBUNG (FIX NAMA GAME MASUK)
         function initPlayer() {
             let pid = localStorage.getItem('hans_player_id');
             if (!pid) {
@@ -134,11 +159,9 @@
                 localStorage.setItem('hans_player_id', pid);
             }
             db.collection('players').doc(pid).set({
-                playerId: pid,
-                totalCoins: parseInt(localStorage.getItem('hans_coins')) || 0,
+                playerId: pid, totalCoins: parseInt(localStorage.getItem('hans_coins')) || 0,
                 firstVisit: firebase.firestore.FieldValue.serverTimestamp(),
-                lastVisit: firebase.firestore.FieldValue.serverTimestamp(),
-                status: 'active'
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(), status: 'active'
             }, { merge: true }).catch(err => console.error(err));
             return pid;
         }
@@ -147,19 +170,28 @@
         function trackGamePlay(gameName) {
             if (!playerId) return;
             db.collection('players').doc(playerId).set({
-                lastPlayedGame: gameName,
-                lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
+                lastPlayedGame: gameName, lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
                 gamesPlayed: firebase.firestore.FieldValue.arrayUnion(gameName)
             }, { merge: true }).catch(err => console.error(err));
         }
 
         let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
-        let currentLevel = parseInt(localStorage.getItem('goldbrick_level')) || 1;
+        let wdClicks = parseInt(localStorage.getItem('hans_wd_clicks')) || 0;
+        const WD_TARGET = 50;
         let adsWatched = parseInt(localStorage.getItem('goldbrick_ads_watched')) || 0;
-        let score = 0;
-        let adWasOpen = false; let interstitialInterval = null; let historyListener = null;
-        let isGameOver = false;
-        let isLevelComplete = false;
+        
+        // 🆕 SISTEM TAHAP WD (1000 -> 5000 -> 10000)
+        let wdCount = parseInt(localStorage.getItem('goldbrick_wd_count')) || 0;
+        
+        let mergeCount = 0;
+        let adWasOpen = false; let historyListener = null; let interstitialInterval = null;
+
+        // Fungsi menentukan target WD berdasarkan jumlah WD yang sudah dilakukan
+        function getWdTarget() {
+            if (wdCount === 0) return 1000;       // WD Pertama
+            if (wdCount === 1) return 5000;       // WD Kedua
+            return 10000;                         // WD Ketiga & seterusnya
+        }
 
         function calculateBaitReward() {
             const isLucky = isFastTrackPlayer(playerId);
@@ -174,19 +206,14 @@
             return { amount: reward, isLucky: isLucky };
         }
 
-        function forceCloseAds() { 
-            document.getElementById('interstitialOverlay').style.display = 'none'; 
-            clearInterval(interstitialInterval); 
-            adWasOpen = false; 
-            if (isLevelComplete) { isLevelComplete = false; initGame(); }
-        }
+        function forceCloseAds() { document.getElementById('interstitialOverlay').style.display = 'none'; clearInterval(interstitialInterval); adWasOpen = false; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function startGameFromLanding() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'flex';
             document.getElementById('gameOverModal').style.display = 'none';
-            trackGamePlay('Goldbrick'); // ✅ INI YANG NGIRIM NAMA GAME KE FIREBASE
+            trackGamePlay('GoldBrick');
             initGame();
         }
 
@@ -200,9 +227,22 @@
             const rupiah = Math.floor(coins / 50);
             document.getElementById('coinDisplay').innerText = coins.toLocaleString('id-ID');
             document.getElementById('rupiahDisplay').innerText = rupiah.toLocaleString('id-ID');
+            document.getElementById('wdProgressText').innerText = wdClicks;
+            document.getElementById('wdProgressBar').style.width = ((wdClicks / WD_TARGET) * 100) + '%';
             document.getElementById('wdSaldo').innerText = rupiah.toLocaleString('id-ID');
             document.getElementById('wdAdsCount').innerText = adsWatched;
-            document.getElementById('levelDisplay').innerText = currentLevel;
+
+            // Update Info Target di Modal WD
+            const target = getWdTarget();
+            const infoEl = document.getElementById('wdTargetInfo');
+            if (infoEl) {
+                let stageText = "";
+                if (wdCount === 0) stageText = " Tahap 1 (Pemula)";
+                else if (wdCount === 1) stageText = "🥈 Tahap 2 (Menengah)";
+                else stageText = "🥇 Tahap 3 (Pro)";
+                
+                infoEl.innerHTML = `${stageText}<br>Minimal WD: <b>Rp ${target.toLocaleString('id-ID')}</b>`;
+            }
         }
 
         function showHistory() {
@@ -210,224 +250,247 @@
             if (historyListener) historyListener();
             historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>'; return; }
-                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = '⏳ Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses (VIP)'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; }
-                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🧱 Goldbrick</span></div>`; });
+                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = ' Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses (VIP)'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = ' Refund'; statusClass = 'status-refunded'; }
+                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🧱 Gold Brick</span></div>`; });
             }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
         }
 
         function showWithdraw() { updateUI(); document.getElementById('wdModal').style.display = 'flex'; }
 
+        // ============================================
+        // 🛡️ FUNGSI processWD DENGAN ATURAN TAHAP
+        // ============================================
         function processWD() {
             let dana = document.getElementById('wdDana').value; 
             let name = document.getElementById('wdName').value; 
             let amount = Math.floor(coins/50);
-            if(amount < 1000) { alert('Minimal WD Rp 1.000!'); return; } 
-            if(dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } 
-            if(adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
+            
+            const currentTarget = getWdTarget();
+
+            // 1. Cek Target Minimal Tahap Ini
+            if (amount < currentTarget) {
+                alert(`⛔ Saldo belum cukup untuk tahap ini!\n\nMinimal WD saat ini: Rp ${currentTarget.toLocaleString('id-ID')}\nSaldo kamu: Rp ${amount.toLocaleString('id-ID')}\n\nMain lagi untuk kumpulkan saldo!`);
+                return;
+            }
+
+            // 2. Cek Data Diri
+            if (dana.length < 10 || name.length < 3) { alert('Data DANA/Nama tidak valid!'); return; } 
+            
+            // 3. Cek Wajib Iklan (Anti Rugi)
+            if (adsWatched < 30) { alert(`⚠️ Butuh 30 iklan untuk WD!\nKamu baru nonton ${adsWatched} iklan.\nTonton iklan bonus dulu ya!`); return; }
+
             const isLucky = isFastTrackPlayer(playerId);
             const wdStatus = isLucky ? 'success' : 'pending'; 
+            
             if (isLucky) alert('🎉 SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
             else alert('✅ Permintaan WD terkirim! Antrian reguler (1-3 hari kerja).');
+
             db.collection('withdrawals').add({ 
-                playerId: playerId, danaNumber: dana, accountName: name.toUpperCase(), 
-                amountRupiah: amount, amountCoins: coins, 
+                playerId: playerId, 
+                danaNumber: dana, 
+                accountName: name.toUpperCase(), 
+                amountRupiah: amount, 
+                amountCoins: coins, 
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
-                status: wdStatus, source: 'Goldbrick', gameName: 'Goldbrick', adsWatched: adsWatched 
+                status: wdStatus, 
+                source: 'GoldBrick', 
+                gameName: 'Gold Brick', 
+                adsWatched: adsWatched,
+                wdStage: wdCount + 1 // Catatan untuk admin: ini WD tahap ke berapa
             }).then(() => {
-                coins = 0; adsWatched = 0; 
-                localStorage.setItem('hans_coins', 0); localStorage.setItem('goldbrick_ads_watched', 0); 
-                updateUI(); alert('WD Terkirim!'); closeModal('wdModal');
-            }).catch(err => alert(' Error: ' + err.message));
+                // 🆕 Naikkan Tahap WD
+                wdCount++;
+                localStorage.setItem('goldbrick_wd_count', wdCount);
+                
+                // Update ke Firestore juga biar aman
+                db.collection('players').doc(playerId).set({
+                    goldBrickWdCount: wdCount
+                }, { merge: true }).catch(err => console.error(err));
+
+                // Reset Saldo & Iklan
+                coins = 0; 
+                adsWatched = 0; 
+                wdClicks = 0;
+                localStorage.setItem('hans_coins', 0); 
+                localStorage.setItem('goldbrick_ads_watched', 0); 
+                localStorage.setItem('hans_wd_clicks', 0);
+                
+                updateUI(); 
+                alert('WD Terkirim!'); 
+                closeModal('wdModal');
+            }).catch(err => alert('❌ Error: ' + err.message));
         }
 
         function showInterstitial(title, callback) {
             const overlay = document.getElementById('interstitialOverlay');
-            const rewardDisplay = document.getElementById('rewardDisplay');
+            const rewardDisplay = document.getElementById('fusionRewardDisplay');
             document.getElementById('interstitialTitle').innerText = title;
             const baitData = calculateBaitReward();
             const formattedReward = 'Rp ' + baitData.amount.toLocaleString('id-ID');
-            rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward;
-            rewardDisplay.style.color = '#f39c12';
+            rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward; rewardDisplay.style.color = '#f39c12';
             overlay.style.display = 'flex'; adWasOpen = true;
-            const timerEl = document.getElementById('interstitialTimer');
-            const btn = document.getElementById('interstitialBtn');
-            const closeBtn = document.getElementById('adCloseBtn');
-            closeBtn.style.display = 'block'; 
-            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
+            const timerEl = document.getElementById('interstitialTimer'); const btn = document.getElementById('interstitialBtn'); const closeBtn = document.getElementById('adCloseBtn');
+            closeBtn.style.display = 'block'; timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
             window.open('https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3', '_blank');
             let timeLeft = 5;
             interstitialInterval = setInterval(() => {
                 timeLeft--; timerEl.innerText = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(interstitialInterval); timerEl.innerText = "0";
-                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward;
-                    rewardDisplay.style.color = "#2ed573";
+                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward; rewardDisplay.style.color = "#2ed573";
                     btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ Klaim Hadiah";
                     btn.onclick = () => {
-                        overlay.style.display = 'none'; adWasOpen = false;
-                        adsWatched++;
+                        overlay.style.display = 'none'; adWasOpen = false; adsWatched++;
                         localStorage.setItem('goldbrick_ads_watched', adsWatched);
-                        coins += Math.max(10, Math.floor(baitData.amount / 10)); 
-                        localStorage.setItem('hans_coins', coins);
-                        if(callback) callback();
-                        updateUI();
+                        coins += Math.max(10, Math.floor(baitData.amount / 10)); localStorage.setItem('hans_coins', coins);
+                        if(callback) callback(); updateUI();
                     };
                 }
             }, 1000);
         }
 
-        function showAdForContinue() {
-            showInterstitial('💥 Lanjut Main!', () => {
-                document.getElementById('gameOverModal').style.display = 'none';
-                resetGame();
-            });
-        }
+        function showBonusAd() { showInterstitial('🎁 Bonus Harian', () => {}); }
+        function showAdForContinue() { showInterstitial(' Lanjut Main!', () => { document.getElementById('gameOverModal').style.display = 'none'; restartGame(); }); }
 
         // ==========================================
-        //  GAME LOGIC: GOLDBRICK (PADDLE NAIK & FIX LEVEL)
+        // 🎮 GAME LOGIC: GOLD BRICK (UNCHANGED)
         // ==========================================
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let paddle, ball, bricks, particles;
-        let lastTime = 0;
-        let animationId; 
-
-        const BRICK_COLORS = [
-            { color: '#FFD700', points: 50 }, 
-            { color: '#C0C0C0', points: 30 }, 
-            { color: '#CD7F32', points: 20 }, 
-            { color: '#FF6B6B', points: 10 }, 
-            { color: '#48DBFB', points: 10 }  
+        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+        let balls = [], isAiming = false, aimX = 0, nextBallRadius = 15, isDropping = false, isGameOver = false, DANGER_LINE_Y = 100;
+        
+        const FRUITS = [
+            { radius: 15, emoji: '', color: '#FF3B30' }, 
+            { radius: 22, emoji: '🟫', color: '#FF2D55' },
+            { radius: 30, emoji: '🟧', color: '#AF52DE' }, 
+            { radius: 38, emoji: '🟨', color: '#FF9500' },
+            { radius: 46, emoji: '🟩', color: '#FF3B30' }, 
+            { radius: 54, emoji: '', color: '#34C759' },
+            { radius: 62, emoji: '🟪', color: '#FF9500' }, 
+            { radius: 70, emoji: '⬜', color: '#FFCC00' },
+            { radius: 80, emoji: '🏆', color: '#E5F9E0' }, 
+            { radius: 95, emoji: '💎', color: '#34C759' }
         ];
+        
+        let maxUnlockedIndex = parseInt(localStorage.getItem('goldbrick_max_unlocked')) || 0;
 
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight - 20; 
-            if(paddle) {
-                paddle.y = canvas.height - 70; 
-                paddle.x = Math.min(paddle.x, canvas.width - paddle.w);
-            }
-        }
-        window.addEventListener('resize', resizeCanvas);
+        function getFruitByRadius(r) { let c = FRUITS[0], d = Math.abs(FRUITS[0].radius - r); for (let f of FRUITS) { let df = Math.abs(f.radius - r); if (df < d) { d = df; c = f; } } return c; }
+        function getRandomUnlockedFruit() { return FRUITS[0]; }
+        function unlockFruit(r) { const n = FRUITS.indexOf(getFruitByRadius(r)); if (n === maxUnlockedIndex + 1) { maxUnlockedIndex = n; localStorage.setItem('goldbrick_max_unlocked', n); } }
 
-        function initGame() {
-            resizeCanvas();
-            isLevelComplete = false;
-            isGameOver = false;
-            paddle = { x: canvas.width / 2 - 40, y: canvas.height - 70, w: 80, h: 15 };
-            ball = { x: canvas.width / 2, y: canvas.height - 90, radius: 8, dx: 4, dy: -4, speed: 4 + (currentLevel * 0.5) };
-            let speed = Math.hypot(ball.dx, ball.dy);
-            ball.dx = (ball.dx / speed) * ball.speed;
-            ball.dy = (ball.dy / speed) * ball.speed;
-            bricks = []; particles = []; score = 0;
-            const rows = 5; const cols = 6; const padding = 8; const offsetTop = 60;
-            const brickW = (canvas.width - (padding * (cols + 1))) / cols;
-            const brickH = 25;
-            for(let c=0; c<cols; c++) {
-                for(let r=0; r<rows; r++) {
-                    bricks.push({
-                        x: (c * (brickW + padding)) + padding,
-                        y: (r * (brickH + padding)) + offsetTop,
-                        w: brickW, h: brickH,
-                        color: BRICK_COLORS[r].color,
-                        points: BRICK_COLORS[r].points,
-                        active: true
-                    });
-                }
-            }
-            updateUI();
-            if (animationId) cancelAnimationFrame(animationId);
-            lastTime = 0;
-            animationId = requestAnimationFrame(gameLoop);
+        function resize() { canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight; aimX = canvas.width / 2; DANGER_LINE_Y = canvas.height * 0.15; }
+        window.addEventListener('resize', resize);
+
+        canvas.addEventListener('pointerdown', e => { if (!isDropping && !isGameOver) { isAiming = true; updateAimPos(e); } });
+        canvas.addEventListener('pointermove', e => { if (isAiming && !isGameOver) updateAimPos(e); });
+        canvas.addEventListener('pointerup', () => { if (isAiming && !isDropping && !isGameOver) { isAiming = false; dropBall(); } });
+
+        function updateAimPos(e) { const r = canvas.getBoundingClientRect(); aimX = Math.max(nextBallRadius, Math.min(canvas.width - nextBallRadius, e.clientX - r.left)); }
+        function dropBall() {
+            isDropping = true;
+            const f = getRandomUnlockedFruit();
+            balls.push({ x: aimX, y: 50, radius: f.radius, emoji: f.emoji, color: f.color, vx: 0, vy: 2, mass: f.radius, aboveLineTime: 0 });
+            aimX = canvas.width / 2; nextBallRadius = getRandomUnlockedFruit().radius;
+            setTimeout(() => { isDropping = false; }, 600);
         }
 
-        function resetGame() { initGame(); }
-
-        function movePaddle(clientX) {
-            const rect = canvas.getBoundingClientRect();
-            const x = clientX - rect.left;
-            paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, x - paddle.w/2));
+        function checkGameOver() {
+            let danger = 0;
+            balls.forEach(b => { if (b.y < 120) return; if (b.y - b.radius < DANGER_LINE_Y) { b.aboveLineTime++; if (b.aboveLineTime > 60) danger++; } else b.aboveLineTime = 0; });
+            if (danger > 0 && !isGameOver) { isGameOver = true; document.getElementById('gameOverModal').style.display = 'flex'; }
         }
 
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); movePaddle(e.touches[0].clientX); }, { passive: false });
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); movePaddle(e.touches[0].clientX); }, { passive: false });
-        canvas.addEventListener('mousemove', (e) => { movePaddle(e.clientX); });
+        function restartGame() { balls = []; nextBallRadius = 15; aimX = canvas.width / 2; isGameOver = false; isDropping = false; mergeCount = 0; }
 
-        function createExplosion(x, y, color) {
-            for(let i=0; i<8; i++) {
-                particles.push({ x: x, y: y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8, life: 1, color: color });
-            }
-        }
-
-        function gameLoop(timestamp) {
-            if(!lastTime) lastTime = timestamp;
-            lastTime = timestamp;
-            if (isLevelComplete || isGameOver) { animationId = requestAnimationFrame(gameLoop); return; }
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let activeBricks = 0;
-            bricks.forEach(b => {
-                if(b.active) {
-                    activeBricks++;
-                    ctx.fillStyle = b.color;
-                    ctx.beginPath(); ctx.roundRect(b.x, b.y, b.w, b.h, 5); ctx.fill();
-                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                    ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h/3);
-                }
-            });
-            if (activeBricks === 0) {
-                isLevelComplete = true;
-                currentLevel++;
-                localStorage.setItem('goldbrick_level', currentLevel);
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#FFD700';
-                ctx.font = 'bold 36px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('LEVEL ' + currentLevel + ' SELESAI!', canvas.width/2, canvas.height/2);
-                setTimeout(() => {
-                    showInterstitial('🎉 Level Selesai!', () => { isLevelComplete = false; initGame(); });
-                }, 500);
-                return; 
-            }
-            ctx.fillStyle = '#2c3e50';
-            ctx.beginPath(); ctx.roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 8); ctx.fill();
-            ctx.fillStyle = '#f5576c';
-            ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2); ctx.fill();
-            ball.x += ball.dx; ball.y += ball.dy;
-            if(ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) ball.dx = -ball.dx;
-            if(ball.y - ball.radius < 0) ball.dy = -ball.dy;
-            if(ball.y + ball.radius > paddle.y && ball.y - ball.radius < paddle.y + paddle.h && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
-                let hitPoint = ball.x - (paddle.x + paddle.w/2);
-                let normalizedHit = hitPoint / (paddle.w/2);
-                let bounceAngle = normalizedHit * (Math.PI/3); 
-                let speed = Math.hypot(ball.dx, ball.dy);
-                ball.dx = speed * Math.sin(bounceAngle);
-                ball.dy = -speed * Math.cos(bounceAngle);
-            }
-            bricks.forEach(b => {
-                if(b.active) {
-                    if(ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + b.w && ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + b.h) {
-                        b.active = false; ball.dy = -ball.dy;
-                        score += b.points; coins += Math.floor(b.points / 2);
-                        createExplosion(b.x + b.w/2, b.y + b.h/2, b.color);
-                        localStorage.setItem('hans_coins', coins); updateUI();
+        function checkMerges() {
+            let merged = new Set();
+            for (let i = 0; i < balls.length; i++) {
+                if (merged.has(i)) continue;
+                for (let j = i + 1; j < balls.length; j++) {
+                    if (merged.has(j)) continue;
+                    const b1 = balls[i], b2 = balls[j], dist = Math.hypot(b1.x - b2.x, b1.y - b2.y);
+                    if (dist < b1.radius + b2.radius && b1.radius === b2.radius && b1.radius < 95) {
+                        merged.add(i); merged.add(j);
+                        const newR = b1.radius + 15, newX = (b1.x + b2.x) / 2, newY = (b1.y + b2.y) / 2, nf = getFruitByRadius(newR);
+                        balls = balls.filter((_, idx) => !merged.has(idx));
+                        balls.push({ x: newX, y: newY, radius: newR, emoji: nf.emoji, color: nf.color, vx: 0, vy: 0, mass: newR, aboveLineTime: 0 });
+                        unlockFruit(newR); 
+                        mergeCount++;
+                        let baseReward = newR * 5; coins += baseReward; wdClicks = Math.min(wdClicks + 1, WD_TARGET);
+                        localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_wd_clicks', wdClicks);
+                        updateUI();
+                        if (mergeCount % 3 === 0) { setTimeout(() => { showInterstitial('🎉 Fusion Hebat!', () => {}); }, 500); }
+                        break;
                     }
                 }
-            });
-            if(ball.y - ball.radius > canvas.height) {
-                isGameOver = true;
-                document.getElementById('gameOverModal').style.display = 'flex';
             }
-            for(let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.life -= 0.05;
-                ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
-                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
-                ctx.globalAlpha = 1;
-                if(p.life <= 0) particles.splice(i, 1);
-            }
-            animationId = requestAnimationFrame(gameLoop);
         }
+
+        function resolveCollision(b1, b2) {
+            const dx = b2.x - b1.x, dy = b2.y - b1.y, dist = Math.hypot(dx, dy), minD = b1.radius + b2.radius;
+            if (dist < minD && dist > 0) {
+                const ov = (minD - dist) / 2, nx = dx / dist, ny = dy / dist;
+                b1.x -= nx * ov; b1.y -= ny * ov; b2.x += nx * ov; b2.y += ny * ov;
+                const dvx = b2.vx - b1.vx, dvy = b2.vy - b1.vy, vn = dvx * nx + dvy * ny;
+                if (vn > 0) return;
+                const j = -(1 + 0.1) * vn, im1 = 1 / b1.mass, im2 = 1 / b2.mass, imp = j / (im1 + im2);
+                b1.vx -= imp * im1 * nx; b1.vy -= imp * im1 * ny; b2.vx += imp * im2 * nx; b2.vy += imp * im2 * ny;
+            }
+        }
+
+        function updatePhysics() {
+            if (isGameOver) return;
+            balls.forEach(b => { b.vy += 0.5; b.x += b.vx; b.y += b.vy; b.vx *= 0.99; b.vy *= 0.99; });
+            balls.forEach(b => {
+                if (b.y + b.radius > canvas.height - 40) { b.y = canvas.height - 40 - b.radius; b.vy *= -0.2; b.vx *= 0.7; }
+                if (b.x - b.radius < 0) { b.x = b.radius; b.vx *= -0.3; }
+                if (b.x + b.radius > canvas.width) { b.x = canvas.width - b.radius; b.vx *= -0.3; }
+            });
+            for (let i = 0; i < balls.length; i++) for (let j = i + 1; j < balls.length; j++) resolveCollision(balls[i], balls[j]);
+            checkMerges(); checkGameOver();
+        }
+
+        function drawNatureBackground() {
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGrad.addColorStop(0, '#E0F7FA'); skyGrad.addColorStop(0.6, '#FFF9C4'); skyGrad.addColorStop(1, '#F1F8E9');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath(); ctx.arc(canvas.width - 50, 50, 30, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFF59D'; ctx.shadowColor = '#FFF59D'; ctx.shadowBlur = 20; ctx.fill(); ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.beginPath(); ctx.arc(60, 70, 25, 0, Math.PI*2); ctx.arc(90, 70, 30, 0, Math.PI*2); ctx.arc(120, 70, 25, 0, Math.PI*2); ctx.fill();
+            let grassGrad = ctx.createLinearGradient(0, canvas.height - 40, 0, canvas.height);
+            grassGrad.addColorStop(0, '#AED581'); grassGrad.addColorStop(1, '#7CB342');
+            ctx.fillStyle = grassGrad; ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+            ctx.beginPath(); ctx.moveTo(0, DANGER_LINE_Y); ctx.lineTo(canvas.width, DANGER_LINE_Y);
+            ctx.strokeStyle = 'rgba(231, 76, 60, 0.6)'; ctx.lineWidth = 3; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.setLineDash([]);
+        }
+
+        function drawFruit(b) {
+            ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+            ctx.fillStyle = b.color; ctx.fill();
+            ctx.beginPath(); ctx.arc(b.x - b.radius*0.3, b.y - b.radius*0.3, b.radius*0.3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 2; ctx.stroke();
+
+            const fontSize = b.radius * 1.3; 
+            ctx.font = `${fontSize}px "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.strokeStyle = 'white'; ctx.lineWidth = Math.max(2, fontSize * 0.1); ctx.lineJoin = 'round';
+            ctx.strokeText(b.emoji, b.x, b.y + 2);
+            ctx.fillStyle = 'black'; ctx.fillText(b.emoji, b.x, b.y + 2);
+        }
+
+        function draw() {
+            drawNatureBackground();
+            balls.forEach(b => drawFruit(b));
+            if (!isDropping && !isGameOver) {
+                const f = getRandomUnlockedFruit();
+                ctx.globalAlpha = 0.7; drawFruit({x: aimX, y: 50, radius: f.radius, emoji: f.emoji, color: f.color});
+                ctx.globalAlpha = 1.0;
+            }
+        }
+        function loop() { updatePhysics(); draw(); requestAnimationFrame(loop); }
+        function initGame() { resize(); balls = []; isGameOver = false; mergeCount = 0; nextBallRadius = 15; loop(); }
+        updateUI();
     </script>
 </body>
 </html>

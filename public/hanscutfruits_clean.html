@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Hans Cut Fruit Blast</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { overflow: hidden; touch-action: none; font-family: Arial, sans-serif; background: #ffffff; }
+        #gameCanvas { display: block; width: 100vw; height: 100vh; }
+        .ui { position: fixed; top: 0; left: 0; width: 100%; padding: 15px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
+        .score, .lives, .level-display { background: rgba(255,255,255,0.95); color: #333; padding: 8px 16px; border-radius: 10px; font-size: 16px; font-weight: bold; border: 2px solid rgba(0,0,0,0.1); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .level-display { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; }
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; z-index: 100; }
+        .screen.hidden { display: none; }
+        .title { font-size: 42px; color: #2c3e50; font-weight: bold; margin-bottom: 15px; text-align: center; }
+        .subtitle { font-size: 18px; color: #555; margin-bottom: 30px; text-align: center; }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 40px; font-size: 20px; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); touch-action: manipulation; }
+        .btn:active { transform: scale(0.95); }
+        .btn-lobby { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); margin-top: 10px; }
+        .instructions { margin-top: 25px; color: #666; text-align: center; line-height: 1.8; font-size: 14px; }
+        .final-score { font-size: 28px; color: #2c3e50; margin-bottom: 20px; }
+        .pattern-name { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: bold; color: #667eea; opacity: 0; pointer-events: none; z-index: 50; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 15px; }
+        .pattern-name.show { animation: fadeInOut 2s ease-in-out; }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="ui">
+        <div class="score">🍎 <span id="score">0</span></div>
+        <div class="level-display">⭐ Level <span id="level">1</span></div>
+        <div class="lives">🔪 <span id="knivesLeft">15</span></div>
+    </div>
+    <div class="pattern-name" id="patternName"></div>
+
+    <div class="screen" id="startScreen">
+        <div class="title">🔪 Hans Cut Fruit Blast</div>
+        <div class="subtitle">Potong semua buah di roda!</div>
+        <button class="btn" id="startBtn">▶️ Mulai Main</button>
+        <button class="btn btn-lobby" id="btnLobby">🏠 Kembali ke Lobby</button>
+        <div class="instructions">
+            <p>👆 Tap layar untuk melempar pisau</p>
+            <p>🎯 Pola buah berubah setiap level (+, X, Diamond)</p>
+            <p>⚡ Pisau menembus buah yang sejajar!</p>
+        </div>
+    </div>
+
+    <div class="screen hidden" id="gameOverScreen">
+        <div class="title" style="color:#e74c3c;">💀 Game Over!</div>
+        <div class="final-score">Skor: <span id="finalScore">0</span></div>
+        <div class="final-score" style="font-size: 22px;">⭐ Level: <span id="finalLevel">1</span></div>
+        <button class="btn" id="restartBtn">🔄 Main Lagi</button>
+        <button class="btn btn-lobby" id="btnLobby2">🏠 Kembali ke Lobby</button>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🔥 FIREBASE CONFIG & PLAYER TRACKING
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ",
+            authDomain: "hansorbblast.firebaseapp.com",
+            projectId: "hansorbblast",
+            storageBucket: "hansorbblast.firebasestorage.app",
+            messagingSenderId: "562424899290",
+            appId: "1:562424899290:web:75e0c912db1ada3341e7e3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let playerId = localStorage.getItem('hans_player_id');
+        if (!playerId) {
+            playerId = 'player_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+            localStorage.setItem('hans_player_id', playerId);
+            db.collection('players').doc(playerId).set({
+                playerId: playerId,
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                firstVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                game: 'HansCutFruit',
+                gamesPlayed: firebase.firestore.FieldValue.arrayUnion('HansCutFruit'),
+                totalVisits: 1
+            }).catch(err => console.log('Firebase error:', err));
+        } else {
+            db.collection('players').doc(playerId).set({
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                lastPlayedGame: 'HansCutFruit',
+                gamesPlayed: firebase.firestore.FieldValue.arrayUnion('HansCutFruit'),
+                totalVisits: firebase.firestore.FieldValue.increment(1)
+            }, { merge: true }).catch(err => console.log('Firebase error:', err));
+        }
+
+        function trackGamePlay(finalScore, finalLevel) {
+            db.collection('players').doc(playerId).set({
+                hansCutFruitGames: firebase.firestore.FieldValue.increment(1),
+                lastScore: finalScore,
+                lastLevel: finalLevel,
+                lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).catch(err => console.error(err));
+
+            db.collection('players').doc(playerId).get().then(doc => {
+                const data = doc.data();
+                if (!data || !data.hansCutFruitHighScore || finalScore > data.hansCutFruitHighScore) {
+                    db.collection('players').doc(playerId).update({ hansCutFruitHighScore: finalScore }).catch(() => {});
+                }
+            }).catch(() => {});
+        }
+
+        window.addEventListener('beforeunload', () => {
+            db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {});
+        });
+
+        // ==========================================
+        // 🎮 GAME LOGIC
+        // ==========================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        let gameRunning = false;
+        let score = 0;
+        let level = 1;
+        let fruits = [];
+        let knives = [];
+        let particles = [];
+        let wheelAngle = 0;
+        let wheelSpeed = 0.015;
+        let wheelRadius = 0;
+        let wheelCenterX = 0;
+        let wheelCenterY = 0;
+        let totalFruits = 0;
+        let fruitsCut = 0;
+        let maxKnives = 15;
+        let previewPhase = false;
+        let previewTimer = 0;
+        let comboCount = 0;
+        let comboTimer = 0;
+
+        const fruitTypes = [
+            { emoji: '🍎', color: '#FF3B30' },
+            { emoji: '🍊', color: '#FF9500' },
+            { emoji: '🍋', color: '#FFEB3B' },
+            { emoji: '🍉', color: '#FF4757' },
+            { emoji: '🍇', color: '#9B59B6' },
+            { emoji: '🍓', color: '#FF2D55' },
+            { emoji: '🥝', color: '#7CB342' },
+            { emoji: '🍑', color: '#FFB74D' },
+            { emoji: '🍍', color: '#FFD54F' },
+            { emoji: '🥭', color: '#FF7043' }
+        ];
+
+        const patternTypes = ['plus', 'cross', 'diamond', 'random'];
+
+        class Fruit {
+            constructor(baseX, baseY) {
+                this.baseX = baseX; 
+                this.baseY = baseY; 
+                this.size = 42;
+                this.type = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
+                this.cut = false;
+                this.falling = false;
+                this.x = 0;
+                this.y = 0;
+                this.vx = 0;
+                this.vy = 0;
+                this.rotation = 0;
+            }
+
+            updatePosition() {
+                if (!this.falling) {
+                    const cos = Math.cos(wheelAngle);
+                    const sin = Math.sin(wheelAngle);
+                    this.x = wheelCenterX + (this.baseX * cos - this.baseY * sin);
+                    this.y = wheelCenterY + (this.baseX * sin + this.baseY * cos);
+                }
+            }
+
+            update(dt) {
+                if (this.falling) {
+                    this.x += this.vx * dt;
+                    this.y += this.vy * dt;
+                    this.vy += 0.5 * dt;
+                    this.rotation += 0.15 * dt;
+                    return this.y < canvas.height + 100;
+                }
+                this.updatePosition();
+                return true;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                if (this.falling) ctx.rotate(this.rotation);
+                ctx.font = `${this.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 8;
+                ctx.fillText(this.type.emoji, 0, 0);
+                ctx.restore();
+            }
+
+            checkHit(kx, ky, knifeWidth = 20) {
+                if (this.cut) return false;
+                const dx = this.x - kx;
+                const dy = this.y - ky;
+                return Math.sqrt(dx*dx + dy*dy) < this.size/2 + knifeWidth/2;
+            }
+
+            cutFruit() {
+                this.cut = true;
+                this.falling = true;
+                this.vx = (Math.random() - 0.5) * 10;
+                this.vy = -6;
+                fruitsCut++;
+                comboCount++;
+                comboTimer = 90;
+                
+                const comboBonus = comboCount > 1 ? comboCount * 10 : 0;
+                score += 10 + comboBonus;
+                updateScore();
+
+                for (let i = 0; i < 12; i++) {
+                    particles.push({
+                        x: this.x, y: this.y,
+                        vx: (Math.random() - 0.5) * 12,
+                        vy: (Math.random() - 0.5) * 12,
+                        life: 1, color: this.type.color, size: Math.random() * 6 + 3
+                    });
+                }
+
+                if (fruitsCut >= totalFruits) {
+                    setTimeout(nextLevel, 1000);
+                }
+            }
+        }
+
+        class Knife {
+            constructor() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height - 100;
+                this.vy = -28;
+                this.width = 10;
+                this.height = 60;
+                this.trail = [];
+                this.maxTrail = 12;
+            }
+
+            update(dt) {
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.maxTrail) this.trail.shift();
+                this.y += this.vy * dt;
+                if (this.y < -100) return false; 
+                return true;
+            }
+
+            draw() {
+                if (this.trail.length > 1) {
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
+                    ctx.lineWidth = 4;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                const bladeGrad = ctx.createLinearGradient(0, -this.height/2, 0, this.height/4);
+                bladeGrad.addColorStop(0, '#FFFFFF');
+                bladeGrad.addColorStop(0.4, '#D0D0D0');
+                bladeGrad.addColorStop(1, '#808080');
+                ctx.fillStyle = bladeGrad;
+                ctx.beginPath();
+                ctx.moveTo(0, -this.height/2);
+                ctx.lineTo(-this.width/2, this.height/4);
+                ctx.lineTo(this.width/2, this.height/4);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#333333';
+                ctx.fillRect(-this.width/2 - 3, this.height/4 - 2, this.width + 6, 4);
+                const handleGrad = ctx.createLinearGradient(-this.width/2, 0, this.width/2, 0);
+                handleGrad.addColorStop(0, '#5C2E05');
+                handleGrad.addColorStop(0.5, '#8B4513');
+                handleGrad.addColorStop(1, '#5C2E05');
+                ctx.fillStyle = handleGrad;
+                ctx.fillRect(-this.width/2 - 1, this.height/4 + 2, this.width + 2, this.height/3);
+                ctx.restore();
+            }
+        }
+
+        function generatePattern(patternName, maxRadius) {
+            const points = [];
+            const step = maxRadius / 3; 
+
+            if (patternName === 'plus') {
+                points.push({x: 0, y: -step}, {x: 0, y: -step*2});
+                points.push({x: 0, y: step}, {x: 0, y: step*2});
+                points.push({x: -step, y: 0}, {x: -step*2, y: 0});
+                points.push({x: step, y: 0}, {x: step*2, y: 0});
+            } 
+            else if (patternName === 'cross') {
+                const s = step * 0.75; 
+                points.push({x: -s, y: -s}, {x: -s*2, y: -s*2});
+                points.push({x: s, y: s}, {x: s*2, y: s*2});
+                points.push({x: s, y: -s}, {x: s*2, y: -s*2});
+                points.push({x: -s, y: s}, {x: -s*2, y: s*2});
+            } 
+            else if (patternName === 'diamond') {
+                const R = maxRadius * 0.9;
+                points.push({x: 0, y: -R}, {x: R, y: 0}, {x: 0, y: R}, {x: -R, y: 0});
+                points.push({x: 0, y: -R/2}, {x: R/2, y: 0}, {x: 0, y: R/2}, {x: -R/2, y: 0});
+            } 
+            else {
+                let attempts = 0;
+                while(points.length < 8 && attempts < 100) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const r = Math.random() * (maxRadius - 30) + 30;
+                    const x = Math.cos(angle) * r;
+                    const y = Math.sin(angle) * r;
+                    
+                    let valid = true;
+                    for(let p of points) {
+                        if(Math.hypot(p.x - x, p.y - y) < 55) valid = false; 
+                    }
+                    if(valid) points.push({x, y});
+                    attempts++;
+                }
+            }
+            return points;
+        }
+
+        function spawnLevelFruits() {
+            fruits = [];
+            fruitsCut = 0;
+            wheelSpeed = 0.015 + level * 0.003;
+            
+            const currentPattern = patternTypes[Math.floor(Math.random() * patternTypes.length)];
+            showPatternName(currentPattern);
+            
+            const maxRadius = wheelRadius * 0.85;
+            const points = generatePattern(currentPattern, maxRadius);
+            totalFruits = points.length;
+            
+            points.forEach(p => {
+                fruits.push(new Fruit(p.x, p.y));
+            });
+            
+            previewPhase = true;
+            previewTimer = 90;
+        }
+
+        function showPatternName(pattern) {
+            const el = document.getElementById('patternName');
+            const names = { 'plus': '➕ Pola Plus', 'cross': '✖️ Pola Silang', 'diamond': '💎 Pola Diamond', 'random': '🎲 Pola Acak' };
+            el.textContent = names[pattern] || 'Pola Baru!';
+            el.classList.remove('show');
+            void el.offsetWidth;
+            el.classList.add('show');
+        }
+
+        function nextLevel() {
+            level++;
+            updateLevel();
+            spawnLevelFruits();
+        }
+
+        function launchKnife() {
+            if (!gameRunning || previewPhase) return;
+            knives.push(new Knife());
+        }
+
+        function updateScore() { document.getElementById('score').textContent = score; }
+        function updateLevel() { document.getElementById('level').textContent = level; }
+        function updateKnives() {
+            const remaining = maxKnives - knives.length;
+            document.getElementById('knivesLeft').textContent = Math.max(0, remaining);
+        }
+
+        function drawWheel() {
+            ctx.save();
+            ctx.fillStyle = '#F5DEB3'; 
+            ctx.beginPath();
+            ctx.arc(wheelCenterX, wheelCenterY, wheelRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#8B7355';
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(139, 115, 85, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(wheelCenterX, wheelCenterY, wheelRadius - 20, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = '#8B7355';
+            ctx.beginPath();
+            ctx.arc(wheelCenterX, wheelCenterY, 25, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#FFF';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${fruitsCut}/${totalFruits}`, wheelCenterX, wheelCenterY);
+            ctx.restore();
+        }
+
+        function drawKnifeLauncher() {
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height - 80);
+            const bladeGrad = ctx.createLinearGradient(0, -22, 0, 10);
+            bladeGrad.addColorStop(0, '#FFFFFF');
+            bladeGrad.addColorStop(1, '#808080');
+            ctx.fillStyle = bladeGrad;
+            ctx.beginPath();
+            ctx.moveTo(0, -22);
+            ctx.lineTo(-4, 10);
+            ctx.lineTo(4, 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#333333';
+            ctx.fillRect(-6, 10, 12, 3);
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(-5, 13, 10, 15);
+            ctx.restore();
+        }
+
+        function drawCombo() {
+            if (comboTimer > 0 && comboCount > 1) {
+                ctx.save();
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 10;
+                ctx.fillText(`COMBO x${comboCount}!`, canvas.width / 2, canvas.height / 2 + 120);
+                ctx.restore();
+                comboTimer--;
+            } else {
+                comboCount = 0;
+            }
+        }
+
+        function gameLoop(timestamp) {
+            const dt = 1;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (gameRunning) {
+                wheelCenterX = canvas.width / 2;
+                wheelCenterY = canvas.height * 0.35;
+                wheelRadius = Math.min(canvas.width, canvas.height) * 0.22;
+
+                if (previewPhase) {
+                    previewTimer--;
+                    wheelAngle += Math.sin(previewTimer * 0.1) * 0.05 * dt;
+                    if (previewTimer <= 0) previewPhase = false;
+                } else {
+                    wheelAngle += wheelSpeed * dt;
+                }
+
+                drawWheel();
+
+                fruits = fruits.filter(f => {
+                    const alive = f.update(dt);
+                    if (alive) f.draw();
+                    return alive;
+                });
+
+                knives = knives.filter(k => {
+                    const alive = k.update(dt);
+                    if (alive) {
+                        k.draw();
+                        fruits.forEach(f => {
+                            if (!f.cut && f.checkHit(k.x, k.y, 20)) {
+                                f.cutFruit();
+                            }
+                        });
+                    }
+                    return alive;
+                });
+
+                particles = particles.filter(p => {
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    p.vy += 0.3 * dt;
+                    p.life -= 0.03 * dt;
+                    if (p.life > 0) {
+                        ctx.save();
+                        ctx.globalAlpha = p.life;
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                        return true;
+                    }
+                    return false;
+                });
+
+                if (!previewPhase) drawKnifeLauncher();
+                drawCombo();
+                updateKnives();
+
+                if (knives.length >= maxKnives && fruitsCut < totalFruits) {
+                    endGame();
+                }
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            level = 1;
+            knives = [];
+            particles = [];
+            updateScore();
+            updateLevel();
+            spawnLevelFruits();
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+        }
+
+        function endGame() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalLevel').textContent = level;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            trackGamePlay(score, level);
+        }
+
+        function goToLobby() {
+            window.location.href = '/clean.html';
+        }
+
+        canvas.addEventListener('mousedown', launchKnife);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); launchKnife(); }, { passive: false });
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('btnLobby').addEventListener('click', goToLobby);
+        document.getElementById('btnLobby2').addEventListener('click', goToLobby);
+
+        gameLoop(0);
+    </script>
+</body>
+</html>

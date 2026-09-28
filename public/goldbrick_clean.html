@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cuan Breaker - Pecahkan Bata!</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #1a1a2e; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
+        canvas { display: block; width: 100%; height: 100vh; background: #16213e; }
+        
+        #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
+        .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .landing-title { font-size: 36px; font-weight: bold; color: #ffd700; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        .instruction-box { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; border: 1px solid rgba(255,255,255,0.3); }
+        .instruction-item { color: white; margin: 12px 0; font-size: 15px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.4; }
+        .instruction-icon { font-size: 20px; min-width: 25px; }
+        .start-btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 18px 50px; border: none; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .start-btn:active { transform: scale(0.95); }
+
+        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 22, 40, 0.95); z-index: 100; }
+        .hidden { display: none !important; }
+        .box { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; padding: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        h1 { color: #ffd700; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        h2 { color: #ffd700; margin-bottom: 15px; }
+        .stat { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; margin: 10px 0; font-weight: bold; color: #00ff88; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; z-index: 101; position: relative; }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; }
+        .btn-secondary { background: linear-gradient(135deg, #007BFF, #0056b3); }
+        
+        #hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 5; pointer-events: none; }
+        .hud-item { background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 20px; font-weight: bold; color: #ffd700; border: 2px solid #ffd700; font-size: 14px; }
+
+        #backToMenuBtn { position: absolute; top: 10px; right: 10px; background: rgba(255, 71, 87, 0.9); color: white; border: 2px solid white; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 20; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="landingPage">
+        <div class="landing-logo">🧱</div>
+        <h1 class="landing-title">CUAN BREAKER</h1>
+        <div class="instruction-box">
+            <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;">📜 CARA BERMAIN</h3>
+            <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Geser jari di layar untuk menggerakkan papan hijau.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">⚪</span> <span>Pantulkan bola putih untuk menghancurkan bata.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Hancurkan bata emas (warna kuning) untuk dapat banyak Skor!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan bola jatuh ke bawah, atau Game Over!</span></div>
+        </div>
+        <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
+        <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 20px;">© 2024 Cuan Breaker. All rights reserved.</p>
+    </div>
+
+    <div id="hud" class="hidden">
+        <div class="hud-item">Skor: <span id="scoreDisplay">0</span></div>
+        <div class="hud-item">Level: <span id="levelDisplay">1</span></div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+    <button id="backToMenuBtn" onclick="backToMenu()">◀ MENU</button>
+
+    <div id="mainMenu" class="ui-overlay hidden">
+        <div class="box">
+            <h1>🧱 CUAN BREAKER</h1>
+            <p style="color:#ccc; margin-bottom:10px;">Hancurkan bata, kumpulkan skor!</p>
+            <div class="stat">🏆 Skor Tertinggi: <span id="menuBestScore">0</span></div>
+            <div class="stat">🎮 Level Tercapai: <span id="menuBestLevel">1</span></div>
+            <button class="btn btn-primary" onclick="startGame()">▶ MULAI MAIN</button>
+            <button class="btn btn-secondary" onclick="resetGame()">🔄 Reset Skor</button>
+        </div>
+    </div>
+
+    <div id="gameOverOverlay" class="ui-overlay hidden">
+        <div class="box">
+            <h2 style="color:#ff4757;">💥 BOLA JATUH!</h2>
+            <div class="stat">Skor: <span id="finalScore">0</span></div>
+            <div class="stat">Level: <span id="finalLevel">1</span></div>
+            <button class="btn btn-primary" onclick="startGame()">🔄 Main Lagi</button>
+            <button class="btn btn-secondary" onclick="showMainMenu()">🏠 Menu Utama</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🔥 FIREBASE & RETENTION TRACKING (TETAP NYALA)
+        // ==========================================
+        const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
+        firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
+
+        let playerId = localStorage.getItem('hans_player_id');
+        if (!playerId) {
+            playerId = 'player_' + Date.now();
+            localStorage.setItem('hans_player_id', playerId);
+            db.collection('players').doc(playerId).set({ totalCoins: 0, isOnline: true, lastVisit: firebase.firestore.FieldValue.serverTimestamp(), createdAt: firebase.firestore.FieldValue.serverTimestamp(), game: 'CuanBreaker' }).catch(err => console.log('Firebase init error:', err));
+        } else {
+            db.collection('players').doc(playerId).update({ isOnline: true, lastVisit: firebase.firestore.FieldValue.serverTimestamp() }).catch(err => console.log('Firebase update error:', err));
+        }
+        window.addEventListener('beforeunload', () => { db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {}); });
+
+        function trackGamePlay(gameName) {
+            db.collection('players').doc(playerId).set({
+                lastPlayedGame: gameName, lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
+                gamesPlayed: firebase.firestore.FieldValue.arrayUnion(gameName)
+            }, { merge: true }).catch(err => console.error(err));
+        }
+
+        function updatePlayerStats(score, level) {
+            db.collection('players').doc(playerId).update({ 
+                totalCoins: firebase.firestore.FieldValue.increment(score),
+                highestLevel: level,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(() => {});
+        }
+
+        // ==========================================
+        // 🎮 GAME LOGIC: CUAN BREAKER (CLEAN - NO ADS)
+        // ==========================================
+        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+        let gameState = 'menu', score = 0, level = 1;
+        let bestScore = parseInt(localStorage.getItem('breaker_best_score')) || 0;
+        let bestLevel = parseInt(localStorage.getItem('breaker_best_level')) || 1;
+
+        let paddle, ball, bricks = [];
+        const BRICK_ROWS = 4, BRICK_COLS = 6;
+        
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; if(gameState === 'playing') initGameObjects(); }
+        window.addEventListener('resize', resize);
+
+        function initGameObjects() {
+            paddle = { w: 80, h: 15, x: canvas.width/2 - 40, y: canvas.height - 40, speed: 8 };
+            ball = { x: canvas.width/2, y: canvas.height/2, r: 8, dx: 4, dy: -4, speed: 5 + (level * 0.5) };
+            bricks = [];
+            const brickW = (canvas.width - 40) / BRICK_COLS;
+            const brickH = 25;
+            for(let r=0; r<BRICK_ROWS; r++) {
+                for(let c=0; c<BRICK_COLS; c++) {
+                    let isGold = Math.random() < 0.15; 
+                    bricks.push({ x: 20 + c*brickW, y: 60 + r*(brickH+5), w: brickW-5, h: brickH, status: 1, hits: isGold ? 3 : 1, isGold: isGold });
+                }
+            }
+        }
+
+        canvas.addEventListener('mousemove', (e) => { if(gameState==='playing') paddle.x = e.clientX - paddle.w/2; });
+        canvas.addEventListener('touchmove', (e) => { if(gameState==='playing') { paddle.x = e.touches[0].clientX - paddle.w/2; e.preventDefault(); } }, {passive:false});
+
+        function update() {
+            if(gameState !== 'playing') return;
+            ball.x += ball.dx; ball.y += ball.dy;
+            if(ball.x + ball.r > canvas.width || ball.x - ball.r < 0) ball.dx = -ball.dx;
+            if(ball.y - ball.r < 0) ball.dy = -ball.dy;
+            
+            if(ball.y + ball.r > paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w && ball.dy > 0) {
+                ball.dy = -ball.speed;
+                let hitPoint = ball.x - (paddle.x + paddle.w/2);
+                ball.dx = hitPoint * 0.15;
+            }
+
+            let allDestroyed = true;
+            bricks.forEach(b => {
+                if(b.status === 1) {
+                    allDestroyed = false;
+                    if(ball.x > b.x && ball.x < b.x + b.w && ball.y - ball.r < b.y + b.h && ball.y + ball.r > b.y) {
+                        ball.dy = -ball.dy;
+                        b.hits--;
+                        if(b.hits <= 0) {
+                            b.status = 0;
+                            let reward = b.isGold ? 500 : 50;
+                            score += reward;
+                            updateUI();
+                        }
+                    }
+                }
+            });
+
+            if(allDestroyed) {
+                level++;
+                ball.speed += 0.5;
+                initGameObjects();
+                updateUI();
+            }
+
+            if(ball.y + ball.r > canvas.height) {
+                gameState = 'gameover';
+                if(score > bestScore) { bestScore = score; localStorage.setItem('breaker_best_score', bestScore); }
+                if(level > bestLevel) { bestLevel = level; localStorage.setItem('breaker_best_level', bestLevel); }
+                updatePlayerStats(score, level);
+                document.getElementById('finalScore').innerText = score;
+                document.getElementById('finalLevel').innerText = level;
+                document.getElementById('gameOverOverlay').classList.remove('hidden');
+                document.getElementById('hud').classList.add('hidden');
+                document.getElementById('backToMenuBtn').style.display = 'none';
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            if(gameState !== 'playing') return;
+            
+            bricks.forEach(b => {
+                if(b.status === 1) {
+                    ctx.fillStyle = b.isGold ? (b.hits===3?'#FFD700':b.hits===2?'#FFA500':'#FF8C00') : '#007AFF';
+                    ctx.fillRect(b.x, b.y, b.w, b.h);
+                    ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.strokeRect(b.x, b.y, b.w, b.h);
+                    if(b.isGold) { ctx.fillStyle='black'; ctx.font='bold 12px Arial'; ctx.textAlign='center'; ctx.fillText(b.hits, b.x+b.w/2, b.y+b.h/2+4); }
+                }
+            });
+            ctx.fillStyle = '#2ed573'; ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+            ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fillStyle = 'white'; ctx.fill(); ctx.closePath();
+        }
+
+        function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+        function startGameFromLanding() { document.getElementById('landingPage').style.display = 'none'; trackGamePlay('CuanBreaker'); startGame(); }
+        function startGame() { gameState = 'playing'; score = 0; level = 1; document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('gameOverOverlay').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('backToMenuBtn').style.display = 'block'; initGameObjects(); updateUI(); }
+        function showMainMenu() { gameState='menu'; document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('gameOverOverlay').classList.add('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('backToMenuBtn').style.display = 'none'; updateMenuUI(); }
+        function backToMenu() { showMainMenu(); }
+        function resetGame() { if(confirm('Yakin mau reset skor tertinggi?')) { bestScore = 0; bestLevel = 1; localStorage.removeItem('breaker_best_score'); localStorage.removeItem('breaker_best_level'); updateMenuUI(); } }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').innerText = score;
+            document.getElementById('levelDisplay').innerText = level;
+        }
+
+        function updateMenuUI() {
+            document.getElementById('menuBestScore').innerText = bestScore;
+            document.getElementById('menuBestLevel').innerText = bestLevel;
+        }
+
+        resize(); updateMenuUI(); loop();
+    </script>
+</body>
+</html>

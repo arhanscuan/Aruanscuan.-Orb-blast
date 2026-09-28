@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cocktail Cuan - Mix & Match!</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); 
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; 
+            height: 100vh;
+        }
+        
+        #gameCanvas { 
+            display: block; 
+            width: 100%; 
+            height: 100vh; 
+            background: linear-gradient(to bottom, #ff9a9e 0%, #fad0c4 50%, #a8edea 100%);
+        }
+        
+        .ui-overlay { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            z-index: 100; 
+            padding: 20px;
+        }
+        .hidden { display: none !important; }
+        
+        .box { 
+            background: rgba(255,255,255,0.95); 
+            border-radius: 25px; 
+            padding: 30px; 
+            width: 90%; 
+            max-width: 400px; 
+            text-align: center; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 { 
+            color: #ff6b6b; 
+            font-size: 36px; 
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+        }
+        
+        .subtitle { 
+            color: #666; 
+            font-size: 14px; 
+            margin-bottom: 20px;
+        }
+        
+        .stat { 
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); 
+            color: white; 
+            padding: 15px; 
+            border-radius: 15px; 
+            margin: 10px 0; 
+            font-size: 18px; 
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255,154,158,0.3);
+        }
+        
+        .btn { 
+            display: block; 
+            width: 100%; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border: none; 
+            border-radius: 15px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            color: white;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); 
+            box-shadow: 0 6px 15px rgba(255,107,107,0.4);
+        }
+        
+        .btn-secondary { 
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
+            color: #ff6b6b;
+        }
+        
+        .btn-lobby { 
+            background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%);
+            box-shadow: 0 6px 15px rgba(46,213,115,0.4);
+        }
+        
+        #hud { 
+            position: fixed; 
+            top: 10px; 
+            left: 10px; 
+            right: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            z-index: 50;
+            pointer-events: none;
+        }
+        
+        .hud-item { 
+            background: rgba(255,255,255,0.95); 
+            padding: 10px 15px; 
+            border-radius: 20px; 
+            font-weight: bold; 
+            color: #ff6b6b; 
+            border: 2px solid #ff6b6b; 
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        #backToMenuBtn { 
+            position: fixed; 
+            top: 10px; 
+            right: 10px; 
+            background: rgba(255, 71, 87, 0.9); 
+            color: white; 
+            border: 2px solid white; 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            z-index: 60;
+            display: none;
+        }
+        
+        #lobbyBtn { 
+            position: fixed; 
+            top: 60px; 
+            right: 10px; 
+            background: rgba(46, 213, 115, 0.9); 
+            color: white; 
+            border: 2px solid white; 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            z-index: 60;
+            display: none;
+        }
+        
+        .instructions {
+            background: rgba(255,255,255,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            text-align: left;
+            color: #555;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="mainMenu" class="ui-overlay">
+        <div class="box">
+            <h1>🍹 COCKTAIL CUAN</h1>
+            <p class="subtitle">Ketuk buah untuk bikin cocktail!</p>
+            <div class="instructions">
+                <p>👆 Ketuk buah yang jatuh untuk masukin ke gelas</p>
+                <p>🎯 Kumpulkan 3 buah sama untuk bikin cocktail</p>
+                <p>⚡ Combo = Skor lebih tinggi!</p>
+                <p>🏆 Capai skor tertinggi!</p>
+            </div>
+            <div class="stat">🏆 Skor Terbaik: <span id="menuBestScore">0</span></div>
+            <button class="btn btn-primary" id="startBtn">▶ MULAI MAIN</button>
+            <button class="btn btn-lobby" id="btnLobby">🏠 Kembali ke Lobby</button>
+        </div>
+    </div>
+
+    <div id="hud" class="hidden">
+        <div class="hud-item">🏆 <span id="scoreDisplay">0</span></div>
+        <div class="hud-item">⚡ Combo: <span id="comboDisplay">0</span></div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+    <button id="backToMenuBtn">◀ MENU</button>
+    <button id="lobbyBtn">🏠 Lobby</button>
+
+    <div id="gameOverMenu" class="ui-overlay hidden">
+        <div class="box">
+            <h1 style="color:#ee5a6f;">💥 Game Over!</h1>
+            <div class="stat">🏆 Skor: <span id="finalScore">0</span></div>
+            <div class="stat">⚡ Combo Tertinggi: <span id="finalCombo">0</span></div>
+            <button class="btn btn-primary" id="restartBtn">🔄 Main Lagi</button>
+            <button class="btn btn-secondary" id="backMenuBtn">🏠 Menu Utama</button>
+            <button class="btn btn-lobby" id="btnLobby2">🏠 Kembali ke Lobby</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🔥 FIREBASE CONFIG & PLAYER TRACKING
+        // ==========================================
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", 
+            authDomain: "hansorbblast.firebaseapp.com", 
+            projectId: "hansorbblast", 
+            storageBucket: "hansorbblast.firebasestorage.app", 
+            messagingSenderId: "562424899290", 
+            appId: "1:562424899290:web:75e0c912db1ada3341e7e3" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let playerId = localStorage.getItem('hans_player_id');
+        if (!playerId) {
+            playerId = 'player_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+            localStorage.setItem('hans_player_id', playerId);
+            db.collection('players').doc(playerId).set({ 
+                playerId: playerId,
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(), 
+                firstVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                game: 'CocktailCuan',
+                gamesPlayed: firebase.firestore.FieldValue.arrayUnion('CocktailCuan'),
+                totalVisits: 1
+            }).catch(err => console.log('Firebase error:', err));
+        } else {
+            db.collection('players').doc(playerId).set({ 
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                lastPlayedGame: 'CocktailCuan',
+                gamesPlayed: firebase.firestore.FieldValue.arrayUnion('CocktailCuan'),
+                totalVisits: firebase.firestore.FieldValue.increment(1)
+            }, { merge: true }).catch(err => console.log('Firebase error:', err));
+        }
+
+        function trackGamePlay(finalScore, finalCombo) {
+            db.collection('players').doc(playerId).set({
+                cocktailCuanGames: firebase.firestore.FieldValue.increment(1),
+                lastScore: finalScore,
+                lastCombo: finalCombo,
+                lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).catch(err => console.error(err));
+
+            db.collection('players').doc(playerId).get().then(doc => {
+                const data = doc.data();
+                if (!data || !data.cocktailCuanHighScore || finalScore > data.cocktailCuanHighScore) {
+                    db.collection('players').doc(playerId).update({ cocktailCuanHighScore: finalScore }).catch(() => {});
+                }
+            }).catch(() => {});
+        }
+
+        window.addEventListener('beforeunload', () => {
+            db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {});
+        });
+
+        // ==========================================
+        // 🎮 GAME LOGIC
+        // ==========================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let bestScore = parseInt(localStorage.getItem('cocktail_best_score')) || 0;
+        let gameState = 'menu';
+        let score = 0;
+        let combo = 0;
+        let maxCombo = 0;
+        let fruits = [];
+        let particles = [];
+        let collectedFruits = {};
+        let spawnTimer = 0;
+        let spawnInterval = 60;
+        let difficulty = 1;
+
+        // ✅ SEMUA EMOJI DIISI, GAK ADA YANG KOSONG!
+        const fruitTypes = [
+            { emoji: '🍎', name: 'apel', color: '#FF3B30' },
+            { emoji: '🍊', name: 'jeruk', color: '#FF9500' },
+            { emoji: '🍋', name: 'lemon', color: '#FFEB3B' },
+            { emoji: '🍉', name: 'semangka', color: '#FF4757' },
+            { emoji: '🍇', name: 'anggur', color: '#9B59B6' },
+            { emoji: '🍓', name: 'stroberi', color: '#FF2D55' }
+        ];
+
+        function resizeCanvas() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        class Fruit {
+            constructor() {
+                const type = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
+                this.emoji = type.emoji;
+                this.name = type.name;
+                this.color = type.color;
+                this.size = 50;
+                this.x = Math.random() * (canvas.width - this.size * 2) + this.size;
+                this.y = -this.size;
+                this.vy = 2 + Math.random() * 2 + difficulty * 0.5;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.rotation = 0;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                this.collected = false;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.x += this.vx;
+                this.rotation += this.rotationSpeed;
+
+                if (this.x < this.size || this.x > canvas.width - this.size) {
+                    this.vx = -this.vx;
+                }
+
+                return this.y < canvas.height + this.size;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.font = `${this.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 10;
+                ctx.fillText(this.emoji, 0, 0);
+                ctx.restore();
+            }
+
+            checkHit(clickX, clickY) {
+                return Math.hypot(clickX - this.x, clickY - this.y) < this.size * 0.6;
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = Math.random() * 8 + 4;
+                this.vx = (Math.random() - 0.5) * 15;
+                this.vy = (Math.random() - 0.5) * 15;
+                this.life = 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.5;
+                this.life -= 0.03;
+            }
+
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function spawnFruit() {
+            fruits.push(new Fruit());
+        }
+
+        function collectFruit(fruit) {
+            fruit.collected = true;
+            combo++;
+            if (combo > maxCombo) maxCombo = combo;
+
+            const comboBonus = Math.floor(combo / 3) * 10;
+            const points = 10 + comboBonus;
+            score += points;
+
+            for (let i = 0; i < 12; i++) {
+                particles.push(new Particle(fruit.x, fruit.y, fruit.color));
+            }
+
+            if (!collectedFruits[fruit.name]) {
+                collectedFruits[fruit.name] = 0;
+            }
+            collectedFruits[fruit.name]++;
+
+            if (collectedFruits[fruit.name] >= 3) {
+                score += 50;
+                collectedFruits[fruit.name] = 0;
+                combo += 2;
+            }
+
+            document.getElementById('scoreDisplay').innerText = score;
+            document.getElementById('comboDisplay').innerText = combo;
+
+            difficulty = 1 + Math.floor(score / 200) * 0.5;
+            spawnInterval = Math.max(20, 60 - Math.floor(score / 100) * 5);
+        }
+
+        function drawBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#ff9a9e');
+            gradient.addColorStop(0.5, '#fad0c4');
+            gradient.addColorStop(1, '#a8edea');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function animate() {
+            if (gameState !== 'playing') return;
+
+            drawBackground();
+
+            spawnTimer++;
+            if (spawnTimer >= spawnInterval) {
+                spawnFruit();
+                spawnTimer = 0;
+            }
+
+            fruits = fruits.filter(f => {
+                const alive = f.update();
+                if (alive && !f.collected) {
+                    f.draw();
+                    return true;
+                }
+                return false;
+            });
+
+            particles = particles.filter(p => {
+                p.update();
+                if (p.life > 0) {
+                    p.draw();
+                    return true;
+                }
+                return false;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        canvas.addEventListener('pointerdown', (e) => {
+            if (gameState !== 'playing') return;
+
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            for (let i = fruits.length - 1; i >= 0; i--) {
+                const fruit = fruits[i];
+                if (!fruit.collected && fruit.checkHit(clickX, clickY)) {
+                    collectFruit(fruit);
+                    fruits.splice(i, 1);
+                    break;
+                }
+            }
+        });
+
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            combo = 0;
+            maxCombo = 0;
+            fruits = [];
+            particles = [];
+            collectedFruits = {};
+            spawnTimer = 0;
+            spawnInterval = 60;
+            difficulty = 1;
+
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('gameOverMenu').classList.add('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+            document.getElementById('backToMenuBtn').style.display = 'block';
+            document.getElementById('lobbyBtn').style.display = 'block';
+            document.getElementById('scoreDisplay').innerText = score;
+            document.getElementById('comboDisplay').innerText = combo;
+
+            animate();
+        }
+
+        function endGame() {
+            gameState = 'gameover';
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('cocktail_best_score', bestScore);
+            }
+
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('finalCombo').innerText = maxCombo;
+            document.getElementById('gameOverMenu').classList.remove('hidden');
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('backToMenuBtn').style.display = 'none';
+            document.getElementById('lobbyBtn').style.display = 'none';
+
+            trackGamePlay(score, maxCombo);
+        }
+
+        function showMainMenu() {
+            gameState = 'menu';
+            document.getElementById('mainMenu').classList.remove('hidden');
+            document.getElementById('gameOverMenu').classList.add('hidden');
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('backToMenuBtn').style.display = 'none';
+            document.getElementById('lobbyBtn').style.display = 'none';
+            document.getElementById('menuBestScore').innerText = bestScore.toLocaleString('id-ID');
+        }
+
+        function goToLobby() {
+            window.location.href = '/clean.html';
+        }
+
+        // Auto end game kalau buah kelewatan terlalu banyak
+        setInterval(() => {
+            if (gameState === 'playing') {
+                const missedFruits = fruits.filter(f => f.y > canvas.height + 100).length;
+                if (missedFruits > 5) {
+                    endGame();
+                }
+            }
+        }, 1000);
+
+        // ==========================================
+        // 🎯 EVENT LISTENERS (AMAN DI TREBEDIT)
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('startBtn').addEventListener('click', startGame);
+            document.getElementById('restartBtn').addEventListener('click', startGame);
+            document.getElementById('backMenuBtn').addEventListener('click', showMainMenu);
+            document.getElementById('backToMenuBtn').addEventListener('click', showMainMenu);
+            document.getElementById('btnLobby').addEventListener('click', goToLobby);
+            document.getElementById('btnLobby2').addEventListener('click', goToLobby);
+            document.getElementById('lobbyBtn').addEventListener('click', goToLobby);
+
+            document.getElementById('menuBestScore').innerText = bestScore.toLocaleString('id-ID');
+        });
+
+        resizeCanvas();
+    </script>
+</body>
+</html>

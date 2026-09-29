@@ -27,7 +27,7 @@
         .start-btn:active { transform: scale(0.95); }
 
         #gameCanvas { display: block; width: 100%; height: 100vh; z-index: 1; }
-        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 22, 40, 0.95); z-index: 100; overflow-y: auto; }
+        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 22, 40, 0.95); z-index: 100; overflow-y: auto; padding: 20px; }
         .hidden { display: none !important; }
         .box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 20px; margin: 10px; width: 95%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
         h1 { color: #ffd700; margin: 0 0 15px 0; font-size: 28px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); }
@@ -39,6 +39,7 @@
         .btn-secondary { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); }
         .btn-danger { background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); }
         .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); }
+        .btn-history { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: #333; }
         
         #hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 5; }
         .hud-item { background: rgba(0,0,0,0.7); padding: 10px 15px; border-radius: 25px; font-weight: bold; color: #ffd700; border: 2px solid #ffd700; font-size: 14px; }
@@ -48,6 +49,7 @@
         .timer-text { font-size: 56px; font-weight: bold; color: #ffd700; margin: 20px 0; }
         .overlay-btn { background: #555 !important; color: #aaa !important; border: none !important; padding: 18px 40px !important; border-radius: 50px !important; font-size: 20px !important; font-weight: 900 !important; width: 100%; cursor: not-allowed; }
         .overlay-btn.ready { background: #2ed573 !important; color: white !important; cursor: pointer; animation: pulse 1.5s infinite; }
+        .overlay-btn.failed { background: #e74c3c !important; color: white !important; cursor: not-allowed; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         
         .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; transition: opacity 0.3s; }
@@ -65,32 +67,63 @@
         
         #backToMenuBtn { position: absolute; top: 10px; right: 10px; background: rgba(255, 71, 87, 0.9); color: white; border: 2px solid white; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 20; display: none; touch-action: manipulation; }
         #soundToggle { position: absolute; left: 10px; top: 10px; background: rgba(255,255,255,0.9); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 15; display: none; touch-action: manipulation; }
+        .status-text { font-size: 12px; color: #ff6b6b; margin-top: 10px; font-weight: bold; min-height: 15px; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 50; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: #2c3e50; border-radius: 15px; padding: 20px; width: 90%; max-width: 350px; border: 2px solid #ffd700; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #1a252f; color: white; font-size: 16px; margin-top: 5px; }
+        .modal-box { background: white; border-radius: 20px; padding: 25px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); color: #333; }
+        .modal-box.scrollable { max-height: 85vh; overflow-y: auto; }
+        .modal-box h2 { color: #2c3e50; margin-bottom: 10px; }
+        .modal-box h3 { color: #2c3e50; margin-bottom: 15px; }
+        
+        .input-group { margin-bottom: 12px; text-align: left; }
+        .input-group label { font-size: 12px; color: #666; font-weight: bold; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ecf0f1; background: #f8f9fa; color: #333; font-size: 15px; margin-top: 5px; outline: none; }
+        .input-group input:focus { border-color: #667eea; }
+        
+        /* TIER SELECTION STYLES */
+        .tier-info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; }
+        .tier-info strong { font-size: 16px; }
+        .tier-buttons { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .tier-btn { padding: 12px; border-radius: 12px; border: 2px solid #ecf0f1; background: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; justify-content: space-between; align-items: center; color: #333; }
+        .tier-btn.active { border-color: #667eea; background: #f0f4ff; color: #667eea; }
+        .tier-btn.active.selected { border-color: #2ed573; background: #e8f8f0; color: #2ed573; }
+        .tier-btn.locked { opacity: 0.5; cursor: not-allowed; background: #f8f9fa; }
+        .tier-btn.done { opacity: 0.6; cursor: not-allowed; background: #f8f9fa; text-decoration: line-through; }
+        .tier-req { font-size: 11px; color: #95a5a6; font-weight: normal; }
+        .wd-summary { background: #f8f9fa; padding: 12px; border-radius: 12px; margin: 10px 0; font-size: 13px; text-align: left; color: #333; }
+        .wd-summary-row { display: flex; justify-content: space-between; margin: 4px 0; }
+        .wd-summary-row strong { color: #2c3e50; }
+        .vip-badge { display: inline-block; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; margin-left: 5px; }
+        
+        /* HISTORY */
+        .history-item { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-left: 4px solid #667eea; color: #333; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .history-amount { color: #2c3e50; font-weight: bold; font-size: 16px; }
+        .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
+        .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-refunded { background: #3498db; } .status-rejected { background: #e74c3c; }
+        .history-details { font-size: 12px; color: #95a5a6; }
+        .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 5px; }
     </style>
 </head>
 <body>
 
     <div id="landingPage">
-        <div class="landing-logo">🎮</div>
+        <div class="landing-logo"></div>
         <h1 class="landing-title">HANS ORB BLAST</h1>
         <div class="instruction-box">
-            <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;">📜 CARA BERMAIN</h3>
+            <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;"> CARA BERMAIN</h3>
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk bola berwarna untuk memecahkannya.</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Setiap bola yang pecah memberikan Koin & Saldo!</span></div>
             <div class="instruction-item"><span class="instruction-icon">🏆</span> <span>Hancurkan semua bola di layar untuk naik level & dapat hadiah besar!</span></div>
-            <div class="instruction-item"><span class="instruction-icon"></span> <span>Kumpulkan koin dan tarik saldo ke DANA kamu!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">💸</span> <span>Kumpulkan koin dan tarik saldo ke DANA kamu!</span></div>
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
         <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 20px;">© 2024 Hans Orb Blast. All rights reserved.</p>
     </div>
 
     <div id="hud" class="hidden">
-        <div class="hud-item">Skor: <span id="scoreDisplay">0</span></div>
-        <div class="hud-item">WD: <span id="wdDisplay">0</span>/<span id="wdTargetDisplay">30</span></div>
+        <div class="hud-item">💰 <span id="coinDisplay">0</span></div>
+        <div class="hud-item" id="wdHudItem">Iklan: 0/100</div>
     </div>
 
     <button id="backToMenuBtn" onclick="backToMenu()">◀ MENU</button>
@@ -103,14 +136,15 @@
             <p style="color:#ccc; margin-bottom:10px;">Pecahkan bola, kumpulkan koin!</p>
             <div class="stat">🪙 Koin: <span id="menuBalance">0</span> (Rp <span id="menuRupiah">0</span>)</div>
             <div style="margin: 15px 0;">
-                <div style="font-size: 14px; margin-bottom: 5px;">Progress WD: <span id="wdProgress">0</span>/<span id="wdTargetMenu">30</span></div>
+                <div style="font-size: 14px; margin-bottom: 5px; color: #ccc;" id="wdProgressLabel">Iklan: 0/100 untuk WD #1</div>
                 <div style="width:100%; height:10px; background:rgba(0,0,0,0.3); border-radius:5px; overflow:hidden;">
                     <div id="wdProgressBar" style="height:100%; background:#00ff88; width:0%;"></div>
                 </div>
             </div>
-            <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS</button>
+            <button class="btn btn-danger" onclick="showBonusAd()"> KLAIM BONUS</button>
             <button class="btn btn-primary" onclick="startGame()">▶ MULAI MAIN</button>
             <button class="btn btn-wd" onclick="showWithdraw()">💸 TARIK SALDO</button>
+            <button class="btn btn-history" onclick="showHistory()"> RIWAYAT WD</button>
         </div>
     </div>
 
@@ -121,6 +155,7 @@
             <div class="reward-amount" id="adRewardDisplay">Rp 0</div>
             <div class="timer-text" id="adTimer">5</div>
             <button id="adBtn" class="overlay-btn" disabled>TUNGGU...</button>
+            <div id="adStatusText" class="status-text" style="color: white;"></div>
         </div>
     </div>
 
@@ -131,112 +166,273 @@
             <div id="bonusRewardDisplay" class="reward-amount">Rp 0</div>
             <div class="timer-text" id="bonusTimer">5</div>
             <button id="bonusBtn" class="overlay-btn" disabled>TUNGGU...</button>
+            <div id="bonusStatusText" class="status-text" style="color: white;"></div>
         </div>
     </div>
 
-    <div id="withdrawMenu" class="ui-overlay hidden">
-        <div class="box">
-            <h2> Tarik Saldo</h2>
-            <p style="margin:10px 0;">Saldo: Rp <span id="wdBalanceRupiah">0</span></p>
-            <p style="margin:10px 0; color:#ffd700;">Iklan: <span id="wdAdsWatched">0</span>/<span id="wdAdsTarget">30</span></p>
-            <button class="btn btn-primary" onclick="openInputModal()">WD Rp 1.000 (50rb Koin)</button>
-            <button class="btn btn-secondary" onclick="showMainMenu()">Kembali</button>
+    <div id="wdModal" class="modal-overlay">
+        <div class="modal-box scrollable">
+            <h2>💸 Tarik Saldo</h2>
+            
+            <div class="tier-info">
+                <div> WD Kamu: <strong id="wdTierDisplay">#1</strong><span id="vipBadgeDisplay"></span></div>
+                <div style="margin-top:5px;">💰 Saldo: Rp <span id="wdSaldo">0</span></div>
+                <div style="margin-top:5px;">📺 Iklan Ditonton: <span id="wdAdsCount">0</span></div>
+            </div>
+
+            <div class="tier-buttons" id="tierButtons"></div>
+
+            <div id="wdSummary" class="wd-summary" style="display:none;">
+                <div class="wd-summary-row"><span>Tier Terpilih:</span><strong id="summaryTier">-</strong></div>
+                <div class="wd-summary-row"><span>Nominal:</span><strong id="summaryAmount">-</strong></div>
+                <div class="wd-summary-row"><span>Butuh Koin:</span><strong id="summaryCoins">-</strong></div>
+                <div class="wd-summary-row"><span>Butuh Iklan:</span><strong id="summaryAds">-</strong></div>
+                <div class="wd-summary-row"><span>Sisa Koin Setelah WD:</span><strong id="summaryRemain">-</strong></div>
+            </div>
+
+            <div class="input-group">
+                <label>Nomor DANA</label>
+                <input type="number" id="inputDana" placeholder="08xxxxxxxxxx">
+            </div>
+            <div class="input-group">
+                <label>Nama Pemilik Rekening</label>
+                <input type="text" id="inputName" placeholder="Nama sesuai DANA">
+            </div>
+            <button class="btn btn-primary" id="wdSubmitBtn" onclick="processWD()" disabled>Kirim Permintaan WD</button>
+            <button class="btn btn-secondary" onclick="closeModal('wdModal')">Batal</button>
         </div>
     </div>
 
-    <div id="inputModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="color:#ffd700; margin-bottom:15px;">Data Rekening</h3>
-            <div class="input-group"><label>Nomor DANA</label><input type="number" id="inputDana" placeholder="08xx"></div>
-            <div class="input-group"><label>Nama Pemilik</label><input type="text" id="inputName" placeholder="Nama"></div>
-            <button class="btn btn-primary" onclick="finalizeWithdrawal()">KIRIM</button>
-            <button class="btn btn-secondary" onclick="closeModal('inputModal')">Batal</button>
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-box scrollable">
+            <h2>📜 Riwayat WD</h2>
+            <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center;">Memuat data...</p></div>
+            <button class="btn btn-secondary" onclick="closeModal('historyModal')">Tutup</button>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        // 🔥 FIREBASE CONFIG
+        // ==========================================
         const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
         // ==========================================
-        // 🔐 SISTEM ENKRIPSI FAST TRACK WD (UNIVERSAL)
+        // 📱 WABLAS CONFIG
         // ==========================================
-        const SECRET_SALT = "ARHUANSCUAN_CUAN_2024_XYZ_RANDOM"; 
-        
-        function getLuckyScore(playerId) {
-            let hash = 0;
-            const str = playerId + SECRET_SALT;
-            for (let i = 0; i < str.length; i++) {
-                hash = ((hash << 5) - hash) + str.charCodeAt(i);
-                hash |= 0; 
-            }
-            return Math.abs(hash) % 100;
+        const WABLAS_CONFIG = {
+            baseUrl: 'https://jkt.wablas.com',
+            token: 'NHUrrZcRnOXdA77e5UGtg4Fzz5O0zTvKMW3ofpdgtDKizqQIusuOTVv',
+            adminPhone: '6285884026882'
+        };
+
+        // ==========================================
+        // 💰 WD TIERS CONFIG
+        // ==========================================
+        const WD_TIERS = {
+            1: { amount: 1000, coins: 50000, adsNormal: 100, adsVip: 50, oneTime: true, label: 'WD #1 - Rp 1.000' },
+            2: { amount: 5000, coins: 250000, adsNormal: 500, adsVip: 500, oneTime: true, label: 'WD #2 - Rp 5.000' },
+            3: { amount: 10000, coins: 500000, adsNormal: 1000, adsVip: 1000, oneTime: false, label: 'WD #3+ - Rp 10.000' }
+        };
+
+        const GAME_NAME = 'Hans Orb Blast';
+        const GAME_SOURCE = 'HansOrbBlast';
+
+        // ==========================================
+        //  FUNGSI KIRIM NOTIFIKASI WABLAS
+        // ==========================================
+        async function kirimNotifWablas(pesan) {
+            try {
+                const response = await fetch(`${WABLAS_CONFIG.baseUrl}/api/send-message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': WABLAS_CONFIG.token },
+                    body: JSON.stringify({ phone: WABLAS_CONFIG.adminPhone, message: pesan })
+                });
+                const result = await response.json();
+                if (result.status || result.data) { console.log('✅ Notifikasi Wablas terkirim'); return true; } 
+                else { console.error('❌ Gagal kirim Wablas:', result); return false; }
+            } catch (error) { console.error('❌ Error Wablas:', error); return false; }
         }
 
-        function isFastTrackPlayer(playerId) {
-            return getLuckyScore(playerId) < 20; 
+        // ==========================================
+        //  ALGORITMA VIP HARIAN (20% PLAYER)
+        // ==========================================
+        function isVipHariIni(playerId) {
+            const today = new Date().toDateString();
+            const hash = playerId + today + 'VIP_DAILY_2024_ORB';
+            let hashValue = 0;
+            for (let i = 0; i < hash.length; i++) { hashValue = ((hashValue << 5) - hashValue) + hash.charCodeAt(i); hashValue |= 0; }
+            return Math.abs(hashValue) % 100 < 20;
         }
 
-        // ✅ SISTEM ADMIN TERHUBUNG (FIX NAMA GAME MASUK)
-        function initPlayer() {
-            let pid = localStorage.getItem('hans_player_id');
-            if (!pid) {
-                pid = 'player_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-                localStorage.setItem('hans_player_id', pid);
+        // ==========================================
+        // 🛡️ VERIFIKASI IKLAN ANTI-CHEAT
+        // ==========================================
+        class AdVerifier {
+            constructor() {
+                this.isVerifying = false; this.startTime = 0; this.requiredDuration = 5000;
+                this.checkInterval = null; this.hasLostFocus = false; this.hasHidden = false;
+                this.onBlurHandler = null; this.onVisibilityHandler = null;
             }
-            db.collection('players').doc(pid).set({
-                playerId: pid, totalCoins: parseInt(localStorage.getItem('hans_coins')) || 0,
-                firstVisit: firebase.firestore.FieldValue.serverTimestamp(),
-                lastVisit: firebase.firestore.FieldValue.serverTimestamp(), status: 'active'
-            }, { merge: true }).catch(err => console.error(err));
-            return pid;
+            startVerification() {
+                return new Promise((resolve, reject) => {
+                    if (this.isVerifying) { reject('Sedang verifikasi iklan lain'); return; }
+                    this.isVerifying = true; this.startTime = Date.now();
+                    this.hasLostFocus = false; this.hasHidden = false;
+                    this.onBlurHandler = () => { this.hasLostFocus = true; };
+                    this.onVisibilityHandler = () => { if (document.hidden) this.hasHidden = true; };
+                    window.addEventListener('blur', this.onBlurHandler);
+                    document.addEventListener('visibilitychange', this.onVisibilityHandler);
+                    this.checkInterval = setInterval(() => {
+                        const elapsed = Date.now() - this.startTime;
+                        if (this.hasLostFocus || this.hasHidden) { this.stopVerification(); reject('Iklan tidak ditonton dengan benar'); return; }
+                        if (elapsed >= this.requiredDuration) { this.stopVerification(); resolve(true); }
+                    }, 100);
+                });
+            }
+            stopVerification() {
+                this.isVerifying = false; clearInterval(this.checkInterval);
+                if (this.onBlurHandler) window.removeEventListener('blur', this.onBlurHandler);
+                if (this.onVisibilityHandler) document.removeEventListener('visibilitychange', this.onVisibilityHandler);
+            }
         }
-        let playerId = initPlayer();
+
+        const adVerifier = new AdVerifier();
+        let lastBonusTime = 0;
+        const BONUS_COOLDOWN = 30000;
+
+        // ==========================================
+        // 👤 PLAYER INIT
+        // ==========================================
+        let playerId = localStorage.getItem('hans_player_id');
+        if (!playerId) {
+            playerId = 'player_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+            localStorage.setItem('hans_player_id', playerId);
+            db.collection('players').doc(playerId).set({ 
+                totalCoins: 0, isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(), 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(err => console.log('Firebase init error:', err));
+        } else {
+            db.collection('players').doc(playerId).update({ 
+                isOnline: true,
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(err => console.log('Firebase update error:', err));
+        }
+        window.addEventListener('beforeunload', () => { 
+            db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {}); 
+        });
 
         function trackGamePlay(gameName) {
-            if (!playerId) return;
             db.collection('players').doc(playerId).set({
-                lastPlayedGame: gameName, lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
+                lastPlayedGame: gameName, 
+                lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
                 gamesPlayed: firebase.firestore.FieldValue.arrayUnion(gameName)
             }, { merge: true }).catch(err => console.error(err));
         }
 
-        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
-        let gameState = 'menu', score = 0;
-        let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
-        let wdClicks = parseInt(localStorage.getItem('hans_wd_clicks')) || 0;
-        let isFirstWD = !localStorage.getItem('hans_first_wd_done');
-        const ADS_REQUIRED = isFirstWD ? 30 : 50;
-        let adsWatched = parseInt(localStorage.getItem('hans_ads_watched')) || 0;
+        function updatePlayerCoins(earned) { 
+            db.collection('players').doc(playerId).update({ 
+                totalCoins: firebase.firestore.FieldValue.increment(earned), 
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp() 
+            }).catch(() => {}); 
+        }
 
+        // ==========================================
+        // 💾 STATE
+        // ==========================================
+        let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
+        let adsWatched = parseInt(localStorage.getItem('orb_ads_watched')) || 0;
         let adWasOpen = false;
+        let adInterval = null;
+        let bonusInterval = null;
+        let gameState = 'menu';
+        let score = 0;
+        let wdCount = 0;
+        let selectedWdTier = null;
+        let historyListener = null;
+
+        db.collection('players').doc(playerId).get().then(doc => {
+            if (doc.exists && doc.data().wdCount) wdCount = doc.data().wdCount;
+            updateUI();
+        }).catch(err => console.error('Gagal load wdCount:', err));
+
+        // ==========================================
+        // 🎮 AUDIO SYSTEM (KHAS HANS ORB BLAST)
+        // ==========================================
+        let audioCtx = null;
+        let bgMusicOscillator = null;
+        let soundEnabled = true;
+
+        function initAudio() { if(!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} } }
+        function playSound(type) {
+            if(!soundEnabled || !audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
+            if(type === 'pop') { 
+                osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(400, now + 0.1); 
+                gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); 
+                osc.start(now); osc.stop(now + 0.1); 
+            } 
+            else if(type === 'bonus') { 
+                [523.25, 659.25, 783.99].forEach((freq, i) => { 
+                    const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); 
+                    o.connect(g); g.connect(audioCtx.destination); 
+                    o.frequency.value = freq; 
+                    g.gain.setValueAtTime(0.2, now + i*0.05); 
+                    g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); 
+                    o.start(now + i*0.05); o.stop(now + 0.3); 
+                }); 
+            } 
+            else if(type === 'start') { 
+                [440, 554.37, 659.25].forEach((freq, i) => { 
+                    const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); 
+                    o.connect(g); g.connect(audioCtx.destination); 
+                    o.frequency.value = freq; 
+                    g.gain.setValueAtTime(0.2, now + i*0.08); 
+                    g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); 
+                    o.start(now + i*0.08); o.stop(now + 0.3); 
+                }); 
+            }
+        }
+
+        function startBgMusic() {
+            if(!soundEnabled || !audioCtx || bgMusicOscillator) return;
+            bgMusicOscillator = audioCtx.createOscillator(); 
+            const bgMusicGain = audioCtx.createGain();
+            bgMusicOscillator.connect(bgMusicGain); 
+            bgMusicGain.connect(audioCtx.destination);
+            bgMusicOscillator.frequency.value = 220; 
+            bgMusicOscillator.type = 'sine'; 
+            bgMusicGain.gain.value = 0.05;
+            bgMusicOscillator.start();
+        }
+
+        function stopBgMusic() { 
+            if(bgMusicOscillator) { bgMusicOscillator.stop(); bgMusicOscillator = null; } 
+        }
+
+        function toggleSound() { 
+            soundEnabled = !soundEnabled; 
+            document.getElementById('soundToggle').innerText = soundEnabled ? '🔊' : '🔇';
+            if(soundEnabled) { initAudio(); startBgMusic(); } 
+            else { stopBgMusic(); }
+        }
+
+        // ==========================================
+        // 🎮 GAME LOGIC: HANS ORB BLAST
+        // ==========================================
+        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
         let balls = [], particles = [];
         const colors = ['#FF3B30', '#007AFF', '#34C759', '#FFCC00', '#AF52DE', '#FF9500'];
-        let audioCtx = null;
-        let isAdForcedOpen = false;
         let currentLevel = parseInt(localStorage.getItem('orb_level')) || 1;
 
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
 
-        function blockBackButton() {
-            isAdForcedOpen = true;
-            history.pushState(null, null, location.href);
-            history.pushState(null, null, location.href);
-            window.onpopstate = function () {
-                if (isAdForcedOpen) {
-                    history.pushState(null, null, location.href);
-                    history.pushState(null, null, location.href);
-                }
-            };
-        }
-        function unblockBackButton() {
-            isAdForcedOpen = false;
-            window.onpopstate = null;
-        }
-
-        // ✅ STRATEGI PANCINGAN & SLOW GRIND
+        // ✅ STRATEGI BAIT REWARD (PANCINGAN)
         function calculateBaitReward() {
-            const isLucky = isFastTrackPlayer(playerId);
+            const isLucky = isVipHariIni(playerId);
             let reward = 0;
             if (isLucky) {
                 if (adsWatched < 5) reward = (Math.floor(Math.random() * 5) + 5) * 10000; 
@@ -248,26 +444,16 @@
             return { amount: reward, isLucky: isLucky };
         }
 
-        function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-        function playSound(type) {
-            if(!audioCtx) return;
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
-            if(type === 'pop') { osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(400, now + 0.1); gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); } 
-            else if(type === 'bonus') { [523.25, 659.25, 783.99].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.05); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.05); o.stop(now + 0.3); }); } 
-            else if(type === 'start') { [440, 554.37, 659.25].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.08); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.08); o.stop(now + 0.3); }); }
-        }
-        function toggleSound() { playSound('start'); }
-
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas);
 
         class Ball {
-            constructor() {
+            constructor(levelSpeed) {
                 this.radius = 30 + Math.random() * 20;
                 this.x = Math.random() * (canvas.width - this.radius * 2) + this.radius;
                 this.y = Math.random() * (canvas.height - this.radius * 2) + this.radius;
-                this.dx = (Math.random() - 0.5) * 6; this.dy = (Math.random() - 0.5) * 6;
+                const speed = 4 + (levelSpeed || 0);
+                this.dx = (Math.random() - 0.5) * speed; this.dy = (Math.random() - 0.5) * speed;
                 this.color = colors[Math.floor(Math.random() * colors.length)];
                 this.value = Math.floor(this.radius);
             }
@@ -289,7 +475,11 @@
             draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
         }
 
-        function initGame() { balls = []; for (let i = 0; i < 10; i++) balls.push(new Ball()); }
+        function initGame() { 
+            balls = []; 
+            const ballCount = 8 + (currentLevel - 1) * 2;
+            for (let i = 0; i < ballCount; i++) balls.push(new Ball(currentLevel * 0.5)); 
+        }
         function animate() {
             if (gameState !== 'playing') return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -315,14 +505,15 @@
                     else if (currentRupiah < 1000) reward = b.value * 2;
                     else reward = Math.floor(b.value * 0.2);
                     
-                    coins += reward; wdClicks = Math.min(wdClicks + 1, ADS_REQUIRED);
-                    localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_wd_clicks', wdClicks);
+                    coins += reward;
+                    localStorage.setItem('hans_coins', coins);
+                    updatePlayerCoins(reward);
                     updateUI(); balls.splice(i, 1);
                     
                     if (balls.length === 0) {
                         setTimeout(() => {
                             gameState = 'menu';
-                            triggerAd(' LEVEL SELESAI!', () => { showMainMenu(); initGame(); });
+                            showInterstitialAd('🏆 LEVEL SELESAI!', () => { showMainMenu(); });
                         }, 1000);
                     }
                     break;
@@ -330,159 +521,345 @@
             }
         });
 
-        function triggerAd(title, callback) {
+        // ==========================================
+        // 🎁 INTERSTITIAL DENGAN VERIFIKASI ANTI-CHEAT + BAIT REWARD
+        // ==========================================
+        function showInterstitialAd(title, callback) {
             const overlay = document.getElementById('gameOverOverlay');
             const closeBtn = overlay.querySelector('.emergency-close');
             const rewardDisplay = document.getElementById('adRewardDisplay');
-            
+            const timerEl = document.getElementById('adTimer');
+            const btn = document.getElementById('adBtn');
+            const statusText = document.getElementById('adStatusText');
+
             const baitData = calculateBaitReward();
             const formattedAmount = 'Rp ' + baitData.amount.toLocaleString('id-ID');
-
             rewardDisplay.innerText = "Hadiah hingga\n" + formattedAmount;
             rewardDisplay.style.color = '#ffd700';
             rewardDisplay.style.fontSize = '36px';
 
             overlay.style.display = 'flex'; 
             adWasOpen = true;
-            
-            blockBackButton();
-            closeBtn.classList.add('hidden-close');
-
-            const timerEl = document.getElementById('adTimer');
-            const btn = document.getElementById('adBtn');
-            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU..."; btn.onclick = null;
+            closeBtn.style.display = 'block';
+            statusText.style.display = 'none';
+            timerEl.innerText = "5"; 
+            btn.disabled = true; 
+            btn.classList.remove('ready', 'failed'); 
+            btn.innerText = "Memuat Iklan..."; 
+            btn.onclick = null;
             window.open(ADSTERRA_DIRECT_LINK, '_blank');
-            
-            const waitTime = 5000; const startTime = Date.now();
-            const checkTimer = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remaining = Math.ceil((waitTime - elapsed) / 1000);
-                if (remaining > 0) { timerEl.innerText = remaining; } 
-                else {
-                    clearInterval(checkTimer); timerEl.innerText = "0"; 
-                    
+
+            adVerifier.startVerification()
+                .then(() => {
+                    timerEl.innerText = "0";
                     rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedAmount;
                     rewardDisplay.style.fontSize = "26px";
                     rewardDisplay.style.color = "#2ed573";
-
-                    unblockBackButton();
-                    closeBtn.classList.remove('hidden-close');
-
-                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ OK CLAIM";
+                    btn.disabled = false; 
+                    btn.classList.add('ready'); 
+                    btn.innerText = "✅ OK CLAIM"; 
                     btn.onclick = () => { 
-                        overlay.style.display = 'none'; adWasOpen = false; 
+                        overlay.style.display = 'none'; 
+                        adWasOpen = false; 
                         adsWatched++; 
-                        localStorage.setItem('hans_ads_watched', adsWatched);
+                        localStorage.setItem('orb_ads_watched', adsWatched);
                         coins += Math.max(10, Math.floor(baitData.amount / 10));
                         localStorage.setItem('hans_coins', coins);
+                        updatePlayerCoins(Math.max(10, Math.floor(baitData.amount / 10)));
                         if (callback) callback(); 
                         updateUI(); 
                     };
-                }
-            }, 100);
+                })
+                .catch((error) => {
+                    timerEl.innerText = "✖";
+                    rewardDisplay.innerText = "Iklan Tidak Valid";
+                    rewardDisplay.style.color = "#e74c3c";
+                    btn.disabled = true;
+                    btn.classList.add('failed');
+                    btn.innerText = "❌ Reward Dibatalkan";
+                    statusText.style.display = 'block';
+                    statusText.innerText = '⚠️ Anda menutup/minimize tab saat iklan berjalan. Reward tidak diberikan.';
+                    setTimeout(() => { overlay.style.display = 'none'; adWasOpen = false; }, 3000);
+                });
         }
 
         function showBonusAd() {
+            const now = Date.now();
+            if (now - lastBonusTime < BONUS_COOLDOWN) {
+                const remaining = Math.ceil((BONUS_COOLDOWN - (now - lastBonusTime)) / 1000);
+                alert(` Tunggu ${remaining} detik sebelum klaim bonus lagi!`);
+                return;
+            }
+
             const overlay = document.getElementById('bonusOverlay');
             const closeBtn = overlay.querySelector('.emergency-close');
             const rewardDisplay = document.getElementById('bonusRewardDisplay');
+            const timerEl = document.getElementById('bonusTimer');
+            const btn = document.getElementById('bonusBtn');
+            const statusText = document.getElementById('bonusStatusText');
 
             const baitData = calculateBaitReward();
             const formattedAmount = 'Rp ' + baitData.amount.toLocaleString('id-ID');
-
             rewardDisplay.innerText = "Hadiah hingga\n" + formattedAmount;
             rewardDisplay.style.color = '#ffd700';
             rewardDisplay.style.fontSize = '36px';
 
             overlay.style.display = 'flex'; 
             adWasOpen = true;
-            
-            blockBackButton();
-            closeBtn.classList.add('hidden-close');
-
-            const timerEl = document.getElementById('bonusTimer');
-            const btn = document.getElementById('bonusBtn');
-            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "TUNGGU..."; btn.onclick = null;
+            closeBtn.style.display = 'block';
+            statusText.style.display = 'none';
+            timerEl.innerText = "5"; 
+            btn.disabled = true; 
+            btn.classList.remove('ready', 'failed'); 
+            btn.innerText = "Memuat Iklan..."; 
+            btn.onclick = null;
             window.open(ADSTERRA_DIRECT_LINK, '_blank');
-            
-            const waitTime = 5000; const startTime = Date.now();
-            const checkTimer = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remaining = Math.ceil((waitTime - elapsed) / 1000);
-                if (remaining > 0) { timerEl.innerText = remaining; } 
-                else {
-                    clearInterval(checkTimer); timerEl.innerText = "0"; 
-                    
+
+            adVerifier.startVerification()
+                .then(() => {
+                    timerEl.innerText = "0";
                     rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedAmount;
                     rewardDisplay.style.fontSize = "26px";
                     rewardDisplay.style.color = "#2ed573";
-
-                    unblockBackButton();
-                    closeBtn.classList.remove('hidden-close');
-
-                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ OK CLAIM";
+                    btn.disabled = false; 
+                    btn.classList.add('ready'); 
+                    btn.innerText = "✅ OK CLAIM"; 
                     btn.onclick = () => { 
-                        overlay.style.display = 'none'; adWasOpen = false; 
+                        overlay.style.display = 'none'; 
+                        adWasOpen = false;
+                        lastBonusTime = Date.now();
                         coins += Math.max(10, Math.floor(baitData.amount / 10));
                         adsWatched++; 
                         localStorage.setItem('hans_coins', coins); 
-                        localStorage.setItem('hans_ads_watched', adsWatched); 
+                        localStorage.setItem('orb_ads_watched', adsWatched);
+                        updatePlayerCoins(Math.max(10, Math.floor(baitData.amount / 10)));
                         updateUI(); 
+                        alert(' Bonus diklaim!'); 
                     };
-                }
-            }, 100);
+                })
+                .catch((error) => {
+                    timerEl.innerText = "✖";
+                    rewardDisplay.innerText = "Iklan Tidak Valid";
+                    rewardDisplay.style.color = "#e74c3c";
+                    btn.disabled = true;
+                    btn.classList.add('failed');
+                    btn.innerText = "❌ Reward Dibatalkan";
+                    statusText.style.display = 'block';
+                    statusText.innerText = '⚠️ Anda menutup/minimize tab saat iklan berjalan. Reward tidak diberikan.';
+                    setTimeout(() => { overlay.style.display = 'none'; adWasOpen = false; }, 3000);
+                });
         }
 
         function startGameFromLanding() { 
             document.getElementById('landingPage').style.display = 'none'; 
-            trackGamePlay('HansOrbBlast'); // ✅ INI YANG NGIRIM NAMA GAME KE FIREBASE
+            trackGamePlay(GAME_NAME);
             startGame(); 
         }
-        function startGame() { initAudio(); playSound('start'); gameState = 'playing'; score = 0; document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('soundToggle').style.display = 'block'; document.getElementById('backToMenuBtn').style.display = 'block'; initGame(); animate(); }
-        function showMainMenu() { gameState='menu'; document.getElementById('withdrawMenu').classList.add('hidden'); document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('soundToggle').style.display = 'none'; document.getElementById('backToMenuBtn').style.display = 'none'; updateUI(); }
+        function startGame() { 
+            initAudio(); 
+            playSound('start'); 
+            startBgMusic();
+            gameState = 'playing'; 
+            score = 0; 
+            document.getElementById('mainMenu').classList.add('hidden'); 
+            document.getElementById('hud').classList.remove('hidden'); 
+            document.getElementById('soundToggle').style.display = 'block'; 
+            document.getElementById('backToMenuBtn').style.display = 'block'; 
+            initGame(); 
+            animate(); 
+        }
+        function showMainMenu() { 
+            gameState='menu'; 
+            document.getElementById('withdrawMenu').classList.add('hidden'); 
+            document.getElementById('mainMenu').classList.remove('hidden'); 
+            document.getElementById('hud').classList.add('hidden'); 
+            document.getElementById('soundToggle').style.display = 'none'; 
+            document.getElementById('backToMenuBtn').style.display = 'none'; 
+            stopBgMusic();
+            updateUI(); 
+        }
         function backToMenu() { gameState = 'menu'; showMainMenu(); }
         function forceCloseAll() { 
-            if(isAdForcedOpen) return; 
             document.querySelectorAll('.center-overlay').forEach(el=>el.style.display='none'); 
             document.querySelectorAll('.modal-overlay').forEach(el=>el.style.display='none'); 
-            adWasOpen=false; showMainMenu(); 
+            clearInterval(adInterval); 
+            clearInterval(bonusInterval); 
+            adVerifier.stopVerification();
+            adWasOpen=false; 
+            showMainMenu(); 
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function showWithdraw() { document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('withdrawMenu').classList.remove('hidden'); document.getElementById('wdBalanceRupiah').innerText=Math.floor(coins/50); document.getElementById('wdAdsWatched').innerText=adsWatched; document.getElementById('wdAdsTarget').innerText=ADS_REQUIRED; }
-        function openInputModal() { document.getElementById('inputModal').style.display = 'flex'; }
-        
-        function finalizeWithdrawal() {
-            let dana = document.getElementById('inputDana').value; let name = document.getElementById('inputName').value;
-            if(coins < 50000) { alert('Koin belum cukup! Butuh 50.000'); return; }
-            if(adsWatched < ADS_REQUIRED) { alert(`Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); return; }
+
+        // ==========================================
+        //  WITHDRAW MODAL (TIER SELECTION)
+        // ==========================================
+        function showWithdraw() {
+            const rupiah = Math.floor(coins / 50);
+            document.getElementById('wdSaldo').innerText = rupiah.toLocaleString('id-ID');
+            document.getElementById('wdAdsCount').innerText = adsWatched;
+            document.getElementById('wdTierDisplay').innerText = '#' + (wdCount + 1);
             
-            const isLucky = isFastTrackPlayer(playerId);
-            const wdStatus = isLucky ? 'success' : 'pending';
-            if (isLucky) alert('🎉 SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
-            else alert('✅ Permintaan WD terkirim! Antrian reguler (1-3 hari kerja).');
-            
-            db.collection('withdrawals').add({ 
-                playerId, danaNumber: dana, accountName: name.toUpperCase(), 
-                amountRupiah: 1000, amountCoins: 50000, 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
-                status: wdStatus, source: 'HansOrbBlast', gameName: 'Hans Orb Blast', adsWatched: adsWatched 
-            }).then(()=>{
-                coins-=50000; adsWatched=0; wdClicks=0; 
-                localStorage.setItem('hans_coins', coins); 
-                localStorage.setItem('hans_wd_clicks', 0); 
-                localStorage.setItem('hans_ads_watched', 0);
-                if(isFirstWD) { localStorage.setItem('hans_first_wd_done', 'true'); isFirstWD=false; }
-                alert('WD Terkirim!'); closeModal('inputModal'); showMainMenu();
-            }).catch(e=>alert('Error: '+e.message));
+            const nextTierNum = Math.min(wdCount + 1, 3);
+            const isVip = (nextTierNum === 1) && isVipHariIni(playerId);
+            document.getElementById('vipBadgeDisplay').innerHTML = isVip ? '<span class="vip-badge">⭐ VIP HARI INI</span>' : '';
+
+            const tierContainer = document.getElementById('tierButtons');
+            tierContainer.innerHTML = '';
+
+            for (let i = 1; i <= 3; i++) {
+                const tier = WD_TIERS[i];
+                const btn = document.createElement('div');
+                btn.className = 'tier-btn';
+                const requiredAds = (i === 1 && isVipHariIni(playerId)) ? tier.adsVip : tier.adsNormal;
+                const canAffordCoins = coins >= tier.coins;
+                const canAffordAds = adsWatched >= requiredAds;
+                const isCurrentTier = (wdCount + 1 === i) || (i === 3 && wdCount >= 2);
+                let isDone = false;
+                if (i === 1 && wdCount >= 1) isDone = true;
+                if (i === 2 && wdCount >= 2) isDone = true;
+
+                if (isDone) {
+                    btn.classList.add('done');
+                    btn.innerHTML = `<span>✅ ${tier.label}</span><span class="tier-req">Sudah</span>`;
+                } else if (!isCurrentTier && !isDone) {
+                    btn.classList.add('locked');
+                    btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Belum unlock</span>`;
+                } else {
+                    if (canAffordCoins && canAffordAds) {
+                        btn.classList.add('active');
+                        btn.innerHTML = `<span>💰 ${tier.label}</span><span class="tier-req">✅ Siap</span>`;
+                        btn.onclick = () => selectTier(i, btn);
+                    } else {
+                        btn.classList.add('locked');
+                        const missing = [];
+                        if (!canAffordCoins) missing.push(`${tier.coins.toLocaleString()} koin`);
+                        if (!canAffordAds) missing.push(`${requiredAds} iklan`);
+                        btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Butuh: ${missing.join(' & ')}</span>`;
+                    }
+                }
+                tierContainer.appendChild(btn);
+            }
+
+            document.getElementById('wdSummary').style.display = 'none';
+            document.getElementById('wdSubmitBtn').disabled = true;
+            document.getElementById('inputDana').value = '';
+            document.getElementById('inputName').value = '';
+            selectedWdTier = null;
+
+            document.getElementById('wdModal').style.display = 'flex';
+        }
+
+        function selectTier(tierNum, btnElement) {
+            document.querySelectorAll('.tier-btn.active').forEach(b => b.classList.remove('selected'));
+            selectedWdTier = tierNum; btnElement.classList.add('selected');
+            const tier = WD_TIERS[tierNum];
+            const isVip = (tierNum === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? tier.adsVip : tier.adsNormal;
+            const sisaKoin = coins - tier.coins;
+            const sisaRupiah = Math.floor(sisaKoin / 50);
+            document.getElementById('summaryTier').innerText = `WD #${tierNum}${isVip ? ' [VIP]' : ''}`;
+            document.getElementById('summaryAmount').innerText = `Rp ${tier.amount.toLocaleString('id-ID')}`;
+            document.getElementById('summaryCoins').innerText = tier.coins.toLocaleString('id-ID') + ' koin';
+            document.getElementById('summaryAds').innerText = requiredAds + ' iklan';
+            document.getElementById('summaryRemain').innerText = `${sisaKoin.toLocaleString('id-ID')} koin (Rp ${sisaRupiah.toLocaleString('id-ID')})`;
+            document.getElementById('wdSummary').style.display = 'block';
+            document.getElementById('wdSubmitBtn').disabled = false;
+        }
+
+        // ==========================================
+        // 💸 PROSES WD DENGAN NOTIFIKASI WABLAS
+        // ==========================================
+        async function processWD() {
+            if (!selectedWdTier) { alert('Pilih tier WD dulu!'); return; }
+            const dana = document.getElementById('inputDana').value.trim();
+            const name = document.getElementById('inputName').value.trim();
+            const tier = WD_TIERS[selectedWdTier];
+            const isVip = (selectedWdTier === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? tier.adsVip : tier.adsNormal;
+
+            if (dana.length < 10 || !dana.startsWith('08')) { alert('Nomor DANA tidak valid! Harus mulai dengan 08 dan minimal 10 digit.'); return; }
+            if (name.length < 3) { alert('Nama pemilik terlalu pendek!'); return; }
+            if (coins < tier.coins) { alert(`Koin belum cukup! Butuh ${tier.coins.toLocaleString()} koin.`); return; }
+            if (adsWatched < requiredAds) { alert(`Iklan belum cukup! Butuh ${requiredAds} iklan, kamu baru ${adsWatched}.`); return; }
+
+            const sisaKoin = coins - tier.coins;
+            const sisaRupiah = Math.floor(sisaKoin / 50);
+            const confirmMsg = `Konfirmasi WD:\n\nTier: WD #${selectedWdTier}${isVip ? ' [VIP]' : ''}\nNominal: Rp ${tier.amount.toLocaleString('id-ID')}\nDANA: ${dana}\nNama: ${name.toUpperCase()}\nSisa koin setelah WD: ${sisaKoin.toLocaleString()} (Rp ${sisaRupiah.toLocaleString()})\n\nLanjutkan?`;
+            if (!confirm(confirmMsg)) return;
+
+            const submitBtn = document.getElementById('wdSubmitBtn');
+            submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
+
+            try {
+                const vipTag = isVip ? ' [VIP]' : '';
+                const notifPesan = `💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🎮 ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n📺 ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`;
+                await kirimNotifWablas(notifPesan);
+
+                await db.collection('withdrawals').add({
+                    playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(),
+                    amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip,
+                    gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                const newWdCount = wdCount + 1;
+                const newCoins = coins - tier.coins;
+                await db.collection('players').doc(playerId).update({
+                    wdCount: newWdCount, totalCoins: newCoins, adsWatched: 0,
+                    lastWdTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastWdTier: selectedWdTier, lastWdAmount: tier.amount
+                });
+
+                wdCount = newWdCount; coins = newCoins; adsWatched = 0;
+                localStorage.setItem('hans_coins', coins);
+                localStorage.setItem('orb_ads_watched', 0);
+
+                alert(`✅ WD #${selectedWdTier} berhasil dikirim!\n\nNotifikasi sudah masuk ke Admin.\nSisa koin kamu: ${coins.toLocaleString()} (Rp ${Math.floor(coins/50).toLocaleString()})`);
+                closeModal('wdModal'); updateUI();
+            } catch (error) {
+                console.error('Error WD:', error); alert('❌ Gagal memproses WD: ' + error.message);
+            } finally {
+                submitBtn.disabled = false; submitBtn.innerText = 'Kirim Permintaan WD';
+            }
+        }
+
+        // ==========================================
+        //  HISTORY
+        // ==========================================
+        function showHistory() {
+            document.getElementById('historyModal').style.display = 'flex';
+            const list = document.getElementById('historyList');
+            if (historyListener) historyListener();
+            historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                list.innerHTML = '';
+                if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>'; return; }
+                snapshot.forEach(doc => {
+                    const w = doc.data();
+                    const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-';
+                    let statusText = '⏳ Proses', statusClass = 'status-pending';
+                    if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; }
+                    else if (w.status === 'rejected') { statusText = ' Ditolak'; statusClass = 'status-rejected'; }
+                    else if (w.status === 'refunded') { statusText = '💰 Refund'; statusClass = 'status-refunded'; }
+                    const vipTag = w.isVip ? ' <span class="vip-badge">VIP</span>' : '';
+                    list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || '-'}${vipTag}<br>${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🎮 ${GAME_NAME}</span></div>`;
+                });
+            }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
         }
 
         function updateUI() {
             document.getElementById('menuBalance').innerText = coins.toLocaleString('id-ID');
             document.getElementById('menuRupiah').innerText = Math.floor(coins/50).toLocaleString('id-ID');
-            document.getElementById('wdProgress').innerText = wdClicks;
-            document.getElementById('wdTargetDisplay').innerText = ADS_REQUIRED;
-            document.getElementById('wdTargetMenu').innerText = ADS_REQUIRED;
-            document.getElementById('wdProgressBar').style.width = ((wdClicks/ADS_REQUIRED)*100)+'%';
+            document.getElementById('coinDisplay').innerText = coins.toLocaleString('id-ID');
+
+            const nextTierNum = Math.min(wdCount + 1, 3);
+            const nextTier = WD_TIERS[nextTierNum];
+            const isVip = (nextTierNum === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? nextTier.adsVip : nextTier.adsNormal;
+
+            document.getElementById('wdProgressLabel').innerText = `Iklan: ${adsWatched}/${requiredAds} untuk WD #${nextTierNum}${isVip ? ' [VIP]' : ''}`;
+            document.getElementById('wdHudItem').innerText = `Iklan: ${adsWatched}/${requiredAds}`;
+            const progressPercent = Math.min((adsWatched / requiredAds) * 100, 100);
+            document.getElementById('wdProgressBar').style.width = progressPercent + '%';
         }
 
         resizeCanvas(); updateUI(); initGame();

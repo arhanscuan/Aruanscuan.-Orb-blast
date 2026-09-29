@@ -145,11 +145,11 @@
         <div id="topBar">
             <div class="info-box">
                 <div class="level-badge">Level <span id="levelDisplay">1</span></div>
-                <div class="saldo-box">🪙 <span id="coinDisplay">0</span><div class="saldo-rupiah">Rp <span id="rupiahDisplay">0</span></div></div>
+                <div class="saldo-box"> <span id="coinDisplay">0</span><div class="saldo-rupiah">Rp <span id="rupiahDisplay">0</span></div></div>
             </div>
             <div>
                 <button class="btn-wd" onclick="showWithdraw()">💸 WD</button>
-                <button class="btn-history" onclick="showHistory()">📜</button>
+                <button class="btn-history" onclick="showHistory()"></button>
             </div>
         </div>
 
@@ -222,7 +222,7 @@
     </div>
 
     <div id="rewardPopup">
-        <span class="reward-emoji">🎉</span>
+        <span class="reward-emoji"></span>
         <span class="reward-text" id="rewardText">+50 💰</span>
     </div>
 
@@ -300,11 +300,10 @@
         let lastBonusTime = 0;
         let isRewardPopupActive = false;
         let matchStreak = 0;
-        let isStreakAdActive = false; // ✅ SAFEGUARD: Biar iklan gak double trigger
 
         db.collection('players').doc(playerId).get().then(doc => { if (doc.exists && doc.data().wdCount) wdCount = doc.data().wdCount; updateMenuUI(); }).catch(err => console.error(err));
 
-        const FRUITS = ['🍒', '🍓', '🍇', '🍊', '🍋', '🍐', '🍑', '🍍', '🥝', '🍉'];
+        const FRUITS = ['🍒', '🍓', '🍇', '🍊', '', '🍐', '🍑', '🍍', '🥝', '🍉'];
         let boardTiles = []; let dockTiles = [];
         const MAX_DOCK = 7;
         let matchCount = 0;
@@ -330,7 +329,7 @@
 
         function initGame() {
             matchCount = 0;
-            // ✅ FIX: matchStreak TIDAK di-reset di sini (persistent antar level)
+            // ✅ FIX: matchStreak TIDAK di-reset (persistent)
             updateStreakIndicator();
             document.getElementById('board').innerHTML = ''; 
             boardTiles = []; dockTiles = [];
@@ -422,6 +421,7 @@
                 if(counts[type] >= 3) {
                     matchCount++; 
                     matchStreak++;
+                    console.log('✅ Match #' + matchCount + '| Streak: ' + matchStreak + '/3');
                     updateStreakIndicator();
                     
                     let removed = 0;
@@ -433,11 +433,12 @@
                     updateMenuUI(); 
                     updateDockUI();
                     
-                    // ✅ FIX: SETIAP 3 MATCH → IKLAN (dengan safeguard)
-                    if (matchStreak >= 3 && !isStreakAdActive && !isRewardPopupActive) {
+                    // ✅ FIX: Force reset semua flag sebelum trigger iklan
+                    if (matchStreak >= 3) {
                         matchStreak = 0;
                         updateStreakIndicator();
-                        isStreakAdActive = true;
+                        isRewardPopupActive = false; // Force reset
+                        console.log('🔥 STREAK 3! Trigger iklan...');
                         triggerStreakAd();
                     }
                     
@@ -457,7 +458,6 @@
                 updatePlayerCoins(rewardAmount); 
                 updateMenuUI();
                 showRewardPopup(`+${rewardAmount} 💰`);
-                isStreakAdActive = false; // ✅ Reset flag setelah klaim
             });
         }
 
@@ -520,6 +520,7 @@
         }
 
         function showAdPhase1(title, desc, rewardText, onClaimCallback) {
+            console.log('📺 Show Ad Phase 1:', title);
             const overlay = document.getElementById('adOverlay');
             const phase1 = document.getElementById('adPhase1');
             const phase2 = document.getElementById('adPhase2');
@@ -535,6 +536,7 @@
             overlay.style.display = 'flex'; closeBtn.style.display = 'block';
             
             btnWatch.onclick = () => {
+                console.log('▶ Watch Ad clicked');
                 window.open(ADSTERRA_DIRECT_LINK, '_blank');
                 phase1.style.display = 'none'; phase2.style.display = 'block';
                 const timerEl = document.getElementById('adTimer');
@@ -546,6 +548,7 @@
                         clearInterval(countdown); timerEl.innerText = "0";
                         btnClaim.disabled = false; btnClaim.classList.add('ready'); btnClaim.innerText = "✅ KLAIM HADIAH";
                         btnClaim.onclick = () => {
+                            console.log('✅ Claim clicked');
                             overlay.style.display = 'none';
                             adsWatched++; localStorage.setItem('mach_ads_watched', adsWatched); updateMenuUI();
                             if (onClaimCallback) onClaimCallback();
@@ -568,16 +571,20 @@
         }
 
         function showRewardPopup(text) {
+            console.log('🎉 Show Reward Popup:', text);
             const popup = document.getElementById('rewardPopup');
             document.getElementById('rewardText').innerText = text;
             popup.style.display = 'block';
             isRewardPopupActive = true;
-            setTimeout(() => { popup.style.display = 'none'; isRewardPopupActive = false; }, 2000);
+            setTimeout(() => { 
+                popup.style.display = 'none'; 
+                isRewardPopupActive = false;
+                console.log('Popup hidden, game resume');
+            }, 2000);
         }
 
         function backToMenu() { 
             isRewardPopupActive = false;
-            isStreakAdActive = false; // ✅ Reset flag
             document.getElementById('adOverlay').style.display = 'none';
             document.getElementById('bonusOverlay').style.display = 'none';
             document.getElementById('rewardPopup').style.display = 'none';
@@ -593,7 +600,6 @@
             document.querySelectorAll('.center-overlay').forEach(el=>el.style.display='none'); 
             document.querySelectorAll('.modal-overlay').forEach(el=>el.style.display='none'); 
             isRewardPopupActive = false;
-            isStreakAdActive = false; // ✅ Reset flag
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 

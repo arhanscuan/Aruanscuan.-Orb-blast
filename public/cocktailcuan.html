@@ -13,7 +13,10 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; height: 100vh; }
-        #gameCanvas { display: block; width: 100%; height: 100vh; background: linear-gradient(to bottom, #ff9a9e 0%, #fad0c4 50%, #a8edea 100%); position: absolute; top: 0; left: 0; z-index: 1; }
+        
+        /* ✅ FIX: Touch action none di canvas biar tap responsif */
+        #gameCanvas { display: block; width: 100%; height: 100vh; background: linear-gradient(to bottom, #ff9a9e 0%, #fad0c4 50%, #a8edea 100%); position: absolute; top: 0; left: 0; z-index: 1; touch-action: none; }
+        
         .ui-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); z-index: 100; padding: 20px; overflow-y: auto; }
         .hidden { display: none !important; }
         .box { background: rgba(255,255,255,0.95); border-radius: 25px; padding: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
@@ -28,9 +31,12 @@
         .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); }
         .btn-secondary { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); }
         .btn-history { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: #333; }
+        
         #hud { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; z-index: 50; pointer-events: none; }
         .hud-item { background: rgba(255,255,255,0.95); padding: 8px 15px; border-radius: 20px; font-weight: bold; color: #ff6b6b; border: 2px solid #ff6b6b; font-size: 13px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
         #backToMenuBtn { position: fixed; top: 10px; right: 10px; background: rgba(255, 71, 87, 0.9); color: white; border: 2px solid white; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 60; display: none; touch-action: manipulation; }
+        
         .center-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .center-box { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; position: relative; }
         .timer-text { font-size: 56px; font-weight: bold; color: #ffd700; margin: 20px 0; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
@@ -40,12 +46,14 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; touch-action: manipulation; }
         .status-text { font-size: 12px; color: #ff6b6b; margin-top: 10px; font-weight: bold; min-height: 15px; }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: white; border-radius: 20px; padding: 25px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); color: #333; max-height: 90vh; overflow-y: auto; }
         .input-group { margin-bottom: 12px; text-align: left; }
         .input-group label { font-size: 12px; color: #666; font-weight: bold; }
         .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ecf0f1; background: #f8f9fa; color: #333; font-size: 15px; margin-top: 5px; outline: none; }
         .input-group input:focus { border-color: #ff6b6b; }
+        
         .tier-info { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; }
         .tier-info strong { font-size: 16px; }
         .tier-buttons { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
@@ -59,6 +67,7 @@
         .wd-summary-row { display: flex; justify-content: space-between; margin: 4px 0; }
         .wd-summary-row strong { color: #2c3e50; }
         .vip-badge { display: inline-block; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; margin-left: 5px; }
+        
         .history-item { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-left: 5px solid #f39c12; color: #333; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .history-amount { color: #2c3e50; font-weight: bold; font-size: 16px; }
@@ -76,11 +85,11 @@
     </div>
 
     <canvas id="gameCanvas"></canvas>
-    <button id="backToMenuBtn" onclick="backToMenu()">◀ MENU</button>
+    <button id="backToMenuBtn" onclick="backToMenu()"> MENU</button>
 
     <div id="mainMenu" class="ui-overlay">
         <div class="box">
-            <h1> COCKTAIL CUAN</h1>
+            <h1>🍹 COCKTAIL CUAN</h1>
             <p class="subtitle">Ketuk buah, bikin cocktail, dapat cuan!</p>
             <div class="stat">💰 Koin: <span id="menuBalance">0</span> (Rp <span id="menuRupiah">0</span>)</div>
             <div style="margin: 15px 0;">
@@ -89,10 +98,10 @@
                     <div id="wdProgressBar" style="height:100%; background:#ff6b6b; width:0%;"></div>
                 </div>
             </div>
-            <button class="btn btn-danger" onclick="showBonusAd()"> KLAIM BONUS</button>
+            <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS</button>
             <button class="btn btn-primary" onclick="startGame()">▶ MULAI MAIN</button>
             <button class="btn btn-wd" onclick="showWithdraw()">💸 TARIK SALDO</button>
-            <button class="btn btn-history" onclick="showHistory()"> RIWAYAT WD</button>
+            <button class="btn btn-history" onclick="showHistory()">📜 RIWAYAT WD</button>
         </div>
     </div>
 
@@ -121,9 +130,9 @@
         <div class="modal-box">
             <h2>💸 Tarik Saldo</h2>
             <div class="tier-info">
-                <div>📊 WD Kamu: <strong id="wdTierDisplay">#1</strong><span id="vipBadgeDisplay"></span></div>
+                <div> WD Kamu: <strong id="wdTierDisplay">#1</strong><span id="vipBadgeDisplay"></span></div>
                 <div style="margin-top:5px;">💰 Saldo: Rp <span id="wdSaldo">0</span></div>
-                <div style="margin-top:5px;">📺 Iklan Ditonton: <span id="wdAdsCount">0</span></div>
+                <div style="margin-top:5px;"> Iklan Ditonton: <span id="wdAdsCount">0</span></div>
             </div>
             <div class="tier-buttons" id="tierButtons"></div>
             <div id="wdSummary" class="wd-summary" style="display:none;">
@@ -142,7 +151,7 @@
 
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box">
-            <h2>📜 Riwayat Penarikan</h2>
+            <h2> Riwayat Penarikan</h2>
             <div id="historyList" style="max-height:350px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center; padding: 20px;">Memuat data...</p></div>
             <button class="btn btn-secondary" onclick="closeModal('historyModal')">Tutup</button>
         </div>
@@ -210,16 +219,16 @@
         let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
         let adsWatched = parseInt(localStorage.getItem('cocktail_ads_watched')) || 0;
         let adWasOpen = false;
-        let gameState = 'menu';
+        let gameState = 'menu'; // 'menu', 'playing', 'ad_break', 'gameover'
         let score = 0, combo = 0, maxCombo = 0;
         let fruits = [], particles = [], collectedFruits = {};
         let spawnTimer = 0, spawnInterval = 70, difficulty = 1, missedCount = 0;
         let wdCount = 0, selectedWdTier = null;
-        let fruitsCollected = 0; // ✅ COUNTER BUAH UNTUK IKLAN
+        let fruitsCollected = 0;
 
         db.collection('players').doc(playerId).get().then(doc => { if (doc.exists && doc.data().wdCount) wdCount = doc.data().wdCount; updateUI(); }).catch(err => console.error(err));
 
-        const fruitTypes = [ { emoji: '', name: 'apel', color: '#FF3B30' }, { emoji: '🍊', name: 'jeruk', color: '#FF9500' }, { emoji: '🍋', name: 'lemon', color: '#FFEB3B' }, { emoji: '🍉', name: 'semangka', color: '#FF4757' }, { emoji: '🍇', name: 'anggur', color: '#9B59B6' }, { emoji: '🍓', name: 'stroberi', color: '#FF2D55' } ];
+        const fruitTypes = [ { emoji: '🍎', name: 'apel', color: '#FF3B30' }, { emoji: '🍊', name: 'jeruk', color: '#FF9500' }, { emoji: '🍋', name: 'lemon', color: '#FFEB3B' }, { emoji: '🍉', name: 'semangka', color: '#FF4757' }, { emoji: '🍇', name: 'anggur', color: '#9B59B6' }, { emoji: '🍓', name: 'stroberi', color: '#FF2D55' } ];
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -232,32 +241,24 @@
                 const type = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
                 this.emoji = type.emoji; this.name = type.name; this.color = type.color; this.size = 50;
                 this.x = Math.random() * (canvas.width - this.size * 2) + this.size; this.y = -this.size;
-                // ✅ SPEED BALANCE: Tidak terlalu cepat, tidak terlalu lambat
                 this.vy = 3 + Math.random() * 2.5 + (difficulty * 0.3); 
                 this.vx = (Math.random() - 0.5) * 1.5;
                 this.rotation = 0; this.rotationSpeed = (Math.random() - 0.5) * 0.1; this.collected = false;
             }
             update() { 
-                this.y += this.vy; 
-                this.x += this.vx; 
-                this.rotation += this.rotationSpeed; 
+                this.y += this.vy; this.x += this.vx; this.rotation += this.rotationSpeed; 
                 if (this.x < this.size || this.x > canvas.width - this.size) this.vx = -this.vx; 
                 if (this.y > canvas.height + this.size) { missedCount++; return false; } 
                 return true; 
             }
             draw() { 
-                ctx.save(); 
-                ctx.translate(this.x, this.y); 
-                ctx.rotate(this.rotation); 
-                ctx.font = `${this.size}px Arial`; 
-                ctx.textAlign = 'center'; 
-                ctx.textBaseline = 'middle'; 
-                ctx.shadowColor = 'rgba(0,0,0,0.3)'; 
-                ctx.shadowBlur = 10; 
-                ctx.fillText(this.emoji, 0, 0); 
-                ctx.restore(); 
+                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation); 
+                ctx.font = `${this.size}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; 
+                ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 10; 
+                ctx.fillText(this.emoji, 0, 0); ctx.restore(); 
             }
-            checkHit(clickX, clickY) { return Math.hypot(clickX - this.x, clickY - this.y) < this.size * 0.6; }
+            // ✅ FIX: Hitbox lebih besar (80% dari ukuran buah) biar gampang di-tap
+            checkHit(clickX, clickY) { return Math.hypot(clickX - this.x, clickY - this.y) < this.size * 0.8; }
         }
         class Particle {
             constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.size = Math.random() * 8 + 4; this.vx = (Math.random() - 0.5) * 15; this.vy = (Math.random() - 0.5) * 15; this.life = 1; }
@@ -280,7 +281,6 @@
             difficulty = 1 + Math.floor(coins / 1000) * 0.2; 
             spawnInterval = Math.max(40, 70 - Math.floor(coins / 500) * 3);
 
-            // ✅ TRIGGER IKLAN SETIAP 8 BUAH
             fruitsCollected++;
             if (fruitsCollected >= 8) {
                 fruitsCollected = 0;
@@ -289,78 +289,70 @@
         }
 
         function triggerFruitAd() {
-            gameState = 'ad_break'; // Pause game tapi tetap gambar
-            showInterstitialAd('🎁 BONUS 8 BUAH!', 'Tonton iklan untuk dapat 50 koin', () => {
+            gameState = 'ad_break'; // Pause logic, tapi loop tetap jalan (gambar statis)
+            showInterstitialAd(' BONUS 8 BUAH!', 'Tonton iklan untuk dapat 50 koin', () => {
                 coins += 50;
                 localStorage.setItem('hans_coins', coins);
                 updatePlayerCoins(50);
                 updateUI();
-                gameState = 'playing'; // Resume game
-                lastFrameTime = 0;
-                cancelAnimationFrame(gameLoopId);
-                gameLoopId = requestAnimationFrame(animate);
+                gameState = 'playing'; // ✅ Resume game
             });
         }
 
         function drawBackground() { 
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height); 
-            gradient.addColorStop(0, '#ff9a9e'); 
-            gradient.addColorStop(0.5, '#fad0c4'); 
-            gradient.addColorStop(1, '#a8edea'); 
-            ctx.fillStyle = gradient; 
-            ctx.fillRect(0, 0, canvas.width, canvas.height); 
+            gradient.addColorStop(0, '#ff9a9e'); gradient.addColorStop(0.5, '#fad0c4'); gradient.addColorStop(1, '#a8edea'); 
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height); 
         }
 
-        let gameLoopId = null;
-        let lastFrameTime = 0;
+        // ✅ ANTI-STUCK LOOP: Loop jalan terus, logic jalan kalau state 'playing'
+        function animate() {
+            // Selalu gambar background
+            drawBackground();
 
-        function animate(timestamp) {
-            try {
-                if (lastFrameTime > 0 && timestamp - lastFrameTime > 2000 && (gameState === 'playing' || gameState === 'ad_break')) {
-                    cancelAnimationFrame(gameLoopId);
-                    gameLoopId = requestAnimationFrame(animate);
-                    return;
-                }
-                lastFrameTime = timestamp;
-
-                if (gameState === 'playing') {
-                    drawBackground();
-                    spawnTimer++;
-                    if (spawnTimer >= spawnInterval) { spawnFruit(); spawnTimer = 0; }
-                    fruits = fruits.filter(f => { try { const alive = f.update(); if (alive && !f.collected) { f.draw(); return true; } return false; } catch(e) { return false; } });
-                    particles = particles.filter(p => { try { p.update(); if (p.life > 0) { p.draw(); return true; } return false; } catch(e) { return false; } });
-                    if (missedCount > 10) { endGame(); return; }
-                } else if (gameState === 'ad_break') {
-                    // Gambar frame statis saat iklan break
-                    drawBackground();
-                    fruits.forEach(f => { if (!f.collected) f.draw(); });
-                }
-                gameLoopId = requestAnimationFrame(animate);
-            } catch (error) {
-                console.error('Animate error:', error);
-                gameLoopId = requestAnimationFrame(animate);
+            if (gameState === 'playing') {
+                spawnTimer++;
+                if (spawnTimer >= spawnInterval) { spawnFruit(); spawnTimer = 0; }
+                
+                fruits = fruits.filter(f => { 
+                    const alive = f.update(); 
+                    if (alive && !f.collected) { f.draw(); return true; } 
+                    return false; 
+                });
+                
+                particles = particles.filter(p => { 
+                    p.update(); 
+                    if (p.life > 0) { p.draw(); return true; } 
+                    return false; 
+                });
+                
+                if (missedCount > 10) { endGame(); return; }
+            } else {
+                // Kalau lagi iklan/gameover, gambar buah yang ada di layar (freeze frame)
+                fruits.forEach(f => { if (!f.collected) f.draw(); });
             }
+
+            requestAnimationFrame(animate); // ✅ SELALU PANGGIL INI
         }
+        
+        // Start loop sekali aja di awal
+        requestAnimationFrame(animate);
 
-        gameLoopId = requestAnimationFrame(animate);
-
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                lastFrameTime = 0;
-                if (gameState === 'playing' || gameState === 'ad_break') {
-                    cancelAnimationFrame(gameLoopId);
-                    gameLoopId = requestAnimationFrame(animate);
-                }
-            }
-        });
-
+        // ✅ FIX: Event Listener Tap yang Responsif
         canvas.addEventListener('pointerdown', (e) => {
             if (gameState !== 'playing') return;
             const rect = canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left, clickY = e.clientY - rect.top;
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            // Cek dari buah paling atas (terakhir masuk array) biar gak tembus ke buah belakang
             for (let i = fruits.length - 1; i >= 0; i--) {
                 const fruit = fruits[i];
-                if (!fruit.collected && fruit.checkHit(clickX, clickY)) { collectFruit(fruit); fruits.splice(i, 1); break; }
+                if (!fruit.collected && fruit.checkHit(clickX, clickY)) { 
+                    collectFruit(fruit); 
+                    fruits.splice(i, 1); 
+                    break; // Cuma pecahin 1 buah per tap
+                }
             }
         });
 
@@ -370,20 +362,16 @@
             score = 0; combo = 0; maxCombo = 0;
             fruits = []; particles = []; collectedFruits = {}; 
             spawnTimer = 0; spawnInterval = 70; difficulty = 1; missedCount = 0;
-            fruitsCollected = 0; // Reset counter buah
-            lastFrameTime = 0;
+            fruitsCollected = 0;
             
             document.getElementById('mainMenu').classList.add('hidden'); 
             document.getElementById('hud').classList.remove('hidden');
             document.getElementById('backToMenuBtn').style.display = 'block';
             
             for (let i = 0; i < 3; i++) { setTimeout(() => spawnFruit(), i * 400); }
-            
-            cancelAnimationFrame(gameLoopId);
-            gameLoopId = requestAnimationFrame(animate);
         }
 
-        // ✅ FIX: GAME OVER LANGSUNG RESTART SETELAH IKLAN
+        // ✅ FIX: Game Over langsung restart
         function endGame() {
             gameState = 'gameover';
             showInterstitialAd('💥 GAME OVER!', 'Tonton iklan untuk dapat 100 koin & Main Lagi', () => {
@@ -391,7 +379,7 @@
                 localStorage.setItem('hans_coins', coins); 
                 updatePlayerCoins(100); 
                 updateUI(); 
-                startGame(); // Langsung restart game, gak balik ke menu!
+                startGame(); // Langsung main lagi
             });
         }
         
@@ -414,13 +402,13 @@
                     btn.onclick = () => { 
                         overlay.style.display = 'none'; 
                         adWasOpen = false; 
+                        
+                        // ✅ FIX: Update counter iklan DI SINI
                         adsWatched++; 
                         localStorage.setItem('cocktail_ads_watched', adsWatched); 
+                        updateUI(); // Update layar langsung
+                        
                         if (callback) callback(); 
-                        updateUI();
-                        lastFrameTime = 0;
-                        cancelAnimationFrame(gameLoopId);
-                        gameLoopId = requestAnimationFrame(animate);
                     };
                 })
                 .catch((error) => {
@@ -445,9 +433,13 @@
                     timerEl.innerText = "0"; btn.disabled = false; btn.classList.add('ready'); btn.innerText = "KLAIM BONUS"; 
                     btn.onclick = () => { 
                         overlay.style.display = 'none'; adWasOpen = false; lastBonusTime = Date.now();
-                        coins += 200; adsWatched++; localStorage.setItem('hans_coins', coins); localStorage.setItem('cocktail_ads_watched', adsWatched); 
-                        updatePlayerCoins(200); updateUI(); alert('🎉 Dapat 200 koin!');
-                        lastFrameTime = 0; cancelAnimationFrame(gameLoopId); gameLoopId = requestAnimationFrame(animate);
+                        coins += 200; 
+                        adsWatched++; 
+                        localStorage.setItem('hans_coins', coins); 
+                        localStorage.setItem('cocktail_ads_watched', adsWatched); 
+                        updatePlayerCoins(200); 
+                        updateUI(); 
+                        alert('🎉 Dapat 200 koin!');
                     };
                 })
                 .catch((error) => {
@@ -475,7 +467,7 @@
                 if (isDone) { btn.classList.add('done'); btn.innerHTML = `<span>✅ ${tier.label}</span><span class="tier-req">Sudah</span>`; } 
                 else if (!isCurrentTier && !isDone) { btn.classList.add('locked'); btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Belum unlock</span>`; } 
                 else {
-                    if (canAffordCoins && canAffordAds) { btn.classList.add('active'); btn.innerHTML = `<span> ${tier.label}</span><span class="tier-req">✅ Siap</span>`; btn.onclick = () => selectTier(i, btn); } 
+                    if (canAffordCoins && canAffordAds) { btn.classList.add('active'); btn.innerHTML = `<span>💰 ${tier.label}</span><span class="tier-req">✅ Siap</span>`; btn.onclick = () => selectTier(i, btn); } 
                     else { btn.classList.add('locked'); const missing = []; if (!canAffordCoins) missing.push(`${tier.coins.toLocaleString()} koin`); if (!canAffordAds) missing.push(`${requiredAds} iklan`); btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Butuh: ${missing.join(' & ')}</span>`; }
                 }
                 tierContainer.appendChild(btn);
@@ -513,7 +505,7 @@
             const submitBtn = document.getElementById('wdSubmitBtn'); submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
             try {
                 const vipTag = isVip ? ' [VIP]' : '';
-                const notifPesan = `💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🍹 ${GAME_NAME}\n👤 ${name.toUpperCase()}\n ${dana}\n📺 ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`;
+                const notifPesan = `💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🍹 ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`;
                 await kirimNotifWablas(notifPesan);
                 await db.collection('withdrawals').add({ playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 const newWdCount = wdCount + 1; const newCoins = coins - tier.coins;
@@ -538,7 +530,7 @@
                     let statusText = '⏳ Masih Proses', statusClass = 'status-pending', borderColor = '#f39c12';
                     if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; borderColor = '#2ed573'; } 
                     else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; borderColor = '#e74c3c'; }
-                    list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br>📅 ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source"> ${GAME_NAME}</span></div>`;
+                    list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br>📅 ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍹 ${GAME_NAME}</span></div>`;
                 });
             }).catch(err => { console.error("History error:", err); list.innerHTML = '<p style="color:#e74c3c; text-align:center; padding: 20px;">Gagal memuat riwayat.</p>'; });
         }

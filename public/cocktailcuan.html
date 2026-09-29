@@ -32,7 +32,6 @@
         .hud-item { background: rgba(255,255,255,0.95); padding: 8px 15px; border-radius: 20px; font-weight: bold; color: #ff6b6b; border: 2px solid #ff6b6b; font-size: 13px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         #backToMenuBtn { position: fixed; top: 10px; right: 10px; background: rgba(255, 71, 87, 0.9); color: white; border: 2px solid white; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 60; display: none; touch-action: manipulation; }
         
-        /* ✅ 2-PHASE AD OVERLAY */
         .center-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .center-box { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; position: relative; }
         .ad-icon { font-size: 60px; margin-bottom: 15px; }
@@ -48,10 +47,34 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; touch-action: manipulation; }
         
-        /* ✅ REWARD POPUP BESAR */
-        #rewardPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; padding: 30px 50px; border-radius: 25px; font-size: 28px; font-weight: bold; box-shadow: 0 15px 50px rgba(0,0,0,0.6); z-index: 99999999; display: none; animation: popIn 0.6s ease-out; border: 4px solid white; text-align: center; }
-        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0) rotate(-10deg); } 60% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); } 100% { transform: translate(-50%, -50%) scale(1) rotate(0); } }
+        /* ✅ REWARD POPUP - SOLID & FOKUS */
+        #rewardPopup { 
+            position: fixed; 
+            top: 30%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); 
+            color: #333; 
+            padding: 25px 40px; 
+            border-radius: 25px; 
+            font-size: 28px; 
+            font-weight: bold; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6); 
+            z-index: 99999999; 
+            display: none; 
+            animation: popIn 0.5s ease-out; 
+            border: 4px solid white; 
+            text-align: center;
+            min-width: 200px;
+            pointer-events: none; 
+        }
+        @keyframes popIn { 
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-10deg); opacity: 0; } 
+            60% { transform: translate(-50%, -50%) scale(1.15) rotate(3deg); opacity: 1; } 
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; } 
+        }
         .reward-emoji { font-size: 50px; display: block; margin-bottom: 10px; }
+        .reward-text { text-shadow: 2px 2px 4px rgba(255,255,255,0.8); }
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: white; border-radius: 20px; padding: 25px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); color: #333; max-height: 90vh; overflow-y: auto; }
@@ -104,18 +127,15 @@
             <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS</button>
             <button class="btn btn-primary" onclick="startGame()">▶ MULAI MAIN</button>
             <button class="btn btn-wd" onclick="showWithdraw()">💸 TARIK SALDO</button>
-            <button class="btn btn-history" onclick="showHistory()">📜 RIWAYAT WD</button>
+            <button class="btn btn-history" onclick="showHistory()"> RIWAYAT WD</button>
         </div>
     </div>
 
-    <!-- ✅ AD OVERLAY (2-PHASE) -->
     <div id="adOverlay" class="center-overlay">
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
-            
-            <!-- PHASE 1: Sebelum Iklan -->
             <div id="adPhase1">
-                <div class="ad-icon">📺</div>
+                <div class="ad-icon"></div>
                 <div class="ad-title" id="adPhase1Title">Tonton Iklan</div>
                 <div class="ad-desc" id="adPhase1Desc">Untuk mendapatkan hadiah</div>
                 <div class="ad-reward-preview">
@@ -124,8 +144,6 @@
                 </div>
                 <button id="btnWatchAd" class="overlay-btn watch">▶ TONTON SEKARANG</button>
             </div>
-            
-            <!-- PHASE 2: Setelah Iklan (Timer) -->
             <div id="adPhase2" style="display:none;">
                 <div class="ad-icon">🎁</div>
                 <div class="ad-title">Iklan Selesai!</div>
@@ -140,13 +158,11 @@
         </div>
     </div>
 
-    <!-- ✅ BONUS AD OVERLAY (2-PHASE) -->
     <div id="bonusOverlay" class="center-overlay">
         <div class="center-box">
-            <button class="emergency-close" onclick="forceCloseAll()">✖</button>
-            
+            <button class="emergency-close" onclick="forceCloseAll()"></button>
             <div id="bonusPhase1">
-                <div class="ad-icon">🎁</div>
+                <div class="ad-icon"></div>
                 <div class="ad-title">Bonus Harian</div>
                 <div class="ad-desc">Tonton iklan untuk klaim bonus harianmu</div>
                 <div class="ad-reward-preview">
@@ -155,9 +171,8 @@
                 </div>
                 <button id="btnWatchBonus" class="overlay-btn watch">▶ TONTON SEKARANG</button>
             </div>
-            
             <div id="bonusPhase2" style="display:none;">
-                <div class="ad-icon">🎉</div>
+                <div class="ad-icon"></div>
                 <div class="ad-title">Bonus Siap Diklaim!</div>
                 <div class="ad-desc">Klik tombol di bawah untuk menerima bonus</div>
                 <div class="ad-reward-preview">
@@ -201,10 +216,9 @@
         </div>
     </div>
 
-    <!-- ✅ REWARD POPUP BESAR -->
     <div id="rewardPopup">
         <span class="reward-emoji">🎉</span>
-        <span id="rewardText">+50 💰</span>
+        <span class="reward-text" id="rewardText">+50 💰</span>
     </div>
 
     <script>
@@ -247,6 +261,7 @@
         let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
         let adsWatched = parseInt(localStorage.getItem('cocktail_ads_watched')) || 0;
         let gameState = 'menu';
+        let isRewardPopupActive = false; // ✅ FLAG BARU: Freeze game saat popup muncul
         let score = 0, combo = 0, maxCombo = 0;
         let fruits = [], particles = [], collectedFruits = {};
         let spawnTimer = 0, spawnInterval = 70, difficulty = 1, missedCount = 0;
@@ -315,25 +330,20 @@
             }
         }
 
-        // ✅ 2-PHASE FLOW: Bonus 8 buah
         function triggerFruitAd() {
             gameState = 'ad_break';
-            // Hitung reward SEBELUM tampilkan
             const rewardAmount = 50;
-            
-            // Tampilkan Phase 1: Ajakan nonton
             showAdPhase1(
                 '🎁 BONUS 8 BUAH!', 
                 'Kamu berhasil mengumpulkan 8 buah! Tonton iklan singkat untuk klaim bonus.',
                 `+${rewardAmount} 💰`,
                 () => {
-                    // Callback setelah claim
                     coins += rewardAmount;
                     localStorage.setItem('hans_coins', coins);
                     updatePlayerCoins(rewardAmount);
                     updateUI();
-                    showRewardPopup(`+${rewardAmount} 💰`);
                     gameState = 'playing';
+                    showRewardPopup(`+${rewardAmount} 💰`);
                 }
             );
         }
@@ -344,15 +354,17 @@
             ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height); 
         }
 
+        // ✅ FREEZE FRAME LOGIC
         function animate() {
             drawBackground();
-            if (gameState === 'playing') {
+            if (gameState === 'playing' && !isRewardPopupActive) {
                 spawnTimer++;
                 if (spawnTimer >= spawnInterval) { spawnFruit(); spawnTimer = 0; }
                 fruits = fruits.filter(f => { const alive = f.update(); if (alive && !f.collected) { f.draw(); return true; } return false; });
                 particles = particles.filter(p => { p.update(); if (p.life > 0) { p.draw(); return true; } return false; });
                 if (missedCount > 10) { endGame(); return; }
             } else {
+                // Freeze frame: gambar buah di posisi sekarang tanpa update
                 fruits.forEach(f => { if (!f.collected) f.draw(); });
             }
             requestAnimationFrame(animate);
@@ -360,7 +372,7 @@
         requestAnimationFrame(animate);
 
         canvas.addEventListener('pointerdown', (e) => {
-            if (gameState !== 'playing') return;
+            if (gameState !== 'playing' || isRewardPopupActive) return; // ✅ Gak bisa tap buah saat popup muncul
             const rect = canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
@@ -375,6 +387,7 @@
         function startGame() { 
             trackGamePlay(GAME_NAME); 
             gameState = 'playing'; 
+            isRewardPopupActive = false;
             score = 0; combo = 0; maxCombo = 0;
             fruits = []; particles = []; collectedFruits = {}; 
             spawnTimer = 0; spawnInterval = 70; difficulty = 1; missedCount = 0;
@@ -385,7 +398,6 @@
             for (let i = 0; i < 3; i++) { setTimeout(() => spawnFruit(), i * 400); }
         }
 
-        // ✅ 2-PHASE FLOW: Game Over
         function endGame() {
             gameState = 'gameover';
             const rewardAmount = 100;
@@ -398,8 +410,8 @@
                     localStorage.setItem('hans_coins', coins); 
                     updatePlayerCoins(rewardAmount); 
                     updateUI();
+                    gameState = 'playing';
                     showRewardPopup(`+${rewardAmount} 💰`);
-                    startGame();
                 }
             );
         }
@@ -413,17 +425,22 @@
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // ✅ REWARD POPUP
+        // ✅ REWARD POPUP DENGAN FREEZE FRAME
         function showRewardPopup(text) {
             const popup = document.getElementById('rewardPopup');
             document.getElementById('rewardText').innerText = text;
             popup.style.display = 'block';
-            setTimeout(() => { popup.style.display = 'none'; }, 2500);
+            
+            // ✅ Bekukan game
+            isRewardPopupActive = true;
+            
+            // ✅ Setelah 2 detik, hilangkan popup dan lanjutkan game
+            setTimeout(() => { 
+                popup.style.display = 'none';
+                isRewardPopupActive = false;
+            }, 2000);
         }
 
-        // ==========================================
-        // ✅ 2-PHASE AD SYSTEM (UNIVERSAL)
-        // ==========================================
         function showAdPhase1(title, desc, rewardText, onClaimCallback) {
             const overlay = document.getElementById('adOverlay');
             const phase1 = document.getElementById('adPhase1');
@@ -432,7 +449,6 @@
             const btnClaim = document.getElementById('btnClaimAd');
             const closeBtn = overlay.querySelector('.emergency-close');
             
-            // Reset ke Phase 1
             phase1.style.display = 'block';
             phase2.style.display = 'none';
             document.getElementById('adPhase1Title').innerText = title;
@@ -443,16 +459,11 @@
             overlay.style.display = 'flex';
             closeBtn.style.display = 'block';
             
-            // Phase 1: Tunggu player klik "TONTON SEKARANG"
             btnWatch.onclick = () => {
-                // Buka iklan
                 window.open(ADSTERRA_DIRECT_LINK, '_blank');
-                
-                // Pindah ke Phase 2
                 phase1.style.display = 'none';
                 phase2.style.display = 'block';
                 
-                // Mulai timer 5 detik
                 const timerEl = document.getElementById('adTimer');
                 let timeLeft = 5;
                 timerEl.innerText = timeLeft;
@@ -482,7 +493,6 @@
             };
         }
 
-        // ✅ 2-PHASE BONUS HARIAN
         function showBonusAd() {
             const now = Date.now();
             if (now - lastBonusTime < 30000) { 
@@ -504,7 +514,6 @@
             
             btnWatch.onclick = () => {
                 window.open(ADSTERRA_DIRECT_LINK, '_blank');
-                
                 phase1.style.display = 'none';
                 phase2.style.display = 'block';
                 
@@ -534,7 +543,8 @@
                             localStorage.setItem('cocktail_ads_watched', adsWatched);
                             updatePlayerCoins(200);
                             updateUI();
-                            showRewardPopup('+200 💰');
+                            gameState = 'playing';
+                            showRewardPopup('+200 ');
                         };
                     }
                 }, 1000);
@@ -597,7 +607,7 @@
             const submitBtn = document.getElementById('wdSubmitBtn'); submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
             try {
                 const vipTag = isVip ? ' [VIP]' : '';
-                const notifPesan = `💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n📺 ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`;
+                const notifPesan = ` WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🍹 ${GAME_NAME}\n ${name.toUpperCase()}\n💳 ${dana}\n📺 ${adsWatched} iklan\n Sisa koin: ${sisaKoin.toLocaleString()}`;
                 await kirimNotifWablas(notifPesan);
                 await db.collection('withdrawals').add({ playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 const newWdCount = wdCount + 1; const newCoins = coins - tier.coins;

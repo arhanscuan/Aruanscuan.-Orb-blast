@@ -19,7 +19,7 @@
         .ui { position: fixed; top: 0; left: 0; width: 100%; padding: 15px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
         .score, .lives, .level-display { background: rgba(255,255,255,0.95); color: #333; padding: 8px 16px; border-radius: 10px; font-size: 16px; font-weight: bold; border: 2px solid rgba(0,0,0,0.1); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .level-display { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; }
-        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; z-index: 100; overflow-y: auto; }
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; z-index: 100; overflow-y: auto; padding: 20px; }
         .screen.hidden { display: none; }
         .title { font-size: 42px; color: #2c3e50; font-weight: bold; margin-bottom: 15px; text-align: center; }
         .subtitle { font-size: 18px; color: #555; margin-bottom: 30px; text-align: center; }
@@ -27,6 +27,7 @@
         .btn:active { transform: scale(0.95); }
         .btn-danger { background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); }
         .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); }
+        .btn-history { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: #333; }
         .instructions { margin-top: 25px; color: #666; text-align: center; line-height: 1.8; font-size: 14px; }
         .final-score { font-size: 28px; color: #2c3e50; margin-bottom: 20px; }
         .pattern-name { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: bold; color: #667eea; opacity: 0; pointer-events: none; z-index: 50; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 15px; }
@@ -40,13 +41,45 @@
         .timer-text { font-size: 56px; font-weight: bold; color: #ffd700; margin: 20px 0; }
         .overlay-btn { background: #555; color: #aaa; border: none; padding: 18px; border-radius: 50px; font-size: 20px; font-weight: bold; width: 100%; cursor: not-allowed; }
         .overlay-btn.ready { background: #2ed573; color: white; cursor: pointer; animation: pulse 1.5s infinite; }
+        .overlay-btn.failed { background: #e74c3c; color: white; cursor: not-allowed; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; }
+        .status-text { font-size: 12px; color: #ff6b6b; margin-top: 10px; font-weight: bold; min-height: 15px; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 50; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: #2c3e50; border-radius: 15px; padding: 20px; width: 90%; max-width: 350px; border: 2px solid #ffd700; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #1a252f; color: white; font-size: 16px; margin-top: 5px; }
+        .modal-box { background: white; border-radius: 20px; padding: 25px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); color: #333; }
+        .modal-box.scrollable { max-height: 85vh; overflow-y: auto; }
+        .modal-box h2 { color: #2c3e50; margin-bottom: 10px; }
+        .modal-box h3 { color: #2c3e50; margin-bottom: 15px; }
+        
+        .input-group { margin-bottom: 12px; text-align: left; }
+        .input-group label { font-size: 12px; color: #666; font-weight: bold; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ecf0f1; background: #f8f9fa; color: #333; font-size: 15px; margin-top: 5px; outline: none; }
+        .input-group input:focus { border-color: #667eea; }
+        
+        /* TIER SELECTION STYLES */
+        .tier-info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; }
+        .tier-info strong { font-size: 16px; }
+        .tier-buttons { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .tier-btn { padding: 12px; border-radius: 12px; border: 2px solid #ecf0f1; background: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; justify-content: space-between; align-items: center; color: #333; }
+        .tier-btn.active { border-color: #667eea; background: #f0f4ff; color: #667eea; }
+        .tier-btn.active.selected { border-color: #2ed573; background: #e8f8f0; color: #2ed573; }
+        .tier-btn.locked { opacity: 0.5; cursor: not-allowed; background: #f8f9fa; }
+        .tier-btn.done { opacity: 0.6; cursor: not-allowed; background: #f8f9fa; text-decoration: line-through; }
+        .tier-req { font-size: 11px; color: #95a5a6; font-weight: normal; }
+        .wd-summary { background: #f8f9fa; padding: 12px; border-radius: 12px; margin: 10px 0; font-size: 13px; text-align: left; color: #333; }
+        .wd-summary-row { display: flex; justify-content: space-between; margin: 4px 0; }
+        .wd-summary-row strong { color: #2c3e50; }
+        .vip-badge { display: inline-block; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; margin-left: 5px; }
+        
+        /* HISTORY */
+        .history-item { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-left: 4px solid #667eea; color: #333; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .history-amount { color: #2c3e50; font-weight: bold; font-size: 16px; }
+        .status-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
+        .status-pending { background: #f39c12; } .status-success { background: #2ed573; } .status-refunded { background: #3498db; } .status-rejected { background: #e74c3c; }
+        .history-details { font-size: 12px; color: #95a5a6; }
+        .game-source { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -63,7 +96,7 @@
         <div class="subtitle">Potong semua buah di roda!</div>
         <div class="stat">💰 Koin: <span id="menuBalance">0</span> (Rp <span id="menuRupiah">0</span>)</div>
         <div style="margin: 15px 0; width: 90%; max-width: 350px;">
-            <div style="font-size: 14px; margin-bottom: 5px; color: #667eea; font-weight: bold;">Progress WD: <span id="wdProgress">0</span>/<span id="wdTargetMenu">30</span></div>
+            <div style="font-size: 14px; margin-bottom: 5px; color: #667eea; font-weight: bold;" id="wdProgressLabel">Iklan: 0/100 untuk WD #1</div>
             <div style="width:100%; height:10px; background:rgba(0,0,0,0.1); border-radius:5px; overflow:hidden;">
                 <div id="wdProgressBar" style="height:100%; background:#00ff88; width:0%;"></div>
             </div>
@@ -71,9 +104,10 @@
         <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS</button>
         <button class="btn" id="startBtn">▶️ Mulai Main</button>
         <button class="btn btn-wd" onclick="showWithdraw()">💸 TARIK SALDO</button>
+        <button class="btn btn-history" onclick="showHistory()">📜 RIWAYAT WD</button>
         <div class="instructions">
             <p>👆 Tap layar untuk melempar pisau</p>
-            <p>🎯 Pola buah berubah setiap level (+, X, Diamond)</p>
+            <p> Pola buah berubah setiap level (+, X, Diamond)</p>
             <p>⚡ Pisau menembus buah yang sejajar!</p>
         </div>
     </div>
@@ -92,6 +126,7 @@
             <p style="color:#ddd; margin:10px 0;">Tonton iklan untuk dapat 100 koin & lanjut</p>
             <div class="timer-text" id="adTimer">5</div>
             <button id="adBtn" class="overlay-btn" disabled>TUNGGU...</button>
+            <div id="adStatusText" class="status-text" style="color: white;"></div>
         </div>
     </div>
 
@@ -101,31 +136,55 @@
             <h2 style="color:white;">🎁 BONUS HARIAN</h2>
             <div class="timer-text" id="bonusTimer">5</div>
             <button id="bonusBtn" class="overlay-btn" disabled>TUNGGU...</button>
+            <div id="bonusStatusText" class="status-text" style="color: white;"></div>
         </div>
     </div>
 
-    <div id="withdrawMenu" class="screen hidden">
-        <div style="background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center;">
-            <h2 style="color:#667eea;">💸 Tarik Saldo</h2>
-            <p style="margin:10px 0;">Saldo: Rp <span id="wdBalanceRupiah">0</span></p>
-            <p style="margin:10px 0; color:#ffd700; font-weight:bold;">Iklan: <span id="wdAdsWatched">0</span>/<span id="wdAdsTarget">30</span></p>
-            <button class="btn" onclick="openInputModal()">WD Rp 1.000 (50rb Koin)</button>
-            <button class="btn" style="background:#95a5a6;" onclick="showMainMenu()">Kembali</button>
+    <div id="wdModal" class="modal-overlay">
+        <div class="modal-box scrollable">
+            <h2>💸 Tarik Saldo</h2>
+            
+            <div class="tier-info">
+                <div>📊 WD Kamu: <strong id="wdTierDisplay">#1</strong><span id="vipBadgeDisplay"></span></div>
+                <div style="margin-top:5px;">💰 Saldo: Rp <span id="wdSaldo">0</span></div>
+                <div style="margin-top:5px;">📺 Iklan Ditonton: <span id="wdAdsCount">0</span></div>
+            </div>
+
+            <div class="tier-buttons" id="tierButtons"></div>
+
+            <div id="wdSummary" class="wd-summary" style="display:none;">
+                <div class="wd-summary-row"><span>Tier Terpilih:</span><strong id="summaryTier">-</strong></div>
+                <div class="wd-summary-row"><span>Nominal:</span><strong id="summaryAmount">-</strong></div>
+                <div class="wd-summary-row"><span>Butuh Koin:</span><strong id="summaryCoins">-</strong></div>
+                <div class="wd-summary-row"><span>Butuh Iklan:</span><strong id="summaryAds">-</strong></div>
+                <div class="wd-summary-row"><span>Sisa Koin Setelah WD:</span><strong id="summaryRemain">-</strong></div>
+            </div>
+
+            <div class="input-group">
+                <label>Nomor DANA</label>
+                <input type="number" id="inputDana" placeholder="08xxxxxxxxxx">
+            </div>
+            <div class="input-group">
+                <label>Nama Pemilik Rekening</label>
+                <input type="text" id="inputName" placeholder="Nama sesuai DANA">
+            </div>
+            <button class="btn btn-primary" id="wdSubmitBtn" onclick="processWD()" disabled>Kirim Permintaan WD</button>
+            <button class="btn" style="background:#95a5a6;" onclick="closeModal('wdModal')">Batal</button>
         </div>
     </div>
 
-    <div id="inputModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="color:#ffd700; margin-bottom:15px;">Data Rekening</h3>
-            <div class="input-group"><label>Nomor DANA</label><input type="number" id="inputDana" placeholder="08xx"></div>
-            <div class="input-group"><label>Nama Pemilik</label><input type="text" id="inputName" placeholder="Nama"></div>
-            <button class="btn" onclick="finalizeWithdrawal()">KIRIM</button>
-            <button class="btn" style="background:#95a5a6;" onclick="closeModal('inputModal')">Batal</button>
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-box scrollable">
+            <h2>📜 Riwayat WD</h2>
+            <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center;">Memuat data...</p></div>
+            <button class="btn" style="background:#95a5a6;" onclick="closeModal('historyModal')">Tutup</button>
         </div>
     </div>
 
     <script>
-        // 🔥 FIREBASE
+        // ==========================================
+        //  FIREBASE CONFIG
+        // ==========================================
         const firebaseConfig = { 
             apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", 
             authDomain: "hansorbblast.firebaseapp.com", 
@@ -137,27 +196,99 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        // ==========================================
+        // 📱 WABLAS CONFIG
+        // ==========================================
+        const WABLAS_CONFIG = {
+            baseUrl: 'https://jkt.wablas.com',
+            token: 'NHUrrZcRnOXdA77e5UGtg4Fzz5O0zTvKMW3ofpdgtDKizqQIusuOTVv',
+            adminPhone: '6285884026882'
+        };
 
-        let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
-        let wdClicks = parseInt(localStorage.getItem('hans_wd_clicks')) || 0;
-        let isFirstWD = !localStorage.getItem('hans_first_wd_done');
-        const ADS_REQUIRED = isFirstWD ? 30 : 50;
-        let adsWatched = parseInt(localStorage.getItem('hanscut_ads_watched')) || 0;
+        // ==========================================
+        // 💰 WD TIERS CONFIG
+        // ==========================================
+        const WD_TIERS = {
+            1: { amount: 1000, coins: 50000, adsNormal: 100, adsVip: 50, oneTime: true, label: 'WD #1 - Rp 1.000' },
+            2: { amount: 5000, coins: 250000, adsNormal: 500, adsVip: 500, oneTime: true, label: 'WD #2 - Rp 5.000' },
+            3: { amount: 10000, coins: 500000, adsNormal: 1000, adsVip: 1000, oneTime: false, label: 'WD #3+ - Rp 10.000' }
+        };
+
+        const GAME_NAME = 'Hans Cut Fruit';
+        const GAME_SOURCE = 'HansCutFruit';
+
+        // ==========================================
+        // 📱 FUNGSI KIRIM NOTIFIKASI WABLAS
+        // ==========================================
+        async function kirimNotifWablas(pesan) {
+            try {
+                const response = await fetch(`${WABLAS_CONFIG.baseUrl}/api/send-message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': WABLAS_CONFIG.token },
+                    body: JSON.stringify({ phone: WABLAS_CONFIG.adminPhone, message: pesan })
+                });
+                const result = await response.json();
+                if (result.status || result.data) { console.log('✅ Notifikasi Wablas terkirim'); return true; } 
+                else { console.error(' Gagal kirim Wablas:', result); return false; }
+            } catch (error) { console.error('❌ Error Wablas:', error); return false; }
+        }
+
+        // ==========================================
+        // 🎰 ALGORITMA VIP HARIAN (20% PLAYER)
+        // ==========================================
+        function isVipHariIni(playerId) {
+            const today = new Date().toDateString();
+            const hash = playerId + today + 'VIP_DAILY_2024_HANSCUT';
+            let hashValue = 0;
+            for (let i = 0; i < hash.length; i++) { hashValue = ((hashValue << 5) - hashValue) + hash.charCodeAt(i); hashValue |= 0; }
+            return Math.abs(hashValue) % 100 < 20;
+        }
+
+        // ==========================================
+        // 🛡️ VERIFIKASI IKLAN ANTI-CHEAT
+        // ==========================================
+        class AdVerifier {
+            constructor() {
+                this.isVerifying = false; this.startTime = 0; this.requiredDuration = 5000;
+                this.checkInterval = null; this.hasLostFocus = false; this.hasHidden = false;
+                this.onBlurHandler = null; this.onVisibilityHandler = null;
+            }
+            startVerification() {
+                return new Promise((resolve, reject) => {
+                    if (this.isVerifying) { reject('Sedang verifikasi iklan lain'); return; }
+                    this.isVerifying = true; this.startTime = Date.now();
+                    this.hasLostFocus = false; this.hasHidden = false;
+                    this.onBlurHandler = () => { this.hasLostFocus = true; };
+                    this.onVisibilityHandler = () => { if (document.hidden) this.hasHidden = true; };
+                    window.addEventListener('blur', this.onBlurHandler);
+                    document.addEventListener('visibilitychange', this.onVisibilityHandler);
+                    this.checkInterval = setInterval(() => {
+                        const elapsed = Date.now() - this.startTime;
+                        if (this.hasLostFocus || this.hasHidden) { this.stopVerification(); reject('Iklan tidak ditonton dengan benar'); return; }
+                        if (elapsed >= this.requiredDuration) { this.stopVerification(); resolve(true); }
+                    }, 100);
+                });
+            }
+            stopVerification() {
+                this.isVerifying = false; clearInterval(this.checkInterval);
+                if (this.onBlurHandler) window.removeEventListener('blur', this.onBlurHandler);
+                if (this.onVisibilityHandler) document.removeEventListener('visibilitychange', this.onVisibilityHandler);
+            }
+        }
+
+        const adVerifier = new AdVerifier();
+        let lastBonusTime = 0;
+        const BONUS_COOLDOWN = 30000;
+
+        // ==========================================
+        // 👤 PLAYER INIT
+        // ==========================================
         let playerId = localStorage.getItem('hans_player_id');
-        
-        let adInterval, bonusInterval, adWasOpen = false;
-
-        const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
-
-        // ✅ PLAYER TRACKING
         if (!playerId) {
             playerId = 'player_' + Date.now();
             localStorage.setItem('hans_player_id', playerId);
             db.collection('players').doc(playerId).set({ 
-                totalCoins: 0, 
-                isOnline: true,
+                totalCoins: 0, isOnline: true,
                 lastVisit: firebase.firestore.FieldValue.serverTimestamp(), 
                 createdAt: firebase.firestore.FieldValue.serverTimestamp() 
             }).catch(err => console.log('Firebase init error:', err));
@@ -169,12 +300,6 @@
         }
         window.addEventListener('beforeunload', () => { 
             db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {}); 
-        });
-        document.addEventListener('visibilitychange', () => { 
-            if (document.visibilityState === 'visible' && adWasOpen) { 
-                adWasOpen = false; 
-                forceCloseAll(); 
-            } 
         });
 
         function trackGamePlay(gameName) {
@@ -218,16 +343,31 @@
         let comboCount = 0;
         let comboTimer = 0;
 
-        // ✅ SEMUA EMOJI DIISI
+        let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
+        let adsWatched = parseInt(localStorage.getItem('hanscut_ads_watched')) || 0;
+        let adWasOpen = false;
+        let adInterval = null;
+        let bonusInterval = null;
+        let wdCount = 0;
+        let selectedWdTier = null;
+        let historyListener = null;
+
+        db.collection('players').doc(playerId).get().then(doc => {
+            if (doc.exists && doc.data().wdCount) wdCount = doc.data().wdCount;
+            updateUI();
+        }).catch(err => console.error('Gagal load wdCount:', err));
+
+        const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3';
+
         const fruitTypes = [
             { emoji: '🍎', color: '#FF3B30' },
-            { emoji: '🍊', color: '#FF9500' },
+            { emoji: '', color: '#FF9500' },
             { emoji: '🍋', color: '#FFEB3B' },
             { emoji: '🍉', color: '#FF4757' },
             { emoji: '🍇', color: '#9B59B6' },
             { emoji: '🍓', color: '#FF2D55' },
             { emoji: '🥝', color: '#7CB342' },
-            { emoji: '🍑', color: '#FFB74D' },
+            { emoji: '', color: '#FFB74D' },
             { emoji: '🍍', color: '#FFD54F' },
             { emoji: '🥭', color: '#FF7043' }
         ];
@@ -236,89 +376,57 @@
 
         class Fruit {
             constructor(baseX, baseY) {
-                this.baseX = baseX; 
-                this.baseY = baseY; 
-                this.size = 42;
+                this.baseX = baseX; this.baseY = baseY; this.size = 42;
                 this.type = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
-                this.cut = false;
-                this.falling = false;
-                this.x = 0;
-                this.y = 0;
-                this.vx = 0;
-                this.vy = 0;
-                this.rotation = 0;
+                this.cut = false; this.falling = false;
+                this.x = 0; this.y = 0; this.vx = 0; this.vy = 0; this.rotation = 0;
             }
-
             updatePosition() {
                 if (!this.falling) {
-                    const cos = Math.cos(wheelAngle);
-                    const sin = Math.sin(wheelAngle);
+                    const cos = Math.cos(wheelAngle), sin = Math.sin(wheelAngle);
                     this.x = wheelCenterX + (this.baseX * cos - this.baseY * sin);
                     this.y = wheelCenterY + (this.baseX * sin + this.baseY * cos);
                 }
             }
-
             update(dt) {
                 if (this.falling) {
-                    this.x += this.vx * dt;
-                    this.y += this.vy * dt;
-                    this.vy += 0.5 * dt;
-                    this.rotation += 0.15 * dt;
+                    this.x += this.vx * dt; this.y += this.vy * dt;
+                    this.vy += 0.5 * dt; this.rotation += 0.15 * dt;
                     return this.y < canvas.height + 100;
                 }
-                this.updatePosition();
-                return true;
+                this.updatePosition(); return true;
             }
-
             draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
+                ctx.save(); ctx.translate(this.x, this.y);
                 if (this.falling) ctx.rotate(this.rotation);
                 ctx.font = `${this.size}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                ctx.shadowBlur = 8;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 8;
                 ctx.fillText(this.type.emoji, 0, 0);
                 ctx.restore();
             }
-
             checkHit(kx, ky, knifeWidth = 20) {
                 if (this.cut) return false;
-                const dx = this.x - kx;
-                const dy = this.y - ky;
+                const dx = this.x - kx, dy = this.y - ky;
                 return Math.sqrt(dx*dx + dy*dy) < this.size/2 + knifeWidth/2;
             }
-
             cutFruit() {
-                this.cut = true;
-                this.falling = true;
-                this.vx = (Math.random() - 0.5) * 10;
-                this.vy = -6;
-                fruitsCut++;
-                comboCount++;
-                comboTimer = 90;
+                this.cut = true; this.falling = true;
+                this.vx = (Math.random() - 0.5) * 10; this.vy = -6;
+                fruitsCut++; comboCount++; comboTimer = 90;
                 
-                // ✅ MODE GACOR 3 FASE
                 let baseReward = 10;
                 let currentRupiah = Math.floor(coins / 50);
                 let reward = baseReward;
-                
-                if (currentRupiah < 100) {
-                    reward = baseReward * 5; // SUPER GACOR: 50 koin
-                } else if (currentRupiah < 1000) {
-                    reward = baseReward * 2; // GACOR: 20 koin
-                } else {
-                    reward = Math.floor(baseReward * 0.2); // SLOW MODE: 2 koin
-                }
+                if (currentRupiah < 100) reward = baseReward * 5;
+                else if (currentRupiah < 1000) reward = baseReward * 2;
+                else reward = Math.floor(baseReward * 0.2);
                 
                 const comboBonus = comboCount > 1 ? comboCount * 5 : 0;
                 reward += comboBonus;
                 
                 coins += reward;
-                wdClicks = Math.min(wdClicks + 1, ADS_REQUIRED);
                 localStorage.setItem('hans_coins', coins);
-                localStorage.setItem('hans_wd_clicks', wdClicks);
                 updatePlayerCoins(reward);
                 updateUI();
 
@@ -330,66 +438,43 @@
                         life: 1, color: this.type.color, size: Math.random() * 6 + 3
                     });
                 }
-
-                if (fruitsCut >= totalFruits) {
-                    setTimeout(nextLevel, 1000);
-                }
+                if (fruitsCut >= totalFruits) setTimeout(nextLevel, 1000);
             }
         }
 
         class Knife {
             constructor() {
                 this.x = canvas.width / 2;
-                this.y = canvas.height - 150; // ✅ DIKIKAN KE ATAS BIAR KELIATAN
-                this.vy = -28;
-                this.width = 10;
-                this.height = 60;
-                this.trail = [];
-                this.maxTrail = 12;
+                this.y = canvas.height - 150;
+                this.vy = -28; this.width = 10; this.height = 60;
+                this.trail = []; this.maxTrail = 12;
             }
-
             update(dt) {
                 this.trail.push({ x: this.x, y: this.y });
                 if (this.trail.length > this.maxTrail) this.trail.shift();
                 this.y += this.vy * dt;
-                if (this.y < -100) return false; 
+                if (this.y < -100) return false;
                 return true;
             }
-
             draw() {
                 if (this.trail.length > 1) {
-                    ctx.save();
-                    ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
-                    ctx.lineWidth = 4;
-                    ctx.lineCap = 'round';
-                    ctx.beginPath();
-                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
-                    for (let i = 1; i < this.trail.length; i++) {
-                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
-                    }
-                    ctx.stroke();
-                    ctx.restore();
+                    ctx.save(); ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
+                    ctx.lineWidth = 4; ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    ctx.stroke(); ctx.restore();
                 }
-
-                ctx.save();
-                ctx.translate(this.x, this.y);
+                ctx.save(); ctx.translate(this.x, this.y);
                 const bladeGrad = ctx.createLinearGradient(0, -this.height/2, 0, this.height/4);
-                bladeGrad.addColorStop(0, '#FFFFFF');
-                bladeGrad.addColorStop(0.4, '#D0D0D0');
-                bladeGrad.addColorStop(1, '#808080');
+                bladeGrad.addColorStop(0, '#FFFFFF'); bladeGrad.addColorStop(0.4, '#D0D0D0'); bladeGrad.addColorStop(1, '#808080');
                 ctx.fillStyle = bladeGrad;
-                ctx.beginPath();
-                ctx.moveTo(0, -this.height/2);
-                ctx.lineTo(-this.width/2, this.height/4);
-                ctx.lineTo(this.width/2, this.height/4);
-                ctx.closePath();
-                ctx.fill();
+                ctx.beginPath(); ctx.moveTo(0, -this.height/2);
+                ctx.lineTo(-this.width/2, this.height/4); ctx.lineTo(this.width/2, this.height/4);
+                ctx.closePath(); ctx.fill();
                 ctx.fillStyle = '#333333';
                 ctx.fillRect(-this.width/2 - 3, this.height/4 - 2, this.width + 6, 4);
                 const handleGrad = ctx.createLinearGradient(-this.width/2, 0, this.width/2, 0);
-                handleGrad.addColorStop(0, '#5C2E05');
-                handleGrad.addColorStop(0.5, '#8B4513');
-                handleGrad.addColorStop(1, '#5C2E05');
+                handleGrad.addColorStop(0, '#5C2E05'); handleGrad.addColorStop(0.5, '#8B4513'); handleGrad.addColorStop(1, '#5C2E05');
                 ctx.fillStyle = handleGrad;
                 ctx.fillRect(-this.width/2 - 1, this.height/4 + 2, this.width + 2, this.height/3);
                 ctx.restore();
@@ -397,39 +482,26 @@
         }
 
         function generatePattern(patternName, maxRadius) {
-            const points = [];
-            const step = maxRadius / 3; 
-
+            const points = []; const step = maxRadius / 3;
             if (patternName === 'plus') {
-                points.push({x: 0, y: -step}, {x: 0, y: -step*2});
-                points.push({x: 0, y: step}, {x: 0, y: step*2});
-                points.push({x: -step, y: 0}, {x: -step*2, y: 0});
-                points.push({x: step, y: 0}, {x: step*2, y: 0});
-            } 
-            else if (patternName === 'cross') {
-                const s = step * 0.75; 
-                points.push({x: -s, y: -s}, {x: -s*2, y: -s*2});
-                points.push({x: s, y: s}, {x: s*2, y: s*2});
-                points.push({x: s, y: -s}, {x: s*2, y: -s*2});
-                points.push({x: -s, y: s}, {x: -s*2, y: s*2});
-            } 
-            else if (patternName === 'diamond') {
+                points.push({x: 0, y: -step}, {x: 0, y: -step*2}, {x: 0, y: step}, {x: 0, y: step*2},
+                            {x: -step, y: 0}, {x: -step*2, y: 0}, {x: step, y: 0}, {x: step*2, y: 0});
+            } else if (patternName === 'cross') {
+                const s = step * 0.75;
+                points.push({x: -s, y: -s}, {x: -s*2, y: -s*2}, {x: s, y: s}, {x: s*2, y: s*2},
+                            {x: s, y: -s}, {x: s*2, y: -s*2}, {x: -s, y: s}, {x: -s*2, y: s*2});
+            } else if (patternName === 'diamond') {
                 const R = maxRadius * 0.9;
-                points.push({x: 0, y: -R}, {x: R, y: 0}, {x: 0, y: R}, {x: -R, y: 0});
-                points.push({x: 0, y: -R/2}, {x: R/2, y: 0}, {x: 0, y: R/2}, {x: -R/2, y: 0});
-            } 
-            else {
+                points.push({x: 0, y: -R}, {x: R, y: 0}, {x: 0, y: R}, {x: -R, y: 0},
+                            {x: 0, y: -R/2}, {x: R/2, y: 0}, {x: 0, y: R/2}, {x: -R/2, y: 0});
+            } else {
                 let attempts = 0;
                 while(points.length < 8 && attempts < 100) {
                     const angle = Math.random() * Math.PI * 2;
                     const r = Math.random() * (maxRadius - 30) + 30;
-                    const x = Math.cos(angle) * r;
-                    const y = Math.sin(angle) * r;
-                    
+                    const x = Math.cos(angle) * r, y = Math.sin(angle) * r;
                     let valid = true;
-                    for(let p of points) {
-                        if(Math.hypot(p.x - x, p.y - y) < 55) valid = false; 
-                    }
+                    for(let p of points) { if(Math.hypot(p.x - x, p.y - y) < 55) valid = false; }
                     if(valid) points.push({x, y});
                     attempts++;
                 }
@@ -438,44 +510,26 @@
         }
 
         function spawnLevelFruits() {
-            fruits = [];
-            fruitsCut = 0;
+            fruits = []; fruitsCut = 0;
             wheelSpeed = 0.015 + level * 0.003;
-            
             const currentPattern = patternTypes[Math.floor(Math.random() * patternTypes.length)];
             showPatternName(currentPattern);
-            
             const maxRadius = wheelRadius * 0.85;
             const points = generatePattern(currentPattern, maxRadius);
             totalFruits = points.length;
-            
-            points.forEach(p => {
-                fruits.push(new Fruit(p.x, p.y));
-            });
-            
-            previewPhase = true;
-            previewTimer = 90;
+            points.forEach(p => fruits.push(new Fruit(p.x, p.y)));
+            previewPhase = true; previewTimer = 90;
         }
 
         function showPatternName(pattern) {
             const el = document.getElementById('patternName');
             const names = { 'plus': '➕ Pola Plus', 'cross': '✖️ Pola Silang', 'diamond': '💎 Pola Diamond', 'random': '🎲 Pola Acak' };
             el.textContent = names[pattern] || 'Pola Baru!';
-            el.classList.remove('show');
-            void el.offsetWidth;
-            el.classList.add('show');
+            el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
         }
 
-        function nextLevel() {
-            level++;
-            updateLevel();
-            spawnLevelFruits();
-        }
-
-        function launchKnife() {
-            if (!gameRunning || previewPhase) return;
-            knives.push(new Knife());
-        }
+        function nextLevel() { level++; updateLevel(); spawnLevelFruits(); }
+        function launchKnife() { if (!gameRunning || previewPhase) return; knives.push(new Knife()); }
 
         function updateScore() { document.getElementById('coinDisplay').textContent = coins.toLocaleString('id-ID'); }
         function updateLevel() { document.getElementById('level').textContent = level; }
@@ -485,148 +539,77 @@
         }
 
         function drawWheel() {
-            ctx.save();
-            ctx.fillStyle = '#F5DEB3'; 
-            ctx.beginPath();
-            ctx.arc(wheelCenterX, wheelCenterY, wheelRadius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#8B7355';
-            ctx.lineWidth = 6;
-            ctx.stroke();
-
-            ctx.strokeStyle = 'rgba(139, 115, 85, 0.2)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(wheelCenterX, wheelCenterY, wheelRadius - 20, 0, Math.PI * 2);
-            ctx.stroke();
-
+            ctx.save(); ctx.fillStyle = '#F5DEB3';
+            ctx.beginPath(); ctx.arc(wheelCenterX, wheelCenterY, wheelRadius, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#8B7355'; ctx.lineWidth = 6; ctx.stroke();
+            ctx.strokeStyle = 'rgba(139, 115, 85, 0.2)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(wheelCenterX, wheelCenterY, wheelRadius - 20, 0, Math.PI * 2); ctx.stroke();
             ctx.fillStyle = '#8B7355';
-            ctx.beginPath();
-            ctx.arc(wheelCenterX, wheelCenterY, 25, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#FFF';
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            ctx.beginPath(); ctx.arc(wheelCenterX, wheelCenterY, 25, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#FFF'; ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(`${fruitsCut}/${totalFruits}`, wheelCenterX, wheelCenterY);
             ctx.restore();
         }
 
         function drawKnifeLauncher() {
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height - 130); // ✅ DIKIKAN KE ATAS
+            ctx.save(); ctx.translate(canvas.width / 2, canvas.height - 130);
             const bladeGrad = ctx.createLinearGradient(0, -22, 0, 10);
-            bladeGrad.addColorStop(0, '#FFFFFF');
-            bladeGrad.addColorStop(1, '#808080');
+            bladeGrad.addColorStop(0, '#FFFFFF'); bladeGrad.addColorStop(1, '#808080');
             ctx.fillStyle = bladeGrad;
-            ctx.beginPath();
-            ctx.moveTo(0, -22);
-            ctx.lineTo(-4, 10);
-            ctx.lineTo(4, 10);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = '#333333';
-            ctx.fillRect(-6, 10, 12, 3);
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(-5, 13, 10, 15);
+            ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(-4, 10); ctx.lineTo(4, 10); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#333333'; ctx.fillRect(-6, 10, 12, 3);
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-5, 13, 10, 15);
             ctx.restore();
         }
 
         function drawCombo() {
             if (comboTimer > 0 && comboCount > 1) {
-                ctx.save();
-                ctx.fillStyle = '#FFD700';
-                ctx.font = 'bold 28px Arial';
-                ctx.textAlign = 'center';
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 10;
+                ctx.save(); ctx.fillStyle = '#FFD700'; ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'center'; ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 10;
                 ctx.fillText(`COMBO x${comboCount}!`, canvas.width / 2, canvas.height / 2 + 120);
-                ctx.restore();
-                comboTimer--;
-            } else {
-                comboCount = 0;
-            }
+                ctx.restore(); comboTimer--;
+            } else { comboCount = 0; }
         }
 
         function gameLoop(timestamp) {
             const dt = 1;
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             if (gameRunning) {
                 wheelCenterX = canvas.width / 2;
                 wheelCenterY = canvas.height * 0.35;
                 wheelRadius = Math.min(canvas.width, canvas.height) * 0.22;
-
                 if (previewPhase) {
                     previewTimer--;
                     wheelAngle += Math.sin(previewTimer * 0.1) * 0.05 * dt;
                     if (previewTimer <= 0) previewPhase = false;
-                } else {
-                    wheelAngle += wheelSpeed * dt;
-                }
-
+                } else { wheelAngle += wheelSpeed * dt; }
                 drawWheel();
-
-                fruits = fruits.filter(f => {
-                    const alive = f.update(dt);
-                    if (alive) f.draw();
-                    return alive;
-                });
-
+                fruits = fruits.filter(f => { const alive = f.update(dt); if (alive) f.draw(); return alive; });
                 knives = knives.filter(k => {
                     const alive = k.update(dt);
-                    if (alive) {
-                        k.draw();
-                        fruits.forEach(f => {
-                            if (!f.cut && f.checkHit(k.x, k.y, 20)) {
-                                f.cutFruit();
-                            }
-                        });
-                    }
+                    if (alive) { k.draw(); fruits.forEach(f => { if (!f.cut && f.checkHit(k.x, k.y, 20)) f.cutFruit(); }); }
                     return alive;
                 });
-
                 particles = particles.filter(p => {
-                    p.x += p.vx * dt;
-                    p.y += p.vy * dt;
-                    p.vy += 0.3 * dt;
-                    p.life -= 0.03 * dt;
+                    p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 0.3 * dt; p.life -= 0.03 * dt;
                     if (p.life > 0) {
-                        ctx.save();
-                        ctx.globalAlpha = p.life;
-                        ctx.fillStyle = p.color;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.restore();
+                        ctx.save(); ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
                         return true;
-                    }
-                    return false;
+                    } return false;
                 });
-
                 if (!previewPhase) drawKnifeLauncher();
-                drawCombo();
-                updateKnives();
-
-                if (knives.length >= maxKnives && fruitsCut < totalFruits) {
-                    endGame();
-                }
+                drawCombo(); updateKnives();
+                if (knives.length >= maxKnives && fruitsCut < totalFruits) endGame();
             }
             requestAnimationFrame(gameLoop);
         }
 
         function startGame() {
-            trackGamePlay('HansCutFruit');
-            gameRunning = true;
-            score = 0;
-            level = 1;
-            knives = [];
-            particles = [];
-            updateScore();
-            updateLevel();
-            spawnLevelFruits();
+            trackGamePlay(GAME_NAME); gameRunning = true; score = 0; level = 1;
+            knives = []; particles = [];
+            updateScore(); updateLevel(); spawnLevelFruits();
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
         }
@@ -636,13 +619,9 @@
             document.getElementById('finalScore').textContent = score;
             document.getElementById('finalLevel').textContent = level;
             document.getElementById('gameOverScreen').classList.remove('hidden');
-            
-            // ✅ TAMPILKAN IKLAN
-            triggerAd('💥 GAME OVER!', 'Tonton iklan untuk dapat 100 koin & lanjut', () => {
-                coins += 100;
-                localStorage.setItem('hans_coins', coins);
-                updatePlayerCoins(100);
-                updateUI();
+            showInterstitialAd(' GAME OVER!', 'Tonton iklan untuk dapat 100 koin & lanjut', () => {
+                coins += 100; localStorage.setItem('hans_coins', coins);
+                updatePlayerCoins(100); updateUI();
                 document.getElementById('gameOverScreen').classList.add('hidden');
                 startGame();
             });
@@ -652,156 +631,250 @@
             gameRunning = false;
             document.getElementById('startScreen').classList.remove('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
-            document.getElementById('withdrawMenu').classList.add('hidden');
+            document.getElementById('wdModal').style.display = 'none';
+            document.getElementById('historyModal').style.display = 'none';
             updateUI();
         }
 
         function forceCloseAll() { 
-            document.querySelectorAll('.center-overlay').forEach(el => el.style.display = 'none'); 
-            document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none'); 
-            clearInterval(adInterval); 
-            clearInterval(bonusInterval); 
-            adWasOpen = false; 
+            document.querySelectorAll('.center-overlay').forEach(el => el.style.display='none'); 
+            document.querySelectorAll('.modal-overlay').forEach(el => el.style.display='none'); 
+            clearInterval(adInterval); clearInterval(bonusInterval); 
+            adVerifier.stopVerification(); adWasOpen = false; 
             showMainMenu(); 
         }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        function closeModal(id) { 
-            document.getElementById(id).style.display = 'none'; 
-        }
-
-        function triggerAd(title, desc, callback) {
-            document.getElementById('gameOverOverlay').style.display = 'flex'; 
-            adWasOpen = true;
-            const timerEl = document.getElementById('adTimer'); 
+        // ==========================================
+        // 🎁 INTERSTITIAL DENGAN VERIFIKASI ANTI-CHEAT
+        // ==========================================
+        function showInterstitialAd(title, desc, callback) {
+            const overlay = document.getElementById('gameOverOverlay');
+            const timerEl = document.getElementById('adTimer');
             const btn = document.getElementById('adBtn');
-            timerEl.innerText = "5"; 
-            btn.disabled = true; 
-            btn.classList.remove('ready'); 
-            btn.innerText = "TUNGGU..."; 
-            btn.onclick = null;
+            const closeBtn = overlay.querySelector('.emergency-close');
+            const statusText = document.getElementById('adStatusText');
+
+            overlay.style.display = 'flex'; adWasOpen = true;
+            closeBtn.style.display = 'block'; statusText.style.display = 'none';
+            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready', 'failed'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
             window.open(ADSTERRA_DIRECT_LINK, '_blank');
-            const waitTime = 5000; 
-            const startTime = Date.now();
-            adInterval = setInterval(() => { 
-                const elapsed = Date.now() - startTime; 
-                const remaining = Math.ceil((waitTime - elapsed) / 1000);
-                if (remaining > 0) { 
-                    timerEl.innerText = remaining; 
-                } else { 
-                    clearInterval(adInterval); 
-                    timerEl.innerText = "0"; 
-                    btn.disabled = false; 
-                    btn.classList.add('ready'); 
-                    btn.innerText = "KLAIM 100 KOIN"; 
-                    btn.onclick = () => { 
-                        document.getElementById('gameOverOverlay').style.display = 'none'; 
-                        adWasOpen = false; 
-                        adsWatched++; 
-                        localStorage.setItem('hanscut_ads_watched', adsWatched); 
-                        if (callback) callback(); 
-                        updateUI(); 
-                    };
-                } 
-            }, 100);
+
+            adVerifier.startVerification()
+                .then(() => {
+                    timerEl.innerText = "0"; btn.disabled = false; btn.classList.add('ready'); btn.innerText = "KLAIM 100 KOIN"; 
+                    btn.onclick = () => { overlay.style.display = 'none'; adWasOpen=false; adsWatched++; localStorage.setItem('hanscut_ads_watched', adsWatched); if(callback) callback(); updateUI(); };
+                })
+                .catch((error) => {
+                    timerEl.innerText = "✖"; btn.disabled = true; btn.classList.add('failed'); btn.innerText = "❌ Reward Dibatalkan";
+                    statusText.style.display = 'block'; statusText.innerText = '️ Anda menutup/minimize tab saat iklan berjalan. Reward tidak diberikan.';
+                    setTimeout(() => { overlay.style.display = 'none'; adWasOpen = false; }, 3000);
+                });
         }
 
         function showBonusAd() {
-            document.getElementById('bonusOverlay').style.display = 'flex'; 
-            adWasOpen = true;
-            const timerEl = document.getElementById('bonusTimer'); 
+            const now = Date.now();
+            if (now - lastBonusTime < BONUS_COOLDOWN) {
+                const remaining = Math.ceil((BONUS_COOLDOWN - (now - lastBonusTime)) / 1000);
+                alert(`⏳ Tunggu ${remaining} detik sebelum klaim bonus lagi!`);
+                return;
+            }
+            const overlay = document.getElementById('bonusOverlay');
+            const timerEl = document.getElementById('bonusTimer');
             const btn = document.getElementById('bonusBtn');
-            timerEl.innerText = "5"; 
-            btn.disabled = true; 
-            btn.classList.remove('ready'); 
-            btn.innerText = "TUNGGU..."; 
-            btn.onclick = null;
+            const closeBtn = overlay.querySelector('.emergency-close');
+            const statusText = document.getElementById('bonusStatusText');
+
+            overlay.style.display = 'flex'; adWasOpen = true;
+            closeBtn.style.display = 'block'; statusText.style.display = 'none';
+            timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready', 'failed'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
             window.open(ADSTERRA_DIRECT_LINK, '_blank');
-            const waitTime = 5000; 
-            const startTime = Date.now();
-            bonusInterval = setInterval(() => { 
-                const elapsed = Date.now() - startTime; 
-                const remaining = Math.ceil((waitTime - elapsed) / 1000);
-                if (remaining > 0) { 
-                    timerEl.innerText = remaining; 
-                } else { 
-                    clearInterval(bonusInterval); 
-                    timerEl.innerText = "0"; 
-                    btn.disabled = false; 
-                    btn.classList.add('ready'); 
-                    btn.innerText = "KLAIM BONUS"; 
+
+            adVerifier.startVerification()
+                .then(() => {
+                    timerEl.innerText = "0"; btn.disabled = false; btn.classList.add('ready'); btn.innerText = "KLAIM BONUS"; 
                     btn.onclick = () => { 
-                        document.getElementById('bonusOverlay').style.display = 'none'; 
-                        adWasOpen = false; 
-                        coins += 200; 
-                        adsWatched++; 
-                        localStorage.setItem('hans_coins', coins); 
-                        localStorage.setItem('hanscut_ads_watched', adsWatched); 
-                        updatePlayerCoins(200); 
-                        updateUI(); 
-                        alert('🎉 Dapat 200 koin!'); 
+                        overlay.style.display = 'none'; adWasOpen=false; lastBonusTime = Date.now();
+                        coins+=200; adsWatched++; localStorage.setItem('hans_coins', coins); localStorage.setItem('hanscut_ads_watched', adsWatched); 
+                        updatePlayerCoins(200); updateUI(); alert('🎉 Dapat 200 koin!'); 
                     };
-                } 
-            }, 100);
+                })
+                .catch((error) => {
+                    timerEl.innerText = "✖"; btn.disabled = true; btn.classList.add('failed'); btn.innerText = "❌ Reward Dibatalkan";
+                    statusText.style.display = 'block'; statusText.innerText = '⚠️ Anda menutup/minimize tab saat iklan berjalan. Reward tidak diberikan.';
+                    setTimeout(() => { overlay.style.display = 'none'; adWasOpen = false; }, 3000);
+                });
         }
 
-        function showWithdraw() { 
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('withdrawMenu').classList.remove('hidden'); 
-            document.getElementById('wdBalanceRupiah').innerText = Math.floor(coins/50).toLocaleString('id-ID'); 
-            document.getElementById('wdAdsWatched').innerText = adsWatched; 
-            document.getElementById('wdAdsTarget').innerText = ADS_REQUIRED; 
-        }
+        // ==========================================
+        // 💸 WITHDRAW MODAL (TIER SELECTION)
+        // ==========================================
+        function showWithdraw() {
+            const rupiah = Math.floor(coins / 50);
+            document.getElementById('wdSaldo').innerText = rupiah.toLocaleString('id-ID');
+            document.getElementById('wdAdsCount').innerText = adsWatched;
+            document.getElementById('wdTierDisplay').innerText = '#' + (wdCount + 1);
+            
+            const nextTierNum = Math.min(wdCount + 1, 3);
+            const isVip = (nextTierNum === 1) && isVipHariIni(playerId);
+            document.getElementById('vipBadgeDisplay').innerHTML = isVip ? '<span class="vip-badge">⭐ VIP HARI INI</span>' : '';
 
-        function openInputModal() { 
-            document.getElementById('inputModal').style.display = 'flex'; 
-        }
+            const tierContainer = document.getElementById('tierButtons');
+            tierContainer.innerHTML = '';
 
-        function finalizeWithdrawal() {
-            let dana = document.getElementById('inputDana').value; 
-            let name = document.getElementById('inputName').value;
-            if (coins < 50000) { 
-                alert('Koin belum cukup! Butuh 50.000'); 
-                return; 
-            }
-            if (adsWatched < ADS_REQUIRED) { 
-                alert(`Butuh ${ADS_REQUIRED} iklan! Kamu baru ${adsWatched}`); 
-                return; 
-            }
-            db.collection('withdrawals').add({ 
-                playerId, 
-                danaNumber: dana, 
-                accountName: name.toUpperCase(), 
-                amountRupiah: 1000, 
-                amountCoins: 50000, 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
-                status: 'pending', 
-                source: 'HansCutFruit', 
-                gameName: 'Hans Cut Fruit', 
-                adsWatched: ADS_REQUIRED 
-            }).then(() => {
-                coins -= 50000; 
-                adsWatched = 0; 
-                wdClicks = 0; 
-                localStorage.setItem('hans_coins', coins); 
-                localStorage.setItem('hanscut_ads_watched', 0); 
-                localStorage.setItem('hans_wd_clicks', 0);
-                if (isFirstWD) { 
-                    localStorage.setItem('hans_first_wd_done', 'true'); 
-                    isFirstWD = false; 
+            for (let i = 1; i <= 3; i++) {
+                const tier = WD_TIERS[i];
+                const btn = document.createElement('div');
+                btn.className = 'tier-btn';
+                const requiredAds = (i === 1 && isVipHariIni(playerId)) ? tier.adsVip : tier.adsNormal;
+                const canAffordCoins = coins >= tier.coins;
+                const canAffordAds = adsWatched >= requiredAds;
+                const isCurrentTier = (wdCount + 1 === i) || (i === 3 && wdCount >= 2);
+                let isDone = false;
+                if (i === 1 && wdCount >= 1) isDone = true;
+                if (i === 2 && wdCount >= 2) isDone = true;
+
+                if (isDone) {
+                    btn.classList.add('done');
+                    btn.innerHTML = `<span>✅ ${tier.label}</span><span class="tier-req">Sudah</span>`;
+                } else if (!isCurrentTier && !isDone) {
+                    btn.classList.add('locked');
+                    btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Belum unlock</span>`;
+                } else {
+                    if (canAffordCoins && canAffordAds) {
+                        btn.classList.add('active');
+                        btn.innerHTML = `<span>💰 ${tier.label}</span><span class="tier-req">✅ Siap</span>`;
+                        btn.onclick = () => selectTier(i, btn);
+                    } else {
+                        btn.classList.add('locked');
+                        const missing = [];
+                        if (!canAffordCoins) missing.push(`${tier.coins.toLocaleString()} koin`);
+                        if (!canAffordAds) missing.push(`${requiredAds} iklan`);
+                        btn.innerHTML = `<span> ${tier.label}</span><span class="tier-req">Butuh: ${missing.join(' & ')}</span>`;
+                    }
                 }
-                alert('✅ WD Terkirim!'); 
-                closeModal('inputModal'); 
-                showMainMenu();
-            }).catch(e => alert('Error: ' + e.message));
+                tierContainer.appendChild(btn);
+            }
+
+            document.getElementById('wdSummary').style.display = 'none';
+            document.getElementById('wdSubmitBtn').disabled = true;
+            document.getElementById('inputDana').value = '';
+            document.getElementById('inputName').value = '';
+            selectedWdTier = null;
+
+            document.getElementById('wdModal').style.display = 'flex';
+        }
+
+        function selectTier(tierNum, btnElement) {
+            document.querySelectorAll('.tier-btn.active').forEach(b => b.classList.remove('selected'));
+            selectedWdTier = tierNum; btnElement.classList.add('selected');
+            const tier = WD_TIERS[tierNum];
+            const isVip = (tierNum === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? tier.adsVip : tier.adsNormal;
+            const sisaKoin = coins - tier.coins;
+            const sisaRupiah = Math.floor(sisaKoin / 50);
+            document.getElementById('summaryTier').innerText = `WD #${tierNum}${isVip ? ' [VIP]' : ''}`;
+            document.getElementById('summaryAmount').innerText = `Rp ${tier.amount.toLocaleString('id-ID')}`;
+            document.getElementById('summaryCoins').innerText = tier.coins.toLocaleString('id-ID') + ' koin';
+            document.getElementById('summaryAds').innerText = requiredAds + ' iklan';
+            document.getElementById('summaryRemain').innerText = `${sisaKoin.toLocaleString('id-ID')} koin (Rp ${sisaRupiah.toLocaleString('id-ID')})`;
+            document.getElementById('wdSummary').style.display = 'block';
+            document.getElementById('wdSubmitBtn').disabled = false;
+        }
+
+        // ==========================================
+        // 💸 PROSES WD DENGAN NOTIFIKASI WABLAS
+        // ==========================================
+        async function processWD() {
+            if (!selectedWdTier) { alert('Pilih tier WD dulu!'); return; }
+            const dana = document.getElementById('inputDana').value.trim();
+            const name = document.getElementById('inputName').value.trim();
+            const tier = WD_TIERS[selectedWdTier];
+            const isVip = (selectedWdTier === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? tier.adsVip : tier.adsNormal;
+
+            if (dana.length < 10 || !dana.startsWith('08')) { alert('Nomor DANA tidak valid! Harus mulai dengan 08 dan minimal 10 digit.'); return; }
+            if (name.length < 3) { alert('Nama pemilik terlalu pendek!'); return; }
+            if (coins < tier.coins) { alert(`Koin belum cukup! Butuh ${tier.coins.toLocaleString()} koin.`); return; }
+            if (adsWatched < requiredAds) { alert(`Iklan belum cukup! Butuh ${requiredAds} iklan, kamu baru ${adsWatched}.`); return; }
+
+            const sisaKoin = coins - tier.coins;
+            const sisaRupiah = Math.floor(sisaKoin / 50);
+            const confirmMsg = `Konfirmasi WD:\n\nTier: WD #${selectedWdTier}${isVip ? ' [VIP]' : ''}\nNominal: Rp ${tier.amount.toLocaleString('id-ID')}\nDANA: ${dana}\nNama: ${name.toUpperCase()}\nSisa koin setelah WD: ${sisaKoin.toLocaleString()} (Rp ${sisaRupiah.toLocaleString()})\n\nLanjutkan?`;
+            if (!confirm(confirmMsg)) return;
+
+            const submitBtn = document.getElementById('wdSubmitBtn');
+            submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
+
+            try {
+                const vipTag = isVip ? ' [VIP]' : '';
+                const notifPesan = `💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🔪 ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n ${adsWatched} iklan\n Sisa koin: ${sisaKoin.toLocaleString()}`;
+                await kirimNotifWablas(notifPesan);
+
+                await db.collection('withdrawals').add({
+                    playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(),
+                    amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip,
+                    gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                const newWdCount = wdCount + 1;
+                const newCoins = coins - tier.coins;
+                await db.collection('players').doc(playerId).update({
+                    wdCount: newWdCount, totalCoins: newCoins, adsWatched: 0,
+                    lastWdTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastWdTier: selectedWdTier, lastWdAmount: tier.amount
+                });
+
+                wdCount = newWdCount; coins = newCoins; adsWatched = 0;
+                localStorage.setItem('hans_coins', coins);
+                localStorage.setItem('hanscut_ads_watched', 0);
+
+                alert(`✅ WD #${selectedWdTier} berhasil dikirim!\n\nNotifikasi sudah masuk ke Admin.\nSisa koin kamu: ${coins.toLocaleString()} (Rp ${Math.floor(coins/50).toLocaleString()})`);
+                closeModal('wdModal'); updateUI();
+            } catch (error) {
+                console.error('Error WD:', error); alert('❌ Gagal memproses WD: ' + error.message);
+            } finally {
+                submitBtn.disabled = false; submitBtn.innerText = 'Kirim Permintaan WD';
+            }
+        }
+
+        // ==========================================
+        // 📜 HISTORY
+        // ==========================================
+        function showHistory() {
+            document.getElementById('historyModal').style.display = 'flex';
+            const list = document.getElementById('historyList');
+            if (historyListener) historyListener();
+            historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                list.innerHTML = '';
+                if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>'; return; }
+                snapshot.forEach(doc => {
+                    const w = doc.data();
+                    const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-';
+                    let statusText = '⏳ Proses', statusClass = 'status-pending';
+                    if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; }
+                    else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; }
+                    else if (w.status === 'refunded') { statusText = '💰 Refund'; statusClass = 'status-refunded'; }
+                    const vipTag = w.isVip ? ' <span class="vip-badge">VIP</span>' : '';
+                    list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || '-'}${vipTag}<br>${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🔪 ${GAME_NAME}</span></div>`;
+                });
+            }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
         }
 
         function updateUI() {
             document.getElementById('menuBalance').innerText = coins.toLocaleString('id-ID');
             document.getElementById('menuRupiah').innerText = Math.floor(coins/50).toLocaleString('id-ID');
             document.getElementById('coinDisplay').innerText = coins.toLocaleString('id-ID');
-            document.getElementById('wdProgress').innerText = wdClicks;
-            document.getElementById('wdTargetMenu').innerText = ADS_REQUIRED;
-            document.getElementById('wdProgressBar').style.width = ((wdClicks/ADS_REQUIRED)*100)+'%';
+
+            const nextTierNum = Math.min(wdCount + 1, 3);
+            const nextTier = WD_TIERS[nextTierNum];
+            const isVip = (nextTierNum === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? nextTier.adsVip : nextTier.adsNormal;
+
+            document.getElementById('wdProgressLabel').innerText = `Iklan: ${adsWatched}/${requiredAds} untuk WD #${nextTierNum}${isVip ? ' [VIP]' : ''}`;
+            const progressPercent = Math.min((adsWatched / requiredAds) * 100, 100);
+            document.getElementById('wdProgressBar').style.width = progressPercent + '%';
         }
 
         canvas.addEventListener('mousedown', launchKnife);

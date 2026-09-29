@@ -13,7 +13,10 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; height: 100vh; }
+        
+        /* ✅ FIX: Touch action none di canvas */
         #gameCanvas { display: block; width: 100%; height: 100vh; background: linear-gradient(to bottom, #ff9a9e 0%, #fad0c4 50%, #a8edea 100%); position: absolute; top: 0; left: 0; z-index: 1; touch-action: none; }
+        
         .ui-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); z-index: 100; padding: 20px; overflow-y: auto; }
         .hidden { display: none !important; }
         .box { background: rgba(255,255,255,0.95); border-radius: 25px; padding: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
@@ -96,7 +99,7 @@
     <div id="gameOverOverlay" class="center-overlay">
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
-            <h2 style="color:white;">💥 GAME OVER!</h2>
+            <h2 style="color:white;"> GAME OVER!</h2>
             <p style="color:#fff; margin:10px 0;">Tonton iklan untuk dapat 100 koin & Main Lagi</p>
             <div class="timer-text" id="adTimer">5</div>
             <button id="adBtn" class="overlay-btn" disabled>TUNGGU...</button>
@@ -137,7 +140,7 @@
 
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box">
-            <h2>📜 Riwayat Penarikan</h2>
+            <h2> Riwayat Penarikan</h2>
             <div id="historyList" style="max-height:350px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center; padding: 20px;">Memuat data...</p></div>
             <button class="btn btn-secondary" onclick="closeModal('historyModal')">Tutup</button>
         </div>
@@ -192,7 +195,7 @@
 
         db.collection('players').doc(playerId).get().then(doc => { if (doc.exists && doc.data().wdCount) wdCount = doc.data().wdCount; updateUI(); }).catch(err => console.error(err));
 
-        const fruitTypes = [ { emoji: '🍎', name: 'apel', color: '#FF3B30' }, { emoji: '🍊', name: 'jeruk', color: '#FF9500' }, { emoji: '🍋', name: 'lemon', color: '#FFEB3B' }, { emoji: '🍉', name: 'semangka', color: '#FF4757' }, { emoji: '🍇', name: 'anggur', color: '#9B59B6' }, { emoji: '🍓', name: 'stroberi', color: '#FF2D55' } ];
+        const fruitTypes = [ { emoji: '🍎', name: 'apel', color: '#FF3B30' }, { emoji: '', name: 'jeruk', color: '#FF9500' }, { emoji: '', name: 'lemon', color: '#FFEB3B' }, { emoji: '', name: 'semangka', color: '#FF4757' }, { emoji: '', name: 'anggur', color: '#9B59B6' }, { emoji: '', name: 'stroberi', color: '#FF2D55' } ];
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -221,6 +224,7 @@
                 ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 10; 
                 ctx.fillText(this.emoji, 0, 0); ctx.restore(); 
             }
+            // ✅ FIX: Hitbox 80% biar gampang di-tap
             checkHit(clickX, clickY) { return Math.hypot(clickX - this.x, clickY - this.y) < this.size * 0.8; }
         }
         class Particle {
@@ -259,7 +263,6 @@
                 updatePlayerCoins(50);
                 updateUI();
                 gameState = 'playing';
-                forceResumeGame();
             });
         }
 
@@ -269,9 +272,7 @@
             ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height); 
         }
 
-        // ✅ ANTI-STUCK: Loop ID global + force resume
-        let gameLoopId = null;
-
+        // ✅ LOOP TIDAK PERNAH MATI
         function animate() {
             drawBackground();
 
@@ -297,24 +298,11 @@
                 fruits.forEach(f => { if (!f.collected) f.draw(); });
             }
 
-            gameLoopId = requestAnimationFrame(animate);
+            requestAnimationFrame(animate); // SELALU PANGGIL
         }
         
-        // Start loop
-        gameLoopId = requestAnimationFrame(animate);
-
-        // ✅ FORCE RESUME: Cancel loop lama, start baru
-        function forceResumeGame() {
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-            gameLoopId = requestAnimationFrame(animate);
-            // Backup: setTimeout untuk double-ensure
-            setTimeout(() => {
-                if (gameState === 'playing') {
-                    cancelAnimationFrame(gameLoopId);
-                    gameLoopId = requestAnimationFrame(animate);
-                }
-            }, 100);
-        }
+        // Start loop sekali aja
+        requestAnimationFrame(animate);
 
         canvas.addEventListener('pointerdown', (e) => {
             if (gameState !== 'playing') return;
@@ -345,8 +333,6 @@
             document.getElementById('backToMenuBtn').style.display = 'block';
             
             for (let i = 0; i < 3; i++) { setTimeout(() => spawnFruit(), i * 400); }
-            
-            forceResumeGame();
         }
 
         function endGame() {
@@ -366,11 +352,10 @@
             document.querySelectorAll('.center-overlay').forEach(el => el.style.display = 'none'); 
             document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none'); 
             showMainMenu(); 
-            forceResumeGame();
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // ✅ SIMPLE TIMER (NO AdVerifier) - Pasti jalan
+        // ✅ SIMPLE TIMER - PASTI JALAN
         function showInterstitialAd(title, desc, callback) {
             window.open(ADSTERRA_DIRECT_LINK, '_blank');
             const overlay = document.getElementById('gameOverOverlay');
@@ -402,7 +387,6 @@
                         localStorage.setItem('cocktail_ads_watched', adsWatched);
                         updateUI();
                         if (callback) callback();
-                        forceResumeGame();
                     };
                 }
             }, 1000);
@@ -448,7 +432,7 @@
                         localStorage.setItem('cocktail_ads_watched', adsWatched);
                         updatePlayerCoins(200);
                         updateUI();
-                        alert(' Dapat 200 koin!');
+                        alert('🎉 Dapat 200 koin!');
                     };
                 }
             }, 1000);

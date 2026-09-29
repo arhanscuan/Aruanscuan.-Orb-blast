@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Fusion Fruit - Main & Menang!</title>
+    <script src="https://pl31442264.profitableratecpmnetwork.com/a6/41/0d/a6410db42b68623bf2daa7e1fcff5615.js"></script>
     <script src="https://pl31442267.profitableratecpmnetwork.com/19/d8/90/19d890f4cf4d1300a62675e0144f2a64.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -35,7 +36,7 @@
         .progress-bar { height: 100%; background: linear-gradient(90deg, #2ed573 0%, #7bed9f 100%); width: 0%; transition: width 0.3s; }
         .wd-text { font-size: 11px; color: #7f8c8d; margin-top: 5px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-box { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .modal-box.scrollable { max-height: 80vh; overflow-y: auto; }
         .history-item { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-left: 4px solid #f1c40f; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -51,6 +52,7 @@
         .interstitial-timer { font-size: 48px; font-weight: 800; color: #667eea; margin: 10px 0; }
         .interstitial-btn { background: #bdc3c7; color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 18px; font-weight: bold; width: 100%; cursor: not-allowed; transition: all 0.3s; }
         .interstitial-btn.ready { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; cursor: pointer; animation: pulse 1.5s infinite; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4); }
+        .interstitial-btn.failed { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; cursor: not-allowed; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
         .close-btn { position: absolute; top: 15px; right: 15px; background: #ecf0f1; color: #7f8c8d; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
         .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); touch-action: manipulation; }
@@ -58,16 +60,32 @@
         .wd-input { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ecf0f1; border-radius: 12px; font-size: 16px; outline: none; }
         .wd-input:focus { border-color: #667eea; }
         .wd-info-text { font-size: 12px; color: #e74c3c; margin: 8px 0; font-weight: bold; }
+        
+        /*  TIER SELECTION STYLES */
+        .tier-info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; }
+        .tier-info strong { font-size: 16px; }
+        .tier-buttons { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .tier-btn { padding: 12px; border-radius: 12px; border: 2px solid #ecf0f1; background: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+        .tier-btn.active { border-color: #667eea; background: #f0f4ff; color: #667eea; }
+        .tier-btn.active.selected { border-color: #2ed573; background: #e8f8f0; color: #2ed573; }
+        .tier-btn.locked { opacity: 0.5; cursor: not-allowed; background: #f8f9fa; }
+        .tier-btn.done { opacity: 0.6; cursor: not-allowed; background: #f8f9fa; text-decoration: line-through; }
+        .tier-req { font-size: 11px; color: #95a5a6; font-weight: normal; }
+        .wd-summary { background: #f8f9fa; padding: 12px; border-radius: 12px; margin: 10px 0; font-size: 13px; text-align: left; }
+        .wd-summary-row { display: flex; justify-content: space-between; margin: 4px 0; }
+        .wd-summary-row strong { color: #2c3e50; }
+        .vip-badge { display: inline-block; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; margin-left: 5px; }
+        .cooldown-text { font-size: 11px; color: #e74c3c; margin-top: 5px; }
     </style>
 </head>
 <body>
 
     <div id="landingPage">
-        <div class="landing-logo"></div>
+        <div class="landing-logo">🍉</div>
         <h1 class="landing-title">Fusion Fruit</h1>
         <div class="instruction-box">
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk layar untuk menjatuhkan buah.</span></div>
-            <div class="instruction-item"><span class="instruction-icon"></span> <span>Gabungkan <b>2 buah sama</b> jadi lebih besar!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">🔄</span> <span>Gabungkan <b>2 buah sama</b> jadi lebih besar!</span></div>
             <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan sampai numpuk lewat garis merah!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Tonton iklan, kumpulkan Rupiah, dan Tarik Saldo!</span></div>
         </div>
@@ -93,7 +111,7 @@
             </div>
             <div>
                 <div class="progress-container"><div class="progress-bar" id="wdProgressBar"></div></div>
-                <div class="wd-text">Target WD: <span id="wdProgressText">0</span>/50 Fusion</div>
+                <div class="wd-text" id="wdProgressText">Iklan: 0/100 untuk WD #1</div>
             </div>
         </div>
     </div>
@@ -109,46 +127,200 @@
 
     <div id="interstitialOverlay" class="interstitial-overlay">
         <div class="interstitial-box">
-            <button class="close-btn" id="adCloseBtn" onclick="forceCloseAds()" style="display:none;"></button>
+            <button class="close-btn" id="adCloseBtn" onclick="forceCloseAds()" style="display:none;">✖</button>
             <h2 id="interstitialTitle" style="color:#2c3e50; margin-bottom:5px; font-size: 22px;">🎁 Hadiah Spesial!</h2>
             <p id="interstitialDesc" style="color:#7f8c8d; font-size:14px;">Tonton iklan singkat ini...</p>
             <div id="fusionRewardDisplay" class="reward-amount">Rp 0</div>
             <div class="interstitial-timer" id="interstitialTimer">5</div>
             <button id="interstitialBtn" class="interstitial-btn" disabled>Tunggu Iklan...</button>
+            <div id="adStatusText" class="cooldown-text" style="display:none;"></div>
         </div>
     </div>
 
     <div id="wdModal" class="modal-overlay">
-        <div class="modal-box">
-            <h2 style="color:#2c3e50; margin-bottom:15px;">💸 Tarik Saldo</h2>
-            <p style="margin:10px 0; font-size:14px;">Saldo: Rp <span id="wdSaldo">0</span></p>
-            <p style="margin:10px 0; font-size:14px; color:#e74c3c;">Iklan: <span id="wdAdsCount">0</span>/30</p>
-            <!-- INFO MINIMAL WD DINAMIS -->
-            <p id="wdMinInfo" class="wd-info-text">Minimal WD pertama: Rp 1.000</p>
-            <input type="number" id="wdDana" placeholder="Nomor DANA" class="wd-input">
-            <input type="text" id="wdName" placeholder="Nama Pemilik" class="wd-input">
-            <button class="btn-action" onclick="processWD()">Kirim Permintaan</button>
+        <div class="modal-box scrollable">
+            <h2 style="color:#2c3e50; margin-bottom:10px;">💸 Tarik Saldo</h2>
+            
+            <div class="tier-info">
+                <div>📊 WD Kamu: <strong id="wdTierDisplay">#1</strong><span id="vipBadgeDisplay"></span></div>
+                <div style="margin-top:5px;">💰 Saldo: Rp <span id="wdSaldo">0</span></div>
+                <div style="margin-top:5px;">📺 Iklan Ditonton: <span id="wdAdsCount">0</span></div>
+            </div>
+
+            <div class="tier-buttons" id="tierButtons">
+                <!-- Diisi dinamis oleh JS -->
+            </div>
+
+            <div id="wdSummary" class="wd-summary" style="display:none;">
+                <div class="wd-summary-row"><span>Tier Terpilih:</span><strong id="summaryTier">-</strong></div>
+                <div class="wd-summary-row"><span>Nominal:</span><strong id="summaryAmount">-</strong></div>
+                <div class="wd-summary-row"><span>Butuh Koin:</span><strong id="summaryCoins">-</strong></div>
+                <div class="wd-summary-row"><span>Butuh Iklan:</span><strong id="summaryAds">-</strong></div>
+                <div class="wd-summary-row"><span>Sisa Koin Setelah WD:</span><strong id="summaryRemain">-</strong></div>
+            </div>
+
+            <input type="number" id="wdDana" placeholder="Nomor DANA (08xxx)" class="wd-input">
+            <input type="text" id="wdName" placeholder="Nama Pemilik Rekening" class="wd-input">
+            <button class="btn-action" id="wdSubmitBtn" onclick="processWD()" disabled>Kirim Permintaan WD</button>
             <button class="btn-action btn-close" onclick="closeModal('wdModal')">Batal</button>
         </div>
     </div>
 
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box scrollable">
-            <h2 style="color:#2c3e50; margin-bottom:15px;">📜 Riwayat WD</h2>
+            <h2 style="color:#2c3e50; margin-bottom:15px;"> Riwayat WD</h2>
             <div id="historyList" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center;">Memuat data...</p></div>
             <button class="btn-action btn-close" onclick="closeModal('historyModal')">Tutup</button>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
-        firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
+        // ==========================================
+        // 🔥 FIREBASE CONFIG
+        // ==========================================
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", 
+            authDomain: "hansorbblast.firebaseapp.com", 
+            projectId: "hansorbblast", 
+            storageBucket: "hansorbblast.firebasestorage.app", 
+            messagingSenderId: "562424899290", 
+            appId: "1:562424899290:web:75e0c912db1ada3341e7e3" 
+        };
+        firebase.initializeApp(firebaseConfig); 
+        const db = firebase.firestore();
 
-        const SECRET_SALT = "ARHUANSCUAN_CUAN_2024_XYZ_RANDOM"; 
-        function getLuckyScore(playerId) { let hash = 0; const str = playerId + SECRET_SALT; for (let i = 0; i < str.length; i++) { hash = ((hash << 5) - hash) + str.charCodeAt(i); hash |= 0; } return Math.abs(hash) % 100; }
-        function isFastTrackPlayer(playerId) { return getLuckyScore(playerId) < 20; }
+        // ==========================================
+        // 📱 WABLAS CONFIG
+        // ==========================================
+        const WABLAS_CONFIG = {
+            baseUrl: 'https://jkt.wablas.com',
+            token: 'NHUrrZcRnOXdA77e5UGtg4Fzz5O0zTvKMW3ofpdgtDKizqQIusuOTVv',
+            adminPhone: '6285884026882'
+        };
 
-        // ✅ SISTEM ADMIN TERHUBUNG (FIX NAMA GAME MASUK)
+        // ==========================================
+        // 💰 WD TIERS CONFIG
+        // ==========================================
+        const WD_TIERS = {
+            1: { amount: 1000, coins: 50000, adsNormal: 100, adsVip: 50, oneTime: true, label: 'WD #1 - Rp 1.000' },
+            2: { amount: 5000, coins: 250000, adsNormal: 500, adsVip: 500, oneTime: true, label: 'WD #2 - Rp 5.000' },
+            3: { amount: 10000, coins: 500000, adsNormal: 1000, adsVip: 1000, oneTime: false, label: 'WD #3+ - Rp 10.000' }
+        };
+
+        const GAME_NAME = 'Fusion Fruit';
+        const GAME_SOURCE = 'FusionFruit';
+
+        // ==========================================
+        // 📱 FUNGSI KIRIM NOTIFIKASI WABLAS
+        // ==========================================
+        async function kirimNotifWablas(pesan) {
+            try {
+                const response = await fetch(`${WABLAS_CONFIG.baseUrl}/api/send-message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': WABLAS_CONFIG.token
+                    },
+                    body: JSON.stringify({
+                        phone: WABLAS_CONFIG.adminPhone,
+                        message: pesan
+                    })
+                });
+                const result = await response.json();
+                if (result.status || result.data) {
+                    console.log('✅ Notifikasi Wablas terkirim');
+                    return true;
+                } else {
+                    console.error('❌ Gagal kirim Wablas:', result);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Error Wablas:', error);
+                return false;
+            }
+        }
+
+        // ==========================================
+        // 🎰 ALGORITMA VIP HARIAN (20% PLAYER)
+        // ==========================================
+        function isVipHariIni(playerId) {
+            const today = new Date().toDateString();
+            const hash = playerId + today + 'VIP_DAILY_2024_FUSION';
+            let hashValue = 0;
+            for (let i = 0; i < hash.length; i++) {
+                hashValue = ((hashValue << 5) - hashValue) + hash.charCodeAt(i);
+                hashValue |= 0;
+            }
+            return Math.abs(hashValue) % 100 < 20;
+        }
+
+        // ==========================================
+        // 🛡️ VERIFIKASI IKLAN ANTI-CHEAT
+        // ==========================================
+        class AdVerifier {
+            constructor() {
+                this.isVerifying = false;
+                this.startTime = 0;
+                this.requiredDuration = 5000;
+                this.checkInterval = null;
+                this.hasLostFocus = false;
+                this.hasHidden = false;
+                this.onBlurHandler = null;
+                this.onVisibilityHandler = null;
+            }
+
+            startVerification() {
+                return new Promise((resolve, reject) => {
+                    if (this.isVerifying) {
+                        reject('Sedang verifikasi iklan lain');
+                        return;
+                    }
+
+                    this.isVerifying = true;
+                    this.startTime = Date.now();
+                    this.hasLostFocus = false;
+                    this.hasHidden = false;
+
+                    this.onBlurHandler = () => { this.hasLostFocus = true; };
+                    this.onVisibilityHandler = () => { 
+                        if (document.hidden) this.hasHidden = true; 
+                    };
+
+                    window.addEventListener('blur', this.onBlurHandler);
+                    document.addEventListener('visibilitychange', this.onVisibilityHandler);
+
+                    this.checkInterval = setInterval(() => {
+                        const elapsed = Date.now() - this.startTime;
+
+                        if (this.hasLostFocus || this.hasHidden) {
+                            this.stopVerification();
+                            reject('Iklan tidak ditonton dengan benar');
+                            return;
+                        }
+
+                        if (elapsed >= this.requiredDuration) {
+                            this.stopVerification();
+                            resolve(true);
+                        }
+                    }, 100);
+                });
+            }
+
+            stopVerification() {
+                this.isVerifying = false;
+                clearInterval(this.checkInterval);
+                if (this.onBlurHandler) window.removeEventListener('blur', this.onBlurHandler);
+                if (this.onVisibilityHandler) document.removeEventListener('visibilitychange', this.onVisibilityHandler);
+            }
+        }
+
+        const adVerifier = new AdVerifier();
+        let lastBonusTime = 0;
+        const BONUS_COOLDOWN = 30000; // 30 detik
+
+        // ==========================================
+        // 👤 PLAYER INIT
+        // ==========================================
         function initPlayer() {
             let pid = localStorage.getItem('hans_player_id');
             if (!pid) {
@@ -156,9 +328,11 @@
                 localStorage.setItem('hans_player_id', pid);
             }
             db.collection('players').doc(pid).set({
-                playerId: pid, totalCoins: parseInt(localStorage.getItem('hans_coins')) || 0,
+                playerId: pid,
+                totalCoins: parseInt(localStorage.getItem('hans_coins')) || 0,
                 firstVisit: firebase.firestore.FieldValue.serverTimestamp(),
-                lastVisit: firebase.firestore.FieldValue.serverTimestamp(), status: 'active'
+                lastVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'active'
             }, { merge: true }).catch(err => console.error(err));
             return pid;
         }
@@ -167,54 +341,57 @@
         function trackGamePlay(gameName) {
             if (!playerId) return;
             db.collection('players').doc(playerId).set({
-                lastPlayedGame: gameName, lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
+                lastPlayedGame: gameName,
+                lastPlayedTime: firebase.firestore.FieldValue.serverTimestamp(),
                 gamesPlayed: firebase.firestore.FieldValue.arrayUnion(gameName)
             }, { merge: true }).catch(err => console.error(err));
         }
 
+        // ==========================================
+        // 💾 STATE
+        // ==========================================
         let coins = parseInt(localStorage.getItem('hans_coins')) || 0;
-        let wdClicks = parseInt(localStorage.getItem('hans_wd_clicks')) || 0;
-        const WD_TARGET = 50;
+        let wdClicks = parseInt(localStorage.getItem('fusion_wd_clicks')) || 0;
         let adsWatched = parseInt(localStorage.getItem('fusion_ads_watched')) || 0;
         let mergeCount = 0;
-        let adWasOpen = false; let historyListener = null; let interstitialInterval = null;
+        let adWasOpen = false;
+        let historyListener = null;
+        let interstitialInterval = null;
+        let wdCount = 0; // WD ke-berapa player ini
+        let selectedWdTier = null;
 
-        // ============================================
-        // 🆕 LOGIKA BARU: CEK STATUS PERNAH WD ATAU BELUM
-        // ============================================
-        let hasWithdrawnBefore = localStorage.getItem('fusion_has_withdrawn') === 'true';
-        let minWithdrawAmount = hasWithdrawnBefore ? 5000 : 1000;
-
-        // Sinkronisasi status dari Firestore (jika ada data lama)
+        // Load wdCount dari Firestore
         db.collection('players').doc(playerId).get().then(doc => {
-            if (doc.exists && doc.data().hasWithdrawnBefore === true) {
-                hasWithdrawnBefore = true;
-                minWithdrawAmount = 5000;
-                localStorage.setItem('fusion_has_withdrawn', 'true');
+            if (doc.exists && doc.data().wdCount) {
+                wdCount = doc.data().wdCount;
             }
-        }).catch(err => console.error('Gagal cek status WD:', err));
+            updateUI();
+        }).catch(err => console.error('Gagal load wdCount:', err));
 
+        // ==========================================
+        // 🎁 HITUNG REWARD BAIT
+        // ==========================================
         function calculateBaitReward() {
-            const isLucky = isFastTrackPlayer(playerId);
+            const isLucky = isVipHariIni(playerId);
             let reward = 0;
             if (isLucky) {
-                if (adsWatched < 5) reward = (Math.floor(Math.random() * 5) + 5) * 10000; 
-                else reward = (Math.floor(Math.random() * 3) + 2) * 1000; 
+                if (adsWatched < 5) reward = (Math.floor(Math.random() * 5) + 5) * 10000;
+                else reward = (Math.floor(Math.random() * 3) + 2) * 1000;
             } else {
-                if (adsWatched < 3) reward = 500; 
-                else reward = Math.floor(Math.random() * 40) + 10; 
+                if (adsWatched < 3) reward = 500;
+                else reward = Math.floor(Math.random() * 40) + 10;
             }
             return { amount: reward, isLucky: isLucky };
         }
 
-        function forceCloseAds() { document.getElementById('interstitialOverlay').style.display = 'none'; clearInterval(interstitialInterval); adWasOpen = false; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
+        // ==========================================
+        //  GAME FLOW
+        // ==========================================
         function startGameFromLanding() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'flex';
             document.getElementById('gameOverModal').style.display = 'none';
-            trackGamePlay('FusionFruit');
+            trackGamePlay(GAME_NAME);
             initGame();
         }
 
@@ -224,150 +401,404 @@
             document.getElementById('landingPage').style.display = 'flex';
         }
 
+        function forceCloseAds() {
+            document.getElementById('interstitialOverlay').style.display = 'none';
+            clearInterval(interstitialInterval);
+            adVerifier.stopVerification();
+            adWasOpen = false;
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // ==========================================
+        //  UPDATE UI
+        // ==========================================
         function updateUI() {
             const rupiah = Math.floor(coins / 50);
             document.getElementById('coinDisplay').innerText = coins.toLocaleString('id-ID');
             document.getElementById('rupiahDisplay').innerText = rupiah.toLocaleString('id-ID');
-            document.getElementById('wdProgressText').innerText = wdClicks;
-            document.getElementById('wdProgressBar').style.width = ((wdClicks / WD_TARGET) * 100) + '%';
+
+            // Hitung tier berikutnya
+            const nextTierNum = Math.min(wdCount + 1, 3);
+            const nextTier = WD_TIERS[nextTierNum];
+            const isVip = (nextTierNum === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? nextTier.adsVip : nextTier.adsNormal;
+
+            document.getElementById('wdProgressText').innerText = `Iklan: ${adsWatched}/${requiredAds} untuk WD #${nextTierNum}${isVip ? ' [VIP]' : ''}`;
+            const progressPercent = Math.min((adsWatched / requiredAds) * 100, 100);
+            document.getElementById('wdProgressBar').style.width = progressPercent + '%';
+        }
+
+        // ==========================================
+        // 💸 WITHDRAW MODAL (TIER SELECTION)
+        // ==========================================
+        function showWithdraw() {
+            const rupiah = Math.floor(coins / 50);
             document.getElementById('wdSaldo').innerText = rupiah.toLocaleString('id-ID');
             document.getElementById('wdAdsCount').innerText = adsWatched;
+            document.getElementById('wdTierDisplay').innerText = '#' + (wdCount + 1);
             
-            // 🆕 Update info minimal WD di modal
-            const minInfoEl = document.getElementById('wdMinInfo');
-            if (minInfoEl) {
-                if (hasWithdrawnBefore) {
-                    minInfoEl.innerText = 'Minimal WD berikutnya: Rp 5.000';
+            const nextTierNum = Math.min(wdCount + 1, 3);
+            const isVip = (nextTierNum === 1) && isVipHariIni(playerId);
+            document.getElementById('vipBadgeDisplay').innerHTML = isVip ? '<span class="vip-badge">⭐ VIP HARI INI</span>' : '';
+
+            // Render tier buttons
+            const tierContainer = document.getElementById('tierButtons');
+            tierContainer.innerHTML = '';
+
+            for (let i = 1; i <= 3; i++) {
+                const tier = WD_TIERS[i];
+                const btn = document.createElement('div');
+                btn.className = 'tier-btn';
+                
+                const requiredAds = (i === 1 && isVipHariIni(playerId)) ? tier.adsVip : tier.adsNormal;
+                const canAffordCoins = coins >= tier.coins;
+                const canAffordAds = adsWatched >= requiredAds;
+                const isCurrentTier = (wdCount + 1 === i) || (i === 3 && wdCount >= 2);
+                const isPastTier = (wdCount >= i && i < 3) || (wdCount >= 3 && i === 3 && tier.oneTime === false ? false : wdCount > i);
+                
+                // Logic: tier 1 & 2 oneTime, tier 3 bisa diulang
+                let isDone = false;
+                if (i === 1 && wdCount >= 1) isDone = true;
+                if (i === 2 && wdCount >= 2) isDone = true;
+                // Tier 3 bisa diulang, jadi gak pernah "done"
+
+                if (isDone) {
+                    btn.classList.add('done');
+                    btn.innerHTML = `<span>✅ ${tier.label}</span><span class="tier-req">Sudah</span>`;
+                } else if (!isCurrentTier && !isDone) {
+                    btn.classList.add('locked');
+                    btn.innerHTML = `<span> ${tier.label}</span><span class="tier-req">Belum unlock</span>`;
                 } else {
-                    minInfoEl.innerText = 'Minimal WD pertama: Rp 1.000';
+                    // Current tier
+                    if (canAffordCoins && canAffordAds) {
+                        btn.classList.add('active');
+                        btn.innerHTML = `<span>💰 ${tier.label}</span><span class="tier-req">✅ Siap</span>`;
+                        btn.onclick = () => selectTier(i, btn);
+                    } else {
+                        btn.classList.add('locked');
+                        const missing = [];
+                        if (!canAffordCoins) missing.push(`${tier.coins.toLocaleString()} koin`);
+                        if (!canAffordAds) missing.push(`${requiredAds} iklan`);
+                        btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Butuh: ${missing.join(' & ')}</span>`;
+                    }
                 }
+                tierContainer.appendChild(btn);
             }
+
+            document.getElementById('wdSummary').style.display = 'none';
+            document.getElementById('wdSubmitBtn').disabled = true;
+            document.getElementById('wdDana').value = '';
+            document.getElementById('wdName').value = '';
+            selectedWdTier = null;
+
+            document.getElementById('wdModal').style.display = 'flex';
         }
 
-        function showHistory() {
-            document.getElementById('historyModal').style.display = 'flex'; const list = document.getElementById('historyList');
-            if (historyListener) historyListener();
-            historyListener = db.collection('withdrawals').where('playerId', '==', playerId).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-                list.innerHTML = ''; if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>'; return; }
-                snapshot.forEach(doc => { const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-'; let statusText = ' Proses', statusClass = 'status-pending'; if (w.status === 'success') { statusText = '✅ Sukses (VIP)'; statusClass = 'status-success'; } else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; } else if (w.status === 'refunded') { statusText = ' Refund'; statusClass = 'status-refunded'; }
-                list.innerHTML += `<div class="history-item"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">${date}<br> ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍉 Fusion Fruit</span></div>`; });
-            }, err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>'; });
-        }
-
-        function showWithdraw() { updateUI(); document.getElementById('wdModal').style.display = 'flex'; }
-
-        // ============================================
-        //  FUNGSI processWD YANG SUDAH DIUPDATE
-        // Aturan: WD pertama min 1000, selanjutnya min 5000
-        // ============================================
-        function processWD() {
-            let dana = document.getElementById('wdDana').value; 
-            let name = document.getElementById('wdName').value; 
-            let amount = Math.floor(coins/50);
+        function selectTier(tierNum, btnElement) {
+            // Reset semua button active
+            document.querySelectorAll('.tier-btn.active').forEach(b => b.classList.remove('selected'));
             
-            // 🆕 Validasi minimal WD dinamis
-            if (amount < minWithdrawAmount) {
-                if (hasWithdrawnBefore) {
-                    alert(`Minimal WD berikutnya adalah Rp 5.000! Saldo kamu saat ini Rp ${amount.toLocaleString('id-ID')}.`);
-                } else {
-                    alert(`Minimal WD pertama adalah Rp 1.000! Saldo kamu saat ini Rp ${amount.toLocaleString('id-ID')}.`);
-                }
+            selectedWdTier = tierNum;
+            btnElement.classList.add('selected');
+
+            const tier = WD_TIERS[tierNum];
+            const isVip = (tierNum === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? tier.adsVip : tier.adsNormal;
+            const sisaKoin = coins - tier.coins;
+            const sisaRupiah = Math.floor(sisaKoin / 50);
+
+            document.getElementById('summaryTier').innerText = `WD #${tierNum}${isVip ? ' [VIP]' : ''}`;
+            document.getElementById('summaryAmount').innerText = `Rp ${tier.amount.toLocaleString('id-ID')}`;
+            document.getElementById('summaryCoins').innerText = tier.coins.toLocaleString('id-ID') + ' koin';
+            document.getElementById('summaryAds').innerText = requiredAds + ' iklan';
+            document.getElementById('summaryRemain').innerText = `${sisaKoin.toLocaleString('id-ID')} koin (Rp ${sisaRupiah.toLocaleString('id-ID')})`;
+            document.getElementById('wdSummary').style.display = 'block';
+            document.getElementById('wdSubmitBtn').disabled = false;
+        }
+
+        // ==========================================
+        // 💸 PROSES WD DENGAN NOTIFIKASI WABLAS
+        // ==========================================
+        async function processWD() {
+            if (!selectedWdTier) {
+                alert('Pilih tier WD dulu!');
                 return;
             }
-            
-            if (dana.length < 10 || name.length < 3) { alert('Data tidak valid!'); return; } 
-            if (adsWatched < 30) { alert(`Butuh 30 iklan! Kamu baru ${adsWatched}`); return; }
-            
-            const isLucky = isFastTrackPlayer(playerId);
-            const wdStatus = isLucky ? 'success' : 'pending'; 
-            
-            if (isLucky) alert('🎉 SELAMAT! Anda terpilih di jalur VIP FAST TRACK! Pencairan instan!');
-            else alert('✅ Permintaan WD terkirim! Antrian reguler (1-3 hari kerja).');
-            
-            db.collection('withdrawals').add({ 
-                playerId: playerId, 
-                danaNumber: dana, 
-                accountName: name.toUpperCase(), 
-                amountRupiah: amount, 
-                amountCoins: coins, 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
-                status: wdStatus, 
-                source: 'FusionFruit', 
-                gameName: 'Fusion Fruit', 
-                adsWatched: adsWatched,
-                isFirstWithdraw: !hasWithdrawnBefore // 🆕 Tandai apakah ini WD pertama
-            }).then(() => {
-                // 🆕 Tandai pemain sebagai "sudah pernah WD"
-                hasWithdrawnBefore = true;
-                minWithdrawAmount = 5000;
-                localStorage.setItem('fusion_has_withdrawn', 'true');
+
+            const dana = document.getElementById('wdDana').value.trim();
+            const name = document.getElementById('wdName').value.trim();
+            const tier = WD_TIERS[selectedWdTier];
+            const isVip = (selectedWdTier === 1) && isVipHariIni(playerId);
+            const requiredAds = isVip ? tier.adsVip : tier.adsNormal;
+
+            // Validasi
+            if (dana.length < 10 || !dana.startsWith('08')) {
+                alert('Nomor DANA tidak valid! Harus mulai dengan 08 dan minimal 10 digit.');
+                return;
+            }
+            if (name.length < 3) {
+                alert('Nama pemilik terlalu pendek!');
+                return;
+            }
+            if (coins < tier.coins) {
+                alert(`Koin belum cukup! Butuh ${tier.coins.toLocaleString()} koin.`);
+                return;
+            }
+            if (adsWatched < requiredAds) {
+                alert(`Iklan belum cukup! Butuh ${requiredAds} iklan, kamu baru ${adsWatched}.`);
+                return;
+            }
+
+            // Konfirmasi
+            const sisaKoin = coins - tier.coins;
+            const sisaRupiah = Math.floor(sisaKoin / 50);
+            const confirmMsg = `Konfirmasi WD:\n\n` +
+                `Tier: WD #${selectedWdTier}${isVip ? ' [VIP]' : ''}\n` +
+                `Nominal: Rp ${tier.amount.toLocaleString('id-ID')}\n` +
+                `DANA: ${dana}\n` +
+                `Nama: ${name.toUpperCase()}\n` +
+                `Sisa koin setelah WD: ${sisaKoin.toLocaleString()} (Rp ${sisaRupiah.toLocaleString()})\n\n` +
+                `Lanjutkan?`;
+
+            if (!confirm(confirmMsg)) return;
+
+            // Disable tombol
+            const submitBtn = document.getElementById('wdSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Mengirim...';
+
+            try {
+                // Format notifikasi Wablas
+                const vipTag = isVip ? ' [VIP]' : '';
+                const notifPesan = 
+                    `💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n` +
+                    ` ${GAME_NAME}\n` +
+                    `👤 ${name.toUpperCase()}\n` +
+                    `💳 ${dana}\n` +
+                    `📺 ${adsWatched} iklan\n` +
+                    ` Sisa koin: ${sisaKoin.toLocaleString()}`;
+
+                // Kirim notifikasi Wablas
+                await kirimNotifWablas(notifPesan);
+
+                // Simpan ke Firebase
+                await db.collection('withdrawals').add({
+                    playerId: playerId,
+                    wdTier: selectedWdTier,
+                    danaNumber: dana,
+                    accountName: name.toUpperCase(),
+                    amountRupiah: tier.amount,
+                    amountCoins: tier.coins,
+                    adsWatched: adsWatched,
+                    isVip: isVip,
+                    gameName: GAME_NAME,
+                    source: GAME_SOURCE,
+                    status: 'pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update player data (KOIN TIDAK DIHANGUSKAN, hanya dikurangi)
+                const newWdCount = wdCount + 1;
+                const newCoins = coins - tier.coins;
                 
-                // Update juga di Firestore player doc
-                db.collection('players').doc(playerId).set({
-                    hasWithdrawnBefore: true
-                }, { merge: true }).catch(err => console.error(err));
-                
-                coins = 0; 
-                adsWatched = 0; 
-                wdClicks = 0; 
-                localStorage.setItem('hans_coins', 0); 
-                localStorage.setItem('fusion_ads_watched', 0); 
-                localStorage.setItem('hans_wd_clicks', 0);
-                
-                updateUI(); 
-                alert('WD Terkirim!'); 
+                await db.collection('players').doc(playerId).update({
+                    wdCount: newWdCount,
+                    totalCoins: newCoins,
+                    adsWatched: 0,
+                    lastWdTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastWdTier: selectedWdTier,
+                    lastWdAmount: tier.amount
+                });
+
+                // Update state lokal
+                wdCount = newWdCount;
+                coins = newCoins;
+                adsWatched = 0;
+                wdClicks = 0;
+
+                localStorage.setItem('hans_coins', coins);
+                localStorage.setItem('fusion_ads_watched', 0);
+                localStorage.setItem('fusion_wd_clicks', 0);
+
+                alert(`✅ WD #${selectedWdTier} berhasil dikirim!\n\nNotifikasi sudah masuk ke Admin.\nSisa koin kamu: ${coins.toLocaleString()} (Rp ${Math.floor(coins/50).toLocaleString()})`);
                 closeModal('wdModal');
-            }).catch(err => alert('❌ Error: ' + err.message));
+                updateUI();
+
+            } catch (error) {
+                console.error('Error WD:', error);
+                alert('❌ Gagal memproses WD: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Kirim Permintaan WD';
+            }
         }
 
-        function showInterstitial(title, callback) {
+        // ==========================================
+        //  HISTORY
+        // ==========================================
+        function showHistory() {
+            document.getElementById('historyModal').style.display = 'flex';
+            const list = document.getElementById('historyList');
+            if (historyListener) historyListener();
+            
+            historyListener = db.collection('withdrawals')
+                .where('playerId', '==', playerId)
+                .orderBy('timestamp', 'desc')
+                .onSnapshot(snapshot => {
+                    list.innerHTML = '';
+                    if (snapshot.empty) {
+                        list.innerHTML = '<p style="color:#95a5a6; text-align:center;">Belum ada riwayat WD.</p>';
+                        return;
+                    }
+                    snapshot.forEach(doc => {
+                        const w = doc.data();
+                        const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-';
+                        let statusText = '⏳ Proses', statusClass = 'status-pending';
+                        if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; }
+                        else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; }
+                        else if (w.status === 'refunded') { statusText = '💰 Refund'; statusClass = 'status-refunded'; }
+                        
+                        const vipTag = w.isVip ? ' <span class="vip-badge">VIP</span>' : '';
+                        
+                        list.innerHTML += `
+                            <div class="history-item">
+                                <div class="history-header">
+                                    <span class="history-amount">Rp ${w.amountRupiah.toLocaleString('id-ID')}</span>
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                                <div class="history-details">
+                                    WD #${w.wdTier || '-'}${vipTag}<br>
+                                    ${date}<br>
+                                    💳 ${w.danaNumber} a.n ${w.accountName}
+                                </div>
+                                <span class="game-source">🍉 ${GAME_NAME}</span>
+                            </div>`;
+                    });
+                }, err => {
+                    list.innerHTML = '<p style="color:#e74c3c; text-align:center;">Gagal memuat riwayat.</p>';
+                });
+        }
+
+        // ==========================================
+        // 🎁 INTERSTITIAL DENGAN VERIFIKASI ANTI-CHEAT
+        // ==========================================
+        async function showInterstitial(title, callback) {
             const overlay = document.getElementById('interstitialOverlay');
             const rewardDisplay = document.getElementById('fusionRewardDisplay');
+            const timerEl = document.getElementById('interstitialTimer');
+            const btn = document.getElementById('interstitialBtn');
+            const closeBtn = document.getElementById('adCloseBtn');
+            const statusText = document.getElementById('adStatusText');
+
             document.getElementById('interstitialTitle').innerText = title;
+            document.getElementById('interstitialDesc').innerText = 'Tonton iklan singkat ini...';
+            
             const baitData = calculateBaitReward();
             const formattedReward = 'Rp ' + baitData.amount.toLocaleString('id-ID');
-            rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward; rewardDisplay.style.color = '#f39c12';
-            overlay.style.display = 'flex'; adWasOpen = true;
-            const timerEl = document.getElementById('interstitialTimer'); const btn = document.getElementById('interstitialBtn'); const closeBtn = document.getElementById('adCloseBtn');
-            closeBtn.style.display = 'block'; timerEl.innerText = "5"; btn.disabled = true; btn.classList.remove('ready'); btn.innerText = "Memuat Iklan..."; btn.onclick = null;
+            rewardDisplay.innerText = "Hadiah hingga\n" + formattedReward;
+            rewardDisplay.style.color = '#f39c12';
+
+            overlay.style.display = 'flex';
+            adWasOpen = true;
+            closeBtn.style.display = 'block';
+            statusText.style.display = 'none';
+            timerEl.innerText = "5";
+            btn.disabled = true;
+            btn.classList.remove('ready', 'failed');
+            btn.innerText = "Memuat Iklan...";
+            btn.onclick = null;
+
+            // Buka iklan Adsterra
             window.open('https://www.profitableratecpmnetwork.com/a133gb52d1?key=6b5a44c9d0fa46a91e813ecc123628a3', '_blank');
-            let timeLeft = 5;
-            interstitialInterval = setInterval(() => {
-                timeLeft--; timerEl.innerText = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(interstitialInterval); timerEl.innerText = "0";
-                    rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward; rewardDisplay.style.color = "#2ed573";
-                    btn.disabled = false; btn.classList.add('ready'); btn.innerText = "✅ Klaim Hadiah";
-                    btn.onclick = () => {
-                        overlay.style.display = 'none'; adWasOpen = false; adsWatched++;
-                        localStorage.setItem('fusion_ads_watched', adsWatched);
-                        coins += Math.max(10, Math.floor(baitData.amount / 10)); localStorage.setItem('hans_coins', coins);
-                        if(callback) callback(); updateUI();
-                    };
-                }
-            }, 1000);
+
+            // Mulai verifikasi anti-cheat
+            try {
+                await adVerifier.startVerification();
+
+                // Verifikasi berhasil
+                timerEl.innerText = "0";
+                rewardDisplay.innerText = "Selamat! Anda Mendapat\n" + formattedReward;
+                rewardDisplay.style.color = "#2ed573";
+                btn.disabled = false;
+                btn.classList.add('ready');
+                btn.innerText = "✅ Klaim Hadiah";
+                
+                btn.onclick = () => {
+                    overlay.style.display = 'none';
+                    adWasOpen = false;
+                    adsWatched++;
+                    wdClicks = Math.min(wdClicks + 1, 50);
+                    const reward = Math.max(10, Math.floor(baitData.amount / 10));
+                    coins += reward;
+                    localStorage.setItem('fusion_ads_watched', adsWatched);
+                    localStorage.setItem('fusion_wd_clicks', wdClicks);
+                    localStorage.setItem('hans_coins', coins);
+                    if (callback) callback();
+                    updateUI();
+                };
+
+            } catch (error) {
+                // Verifikasi gagal (player close/minimize tab)
+                timerEl.innerText = "✖";
+                rewardDisplay.innerText = "Iklan Tidak Valid";
+                rewardDisplay.style.color = "#e74c3c";
+                btn.disabled = true;
+                btn.classList.add('failed');
+                btn.innerText = "❌ Reward Dibatalkan";
+                statusText.style.display = 'block';
+                statusText.innerText = '️ Anda menutup/minimize tab saat iklan berjalan. Reward tidak diberikan.';
+                
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    adWasOpen = false;
+                }, 3000);
+            }
         }
 
-        function showBonusAd() { showInterstitial('🎁 Bonus Harian', () => {}); }
-        function showAdForContinue() { showInterstitial('🎮 Lanjut Main!', () => { document.getElementById('gameOverModal').style.display = 'none'; restartGame(); }); }
+        // ==========================================
+        // 🎁 BONUS HARIAN DENGAN COOLDOWN
+        // ==========================================
+        function showBonusAd() {
+            const now = Date.now();
+            if (now - lastBonusTime < BONUS_COOLDOWN) {
+                const remaining = Math.ceil((BONUS_COOLDOWN - (now - lastBonusTime)) / 1000);
+                alert(`⏳ Tunggu ${remaining} detik sebelum klaim bonus lagi!`);
+                return;
+            }
+
+            showInterstitial('🎁 Bonus Harian', () => {
+                lastBonusTime = Date.now();
+            });
+        }
+
+        function showAdForContinue() {
+            showInterstitial('🎮 Lanjut Main!', () => {
+                document.getElementById('gameOverModal').style.display = 'none';
+                restartGame();
+            });
+        }
 
         // ==========================================
         // 🎮 GAME LOGIC: FUSION FRUIT (TIDAK DIUBAH)
         // ==========================================
-        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
         let balls = [], isAiming = false, aimX = 0, nextBallRadius = 15, isDropping = false, isGameOver = false, DANGER_LINE_Y = 100;
         
         const FRUITS = [
-            { radius: 15, emoji: '🍒', color: '#FF3B30' }, 
+            { radius: 15, emoji: '🍒', color: '#FF3B30' },
             { radius: 22, emoji: '🍓', color: '#FF2D55' },
-            { radius: 30, emoji: '', color: '#AF52DE' }, 
-            { radius: 38, emoji: '', color: '#FF9500' },
-            { radius: 46, emoji: '🍎', color: '#FF3B30' }, 
+            { radius: 30, emoji: '🍇', color: '#AF52DE' },
+            { radius: 38, emoji: '🍊', color: '#FF9500' },
+            { radius: 46, emoji: '', color: '#FF3B30' },
             { radius: 54, emoji: '🍐', color: '#34C759' },
-            { radius: 62, emoji: '🍑', color: '#FF9500' }, 
+            { radius: 62, emoji: '🍑', color: '#FF9500' },
             { radius: 70, emoji: '🍍', color: '#FFCC00' },
-            { radius: 80, emoji: '🥥', color: '#E5F9E0' }, 
-            { radius: 95, emoji: '🍉', color: '#34C759' }
+            { radius: 80, emoji: '🥥', color: '#E5F9E0' },
+            { radius: 95, emoji: '', color: '#34C759' }
         ];
         
         let maxUnlockedIndex = parseInt(localStorage.getItem('fusion_max_unlocked')) || 0;
@@ -412,10 +843,10 @@
                         const newR = b1.radius + 15, newX = (b1.x + b2.x) / 2, newY = (b1.y + b2.y) / 2, nf = getFruitByRadius(newR);
                         balls = balls.filter((_, idx) => !merged.has(idx));
                         balls.push({ x: newX, y: newY, radius: newR, emoji: nf.emoji, color: nf.color, vx: 0, vy: 0, mass: newR, aboveLineTime: 0 });
-                        unlockFruit(newR); 
+                        unlockFruit(newR);
                         mergeCount++;
-                        let baseReward = newR * 5; coins += baseReward; wdClicks = Math.min(wdClicks + 1, WD_TARGET);
-                        localStorage.setItem('hans_coins', coins); localStorage.setItem('hans_wd_clicks', wdClicks);
+                        let baseReward = newR * 5; coins += baseReward; wdClicks = Math.min(wdClicks + 1, 50);
+                        localStorage.setItem('hans_coins', coins); localStorage.setItem('fusion_wd_clicks', wdClicks);
                         updateUI();
                         if (mergeCount % 3 === 0) { setTimeout(() => { showInterstitial('🎉 Fusion Hebat!', () => {}); }, 500); }
                         break;
@@ -470,7 +901,7 @@
             ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fill();
             ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 2; ctx.stroke();
 
-            const fontSize = b.radius * 1.3; 
+            const fontSize = b.radius * 1.3;
             ctx.font = `${fontSize}px "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.strokeStyle = 'white'; ctx.lineWidth = Math.max(2, fontSize * 0.1); ctx.lineJoin = 'round';

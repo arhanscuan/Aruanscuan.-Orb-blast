@@ -25,7 +25,9 @@
         .start-btn:active { transform: scale(0.95); }
 
         #gameCanvas { display: block; width: 100%; height: 100vh; z-index: 1; touch-action: none; }
-        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 22, 40, 0.95); z-index: 100; overflow-y: auto; padding: 20px; }
+        
+        /* ✅ FIX: UI OVERLAY PAKAI POSITION FIXED */
+        .ui-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 22, 40, 0.95); z-index: 100; overflow-y: auto; padding: 20px; }
         .hidden { display: none !important; }
         .box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 20px; margin: 10px; width: 95%; max-width: 400px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
         h1 { color: #ffd700; margin: 0 0 15px 0; font-size: 28px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); }
@@ -39,7 +41,7 @@
         .btn-wd { background: linear-gradient(135deg, #a55eea 0%, #8854d0 100%); }
         .btn-history { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: #333; }
         
-        #hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 5; }
+        #hud { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 50; }
         .hud-item { background: rgba(0,0,0,0.7); padding: 10px 15px; border-radius: 25px; font-weight: bold; color: #ffd700; border: 2px solid #ffd700; font-size: 14px; }
         
         .center-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
@@ -57,8 +59,24 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; touch-action: manipulation; }
         
-        #backToMenuBtn { position: absolute; top: 10px; right: 10px; background: rgba(255, 71, 87, 0.9); color: white; border: 2px solid white; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 20; display: none; touch-action: manipulation; }
-        #soundToggle { position: absolute; left: 10px; top: 10px; background: rgba(255,255,255,0.9); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 15; display: none; touch-action: manipulation; }
+        /* ✅ FIX: TOMBOL MENU PASTI DI ATAS SEMUA */
+        #backToMenuBtn { 
+            position: fixed; 
+            top: 10px; 
+            right: 10px; 
+            background: rgba(255, 71, 87, 0.9); 
+            color: white; 
+            border: 2px solid white; 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            z-index: 10000; 
+            display: none; 
+            touch-action: manipulation; 
+        }
+        #soundToggle { position: fixed; left: 10px; top: 10px; background: rgba(255,255,255,0.9); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000; display: none; touch-action: manipulation; }
 
         #rewardPopup { 
             position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); 
@@ -110,7 +128,7 @@
         <h1 class="landing-title">HANS ORB BLAST</h1>
         <div class="instruction-box">
             <h3 style="color:#ffd700; margin-bottom:15px; text-align:center;">📜 CARA BERMAIN</h3>
-            <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk bola berwarna untuk memecahkannya.</span></div>
+            <div class="instruction-item"><span class="instruction-icon"></span> <span>Ketuk bola berwarna untuk memecahkannya.</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Setiap bola yang pecah memberikan Koin & Saldo!</span></div>
             <div class="instruction-item"><span class="instruction-icon"></span> <span>Hancurkan semua bola di layar untuk naik level & dapat hadiah besar!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💸</span> <span>Kumpulkan koin dan tarik saldo ke DANA kamu!</span></div>
@@ -126,13 +144,13 @@
 
     <button id="backToMenuBtn" onclick="backToMenu()">◀ MENU</button>
     <canvas id="gameCanvas"></canvas>
-    <button id="soundToggle" onclick="toggleSound()">🔊</button>
+    <button id="soundToggle" onclick="toggleSound()"></button>
 
     <div id="mainMenu" class="ui-overlay hidden">
         <div class="box">
             <h1>🎮 HANS ORB BLAST</h1>
             <p style="color:#ccc; margin-bottom:10px;">Pecahkan bola, kumpulkan koin!</p>
-            <div class="stat">🪙 Koin: <span id="menuBalance">0</span> (Rp <span id="menuRupiah">0</span>)</div>
+            <div class="stat"> Koin: <span id="menuBalance">0</span> (Rp <span id="menuRupiah">0</span>)</div>
             <div style="margin: 15px 0;">
                 <div style="font-size: 14px; margin-bottom: 5px; color: #ccc;" id="wdProgressLabel">Iklan: 0/100 untuk WD #1</div>
                 <div style="width:100%; height:10px; background:rgba(0,0,0,0.3); border-radius:5px; overflow:hidden;">
@@ -156,7 +174,7 @@
             <button class="btn btn-danger" onclick="showBonusAd()">🎁 KLAIM BONUS</button>
             <button class="btn btn-primary" onclick="startGame()">▶ MULAI MAIN</button>
             <button class="btn btn-wd" onclick="showWithdraw()">💸 TARIK SALDO</button>
-            <button class="btn btn-history" onclick="showHistory()">📜 RIWAYAT WD</button>
+            <button class="btn btn-history" onclick="showHistory()"> RIWAYAT WD</button>
         </div>
     </div>
 
@@ -196,7 +214,7 @@
                 <div class="ad-desc">Tonton iklan untuk klaim bonus harianmu</div>
                 <div class="ad-reward-preview">
                     <div class="ad-reward-label">Bonus yang akan didapat:</div>
-                    <div class="ad-reward-amount">+200 💰</div>
+                    <div class="ad-reward-amount">+200 </div>
                 </div>
                 <button id="btnWatchBonus" class="overlay-btn watch">▶ TONTON SEKARANG</button>
             </div>
@@ -215,8 +233,8 @@
     </div>
 
     <div id="rewardPopup">
-        <span class="reward-emoji">🎉</span>
-        <span class="reward-text" id="rewardText">+50 </span>
+        <span class="reward-emoji"></span>
+        <span class="reward-text" id="rewardText">+50 💰</span>
     </div>
 
     <div id="wdModal" class="modal-overlay">
@@ -310,7 +328,7 @@
             else if(type === 'bonus') { [523.25, 659.25, 783.99].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.05); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.05); o.stop(now + 0.3); }); } 
             else if(type === 'start') { [440, 554.37, 659.25].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.08); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.08); o.stop(now + 0.3); }); }
         }
-        function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').innerText = soundEnabled ? '' : '🔇'; }
+        function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').innerText = soundEnabled ? '🔊' : ''; }
 
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas);
@@ -345,14 +363,15 @@
         function initGame() { balls = []; for (let i = 0; i < 10; i++) balls.push(new Ball()); }
         
         function animate() {
-            if (gameState !== 'playing') { requestAnimationFrame(animate); return; }
+            if (gameState !== 'playing') { 
+                requestAnimationFrame(animate); 
+                return; 
+            }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // ✅ FREEZE LOGIC: Update hanya jika popup tidak aktif
             if (!isRewardPopupActive) {
                 balls.forEach(b => { b.update(); b.draw(); });
             } else {
-                // Freeze: gambar bola di posisi sekarang
                 balls.forEach(b => b.draw());
             }
             
@@ -385,7 +404,7 @@
                     
                     if (balls.length === 0) {
                         setTimeout(() => {
-                            triggerLevelCompleteAd();
+                            if(gameState === 'playing') triggerLevelCompleteAd();
                         }, 1000);
                     }
                     break;
@@ -419,6 +438,22 @@
             initGame(); 
             animate(); 
         }
+        
+        // ✅ FIX: FUNGSI BACK TO MENU YANG ROBUST
+        function backToMenu() { 
+            gameState = 'menu'; 
+            isRewardPopupActive = false;
+            
+            // Paksa tutup semua overlay yang mungkin nyangkut
+            document.getElementById('adOverlay').style.display = 'none';
+            document.getElementById('bonusOverlay').style.display = 'none';
+            document.getElementById('rewardPopup').style.display = 'none';
+            document.getElementById('wdModal').style.display = 'none';
+            document.getElementById('historyModal').style.display = 'none';
+            
+            showMainMenu(); 
+        }
+
         function showMainMenu() { 
             gameState='menu'; 
             document.getElementById('withdrawMenu').classList.add('hidden'); 
@@ -428,7 +463,7 @@
             document.getElementById('backToMenuBtn').style.display = 'none'; 
             updateMenuUI(); 
         }
-        function backToMenu() { gameState = 'menu'; showMainMenu(); }
+        
         function forceCloseAll() { 
             document.querySelectorAll('.center-overlay').forEach(el=>el.style.display='none'); 
             document.querySelectorAll('.modal-overlay').forEach(el=>el.style.display='none'); 
@@ -546,7 +581,7 @@
             const submitBtn = document.getElementById('wdSubmitBtn'); submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
             try {
                 const vipTag = isVip ? ' [VIP]' : '';
-                await kirimNotifWablas(`💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🎮 ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n📺 ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`);
+                await kirimNotifWablas(`💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`);
                 await db.collection('withdrawals').add({ playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 const newWdCount = wdCount + 1; const newCoins = coins - tier.coins;
                 await db.collection('players').doc(playerId).update({ wdCount: newWdCount, totalCoins: newCoins, adsWatched: 0, lastWdTime: firebase.firestore.FieldValue.serverTimestamp() });

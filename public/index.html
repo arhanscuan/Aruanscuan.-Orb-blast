@@ -4,33 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1a0a2e">
-<title>Cuan Arcade - Main Dapat Saldo!</title>
+<title>Hans Cuan - Main Dapat Saldo!</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a0a2e 0%,#2d1b4e 100%);color:#fff;min-height:100vh;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
 .blob{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
-.b1{top:-128px;right:-128px;width:288px;height:288px;background:rgba(255,215,0,.1);animation:p 4s ease-in-out infinite}
-.b2{bottom:-128px;left:-128px;width:288px;height:288px;background:rgba(255,107,107,.1);animation:p 4s ease-in-out infinite 1s}
+.b1{top:-128px;right:-128px;width:288px;height:288px;background:rgba(0,102,255,.1);animation:p 4s ease-in-out infinite}
+.b2{bottom:-128px;left:-128px;width:288px;height:288px;background:rgba(0,150,255,.1);animation:p 4s ease-in-out infinite 1s}
 .b3{top:33%;left:50%;transform:translateX(-50%);width:320px;height:320px;background:rgba(168,85,247,.08);animation:p 4s ease-in-out infinite 2s}
 @keyframes p{0%,100%{opacity:1}50%{opacity:.5}}
 @keyframes up{from{opacity:0;transform:translateY(30px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes fl{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(-12px);opacity:.6}}
 @keyframes pi{0%{transform:scale(1);opacity:1}100%{transform:scale(2.5);opacity:0}}
-@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(255,215,0,.5)}50%{box-shadow:0 0 40px rgba(255,215,0,.8)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,102,255,.5)}50%{box-shadow:0 0 40px rgba(0,102,255,.8)}}
 .w{position:relative;z-index:1;max-width:448px;margin:0 auto;padding:32px 16px 48px}
 header{text-align:center;margin-bottom:32px;animation:up .8s ease-out}
 .logo{position:relative;display:inline-flex;margin-bottom:20px}
-.lg{position:absolute;inset:0;background:linear-gradient(135deg,#ffd700,#ff6b6b);border-radius:16px;filter:blur(16px);opacity:.5;animation:p 3s ease-in-out infinite}
-.lb{position:relative;width:72px;height:72px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffd700,#ff6b6b);border-radius:16px;box-shadow:0 20px 40px rgba(255,215,0,.3)}
-.lb span{font-size:36px}
-h1{font-size:28px;font-weight:800;margin-bottom:4px;background:linear-gradient(135deg,#ffd700,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.lg{position:absolute;inset:0;background:linear-gradient(135deg,#0066ff,#00aaff);border-radius:16px;filter:blur(16px);opacity:.5;animation:p 3s ease-in-out infinite}
+.lb{position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0066ff,#00aaff);border-radius:18px;box-shadow:0 20px 40px rgba(0,102,255,.4)}
+.lb svg{width:50px;height:50px}
+h1{font-size:32px;font-weight:900;margin-bottom:4px;background:linear-gradient(135deg,#0066ff,#00ccff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px}
 .sub{color:#d1d5db;font-size:14px;margin-bottom:16px}
-.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3)}
-.dot{width:8px;height:8px;border-radius:50%;background:#ffd700;position:relative}
-.dot::after{content:'';position:absolute;inset:0;border-radius:50%;background:#ffd700;animation:pi 1.5s ease-out infinite}
-.badge span{font-size:12px;color:#ffd700;font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;background:rgba(0,102,255,.1);border:1px solid rgba(0,102,255,.3)}
+.dot{width:8px;height:8px;border-radius:50%;background:#00aaff;position:relative}
+.dot::after{content:'';position:absolute;inset:0;border-radius:50%;background:#00aaff;animation:pi 1.5s ease-out infinite}
+.badge span{font-size:12px;color:#00aaff;font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .card{border-radius:16px;overflow:hidden;border:1px solid rgba(255,215,0,.2);box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .3s,box-shadow .3s;animation:up .6s ease-out backwards}
 .card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(255,215,0,.2)}
@@ -50,23 +50,23 @@ footer{margin-top:40px;text-align:center;animation:up .8s ease-out .5s backwards
 .fb span{font-size:11px;color:#9ca3af}
 .pt{position:absolute;border-radius:50%;background:rgba(255,215,0,.15);animation:fl 3s ease-in-out infinite}
 .ps{position:absolute;inset:0;width:100%;height:100%;opacity:.2}
-.admin-btn{position:fixed;bottom:20px;right:20px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#ffd700,#ff6b6b);border:none;color:white;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(255,215,0,.4);z-index:50;transition:transform .2s}
+.admin-btn{position:fixed;bottom:20px;right:20px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#0066ff,#00aaff);border:none;color:white;font-size:24px;cursor:pointer;box-shadow:0 4px 15px rgba(0,102,255,.4);z-index:50;transition:transform .2s}
 .admin-btn:active{transform:scale(.9)}
 .admin-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
 .admin-overlay.show{display:flex}
-.admin-box{background:#1a1a2e;border-radius:20px;padding:25px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;border:2px solid #ffd700}
+.admin-box{background:#1a1a2e;border-radius:20px;padding:25px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;border:2px solid #0066ff}
 .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,.1)}
-.admin-header h2{color:#ffd700;font-size:22px}
+.admin-header h2{color:#00aaff;font-size:22px}
 .admin-close{background:#ff4757;color:white;border:none;width:35px;height:35px;border-radius:50%;font-size:20px;cursor:pointer}
 .admin-login{background:rgba(255,255,255,.05);padding:15px;border-radius:12px;margin-bottom:15px}
 .admin-login input{width:100%;padding:12px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;font-size:16px;margin-bottom:10px}
-.admin-login button{width:100%;padding:12px;background:linear-gradient(135deg,#ffd700,#ff6b6b);color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+.admin-login button{width:100%;padding:12px;background:linear-gradient(135deg,#0066ff,#00aaff);color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
 .admin-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
-.stat-card{background:rgba(255,255,255,.05);padding:15px;border-radius:12px;text-align:center;border:1px solid rgba(255,215,0,.2)}
-.stat-card .num{font-size:28px;font-weight:bold;color:#ffd700}
+.stat-card{background:rgba(255,255,255,.05);padding:15px;border-radius:12px;text-align:center;border:1px solid rgba(0,102,255,.2)}
+.stat-card .num{font-size:28px;font-weight:bold;color:#00aaff}
 .stat-card .label{font-size:12px;color:#9ca3af;margin-top:5px}
 .player-list{max-height:300px;overflow-y:auto}
-.player-item{background:rgba(255,255,255,.05);padding:12px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid #ffd700}
+.player-item{background:rgba(255,255,255,.05);padding:12px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid #00aaff}
 .player-info{flex:1}
 .player-id{font-size:12px;color:#9ca3af;margin-bottom:3px}
 .player-game{font-size:14px;color:#fff;font-weight:bold}
@@ -79,13 +79,31 @@ footer{margin-top:40px;text-align:center;animation:up .8s ease-out .5s backwards
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="w">
 <header>
-<div class="logo"><div class="lg"></div><div class="lb"><span>💰</span></div></div>
-<h1>CUAN ARCADE</h1>
+<div class="logo">
+    <div class="lg"></div>
+    <div class="lb">
+        <!-- ✅ LOGO CH HANS CUAN (SVG Inline) -->
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#e0e0e0;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <!-- Huruf C besar -->
+            <path d="M 70 20 A 35 35 0 1 0 70 80 L 58 68 A 20 20 0 1 1 58 32 Z" fill="url(#logoGrad)"/>
+            <!-- Huruf H di dalam C -->
+            <path d="M 38 35 L 38 65 L 46 65 L 46 53 L 54 53 L 54 65 L 62 65 L 62 35 L 54 35 L 54 45 L 46 45 L 46 35 Z" fill="url(#logoGrad)"/>
+        </svg>
+    </div>
+</div>
+<!-- ✅ JUDUL DIUBAH JADI HANS CUAN -->
+<h1>HANS CUAN</h1>
 <p class="sub">Main game, kumpulkan cuan, tarik saldo!</p>
 <div class="badge"><div class="dot"></div><span id="gc">0 games available</span></div>
 </header>
 <div class="grid" id="gg"></div>
-<footer><div class="fb"><span>💰 Main & Menang • © 2026 Cuan Arcade</span></div></footer>
+<footer><div class="fb"><span>💰 Main & Menang • © 2026 Hans Cuan</span></div></footer>
 </div>
 
 <button class="admin-btn" onclick="openAdmin()">⚙️</button>
@@ -100,7 +118,7 @@ footer{margin-top:40px;text-align:center;animation:up .8s ease-out .5s backwards
 <div class="stat-card"><div class="num" id="totalGames">0</div><div class="label">Total Games</div></div>
 <div class="stat-card"><div class="num" id="todayVisits">0</div><div class="label">Today Visits</div></div>
 </div>
-<h3 style="color:#ffd700;margin-bottom:10px">👥 Player List</h3>
+<h3 style="color:#00aaff;margin-bottom:10px"> Player List</h3>
 <div class="player-list" id="playerList"><p style="color:#9ca3af;text-align:center">Loading...</p></div>
 </div></div></div>
 
@@ -111,7 +129,7 @@ const ADMIN_PASSWORD = "aruanscuan2024";
 
 // ✅ DAFTAR GAME SDK - LINK UDAH DI-FIX (2 "b" buat Hans Orb Blast)
 var G=[
-{n:"Memory Cuan",u:"/memorycuan.html",e:"🧠",g:"linear-gradient(135deg,#1e3c72,#2a5298)",p:"diamonds"},
+{n:"Memory Cuan",u:"/memorycuan.html",e:"",g:"linear-gradient(135deg,#1e3c72,#2a5298)",p:"diamonds"},
 {n:"Hans Orb Blast",u:"/hansorbblast.html",e:"🔵",g:"linear-gradient(135deg,#a8edea,#fed6e3)",p:"stars"},
 {n:"Cuan Breaker",u:"/cuanbreaker.html",e:"🧱",g:"linear-gradient(135deg,#667eea,#764ba2)",p:"grid"},
 {n:"Mach Fruits",u:"/machfruits.html",e:"🍒",g:"linear-gradient(135deg,#ff9a9e,#fecfef)",p:"dots"},
@@ -145,7 +163,7 @@ document.addEventListener('DOMContentLoaded',R);
 
 let playerId = localStorage.getItem('hans_player_id');
 if (!playerId) { playerId = 'player_' + Date.now() + '_' + Math.floor(Math.random() * 100000); localStorage.setItem('hans_player_id', playerId); }
-db.collection('players').doc(playerId).set({ playerId: playerId, isOnline: true, lastVisit: firebase.firestore.FieldValue.serverTimestamp(), firstVisit: firebase.firestore.FieldValue.serverTimestamp(), game: 'CuanArcade', totalVisits: firebase.firestore.FieldValue.increment(1) }, { merge: true }).catch(err => console.log('Firebase error:', err));
+db.collection('players').doc(playerId).set({ playerId: playerId, isOnline: true, lastVisit: firebase.firestore.FieldValue.serverTimestamp(), firstVisit: firebase.firestore.FieldValue.serverTimestamp(), game: 'HansCuan', totalVisits: firebase.firestore.FieldValue.increment(1) }, { merge: true }).catch(err => console.log('Firebase error:', err));
 window.addEventListener('beforeunload', () => { db.collection('players').doc(playerId).update({ isOnline: false }).catch(() => {}); });
 
 function openAdmin() { document.getElementById('adminOverlay').classList.add('show'); }
@@ -175,7 +193,7 @@ function loadAdminData() {
                 const lastVisit = p.lastVisit && p.lastVisit.toDate ? p.lastVisit.toDate().toLocaleString('id-ID') : 'Unknown';
                 const status = p.isOnline ? 'Online' : 'Offline';
                 const statusClass = p.isOnline ? 'status-online' : 'status-offline';
-                return `<div class="player-item"><div class="player-info"><div class="player-id">${p.playerId || p.id}</div><div class="player-game">${p.game || 'CuanArcade'} • ${lastVisit}</div></div><div class="player-status ${statusClass}">${status}</div></div>`;
+                return `<div class="player-item"><div class="player-info"><div class="player-id">${p.playerId || p.id}</div><div class="player-game">${p.game || 'HansCuan'} • ${lastVisit}</div></div><div class="player-status ${statusClass}">${status}</div></div>`;
             }).join('');
         }
     }).catch(err => { console.error('Error:', err); document.getElementById('playerList').innerHTML = '<p style="color:#ff4757;text-align:center">Error loading data</p>'; });

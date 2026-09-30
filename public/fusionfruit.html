@@ -39,6 +39,17 @@
         .progress-bar { height: 100%; background: linear-gradient(90deg, #2ed573 0%, #7bed9f 100%); width: 0%; transition: width 0.3s; }
         .wd-text { font-size: 11px; color: #7f8c8d; margin-top: 5px; }
         
+        /* FUSION STREAK INDICATOR */
+        #fusionStreakIndicator {
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 8px 20px; border-radius: 20px;
+            font-weight: bold; font-size: 14px;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+            z-index: 60; display: none; animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown { 0% { transform: translateX(-50%) translateY(-20px); opacity: 0; } 100% { transform: translateX(-50%) translateY(0); opacity: 1; } }
+
         /* 2-PHASE AD OVERLAY */
         .center-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .center-box { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; position: relative; box-shadow: 0 0 30px rgba(255,215,0,0.5); }
@@ -117,7 +128,7 @@
         <div class="instruction-box">
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk layar untuk menjatuhkan buah.</span></div>
             <div class="instruction-item"><span class="instruction-icon">🔄</span> <span>Gabungkan <b>2 buah sama</b> jadi lebih besar!</span></div>
-            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan sampai numpuk lewat garis merah!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">🔥</span> <span>Setiap 3x fusion, tonton iklan & dapet Bonus 50 Koin!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Tonton iklan, kumpulkan Rupiah, dan Tarik Saldo!</span></div>
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
@@ -137,7 +148,7 @@
                 <div style="display:flex; gap:8px;">
                     <button class="btn btn-bonus" onclick="showBonusAd()">🎁 Bonus</button>
                     <button class="btn btn-wd" onclick="showWithdraw()">💸 WD</button>
-                    <button class="btn btn-history" onclick="showHistory()">📜</button>
+                    <button class="btn btn-history" onclick="showHistory()"></button>
                 </div>
             </div>
             <div>
@@ -147,7 +158,10 @@
         </div>
     </div>
 
-    <button id="backToMenuBtn" onclick="backToMenu()">◀ MENU</button>
+    <!-- FUSION STREAK INDICATOR -->
+    <div id="fusionStreakIndicator">🔥 Fusion: <span id="fusionStreakCount">0</span>/3</div>
+
+    <button id="backToMenuBtn" onclick="backToMenu()"> MENU</button>
 
     <div id="gameOverModal" class="modal-overlay">
         <div class="modal-box">
@@ -162,7 +176,7 @@
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
             <div id="adPhase1">
-                <div class="ad-icon"></div>
+                <div class="ad-icon">📺</div>
                 <div class="ad-title" id="adPhase1Title">Tonton Iklan</div>
                 <div class="ad-desc" id="adPhase1Desc">Untuk mendapatkan hadiah</div>
                 <div class="ad-reward-preview">
@@ -172,7 +186,7 @@
                 <button id="btnWatchAd" class="overlay-btn watch">▶ TONTON SEKARANG</button>
             </div>
             <div id="adPhase2" style="display:none;">
-                <div class="ad-icon"></div>
+                <div class="ad-icon">🎁</div>
                 <div class="ad-title">Iklan Selesai!</div>
                 <div class="ad-desc">Klik tombol di bawah untuk klaim hadiahmu</div>
                 <div class="ad-reward-preview">
@@ -189,12 +203,12 @@
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
             <div id="bonusPhase1">
-                <div class="ad-icon">🎁</div>
+                <div class="ad-icon"></div>
                 <div class="ad-title">Bonus Harian</div>
                 <div class="ad-desc">Tonton iklan untuk klaim bonus harianmu</div>
                 <div class="ad-reward-preview">
                     <div class="ad-reward-label">Bonus yang akan didapat:</div>
-                    <div class="ad-reward-amount">+200 </div>
+                    <div class="ad-reward-amount">+200 💰</div>
                 </div>
                 <button id="btnWatchBonus" class="overlay-btn watch">▶ TONTON SEKARANG</button>
             </div>
@@ -289,6 +303,7 @@
         let wdCount = 0, selectedWdTier = null;
         let lastBonusTime = 0;
         let isRewardPopupActive = false;
+        let fusionStreak = 0; // ✅ FUSION STREAK COUNTER
 
         db.collection('players').doc(playerId).get().then(doc => { if (doc.exists && doc.data().wdCount) wdCount = doc.data().wdCount; updateUI(); }).catch(err => console.error(err));
 
@@ -302,12 +317,12 @@
             { radius: 22, emoji: '🍓', color: '#FF2D55' },
             { radius: 30, emoji: '🍇', color: '#AF52DE' },
             { radius: 38, emoji: '🍊', color: '#FF9500' },
-            { radius: 46, emoji: '', color: '#FF3B30' },
-            { radius: 54, emoji: '🍐', color: '#34C759' },
+            { radius: 46, emoji: '🍎', color: '#FF3B30' },
+            { radius: 54, emoji: '', color: '#34C759' },
             { radius: 62, emoji: '🍑', color: '#FF9500' },
             { radius: 70, emoji: '🍍', color: '#FFCC00' },
             { radius: 80, emoji: '🥥', color: '#E5F9E0' },
-            { radius: 95, emoji: '', color: '#34C759' }
+            { radius: 95, emoji: '🍉', color: '#34C759' }
         ];
         
         let maxUnlockedIndex = parseInt(localStorage.getItem('fusion_max_unlocked')) || 0;
@@ -362,14 +377,45 @@
                         balls.push({ x: newX, y: newY, radius: newR, emoji: nf.emoji, color: nf.color, vx: 0, vy: 0, mass: newR, aboveLineTime: 0 });
                         unlockFruit(newR);
                         mergeCount++;
+                        
+                        // ✅ FUSION STREAK LOGIC
+                        fusionStreak++;
+                        updateFusionStreakIndicator();
+                        
                         let baseReward = newR * 5; coins += baseReward;
                         localStorage.setItem('hans_coins', coins);
                         updatePlayerCoins(baseReward);
                         updateUI();
+
+                        // ✅ SETIAP 3 FUSION → IKLAN
+                        if (fusionStreak >= 3) {
+                            fusionStreak = 0;
+                            updateFusionStreakIndicator();
+                            triggerFusionStreakAd();
+                        }
                         break;
                     }
                 }
             }
+        }
+
+        // ✅ TRIGGER IKLAN SETIAP 3 FUSION
+        function triggerFusionStreakAd() {
+            const rewardAmount = 50;
+            showAdPhase1('🔥 FUSION 3 KALI!', 'Hebat! 3 fusion berturut-turut. Tonton iklan untuk klaim bonus!', `+${rewardAmount} 💰`, () => {
+                coins += rewardAmount; 
+                localStorage.setItem('hans_coins', coins); 
+                updatePlayerCoins(rewardAmount); 
+                updateUI();
+                showRewardPopup(`+${rewardAmount} 💰`);
+            });
+        }
+
+        function updateFusionStreakIndicator() {
+            const indicator = document.getElementById('fusionStreakIndicator');
+            const count = document.getElementById('fusionStreakCount');
+            count.innerText = fusionStreak;
+            indicator.style.display = fusionStreak > 0 ? 'block' : 'none';
         }
 
         function resolveCollision(b1, b2) {
@@ -444,7 +490,8 @@
 
         function initGame() { 
             if (animationId) cancelAnimationFrame(animationId);
-            resize(); balls = []; isGameOver = false; mergeCount = 0; nextBallRadius = 15; isRewardPopupActive = false;
+            resize(); balls = []; isGameOver = false; mergeCount = 0; fusionStreak = 0; nextBallRadius = 15; isRewardPopupActive = false;
+            updateFusionStreakIndicator();
             loop(); 
         }
 
@@ -544,7 +591,7 @@
                 localStorage.setItem('hans_coins', coins); 
                 updatePlayerCoins(rewardAmount); 
                 updateUI();
-                showRewardPopup(`+${rewardAmount} 💰`);
+                showRewardPopup(`+${rewardAmount} `);
                 setTimeout(() => { restartGame(); }, 2000);
             });
         }
@@ -605,7 +652,7 @@
             const submitBtn = document.getElementById('wdSubmitBtn'); submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
             try {
                 const vipTag = isVip ? ' [VIP]' : '';
-                await kirimNotifWablas(`💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🍉 ${GAME_NAME}\n ${name.toUpperCase()}\n💳 ${dana}\n📺 ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`);
+                await kirimNotifWablas(`💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`);
                 await db.collection('withdrawals').add({ playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 const newWdCount = wdCount + 1; const newCoins = coins - tier.coins;
                 await db.collection('players').doc(playerId).update({ wdCount: newWdCount, totalCoins: newCoins, adsWatched: 0, lastWdTime: firebase.firestore.FieldValue.serverTimestamp() });
@@ -627,7 +674,7 @@
                     let statusText = '⏳ Masih Proses', statusClass = 'status-pending', borderColor = '#f39c12';
                     if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; borderColor = '#2ed573'; } 
                     else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; borderColor = '#e74c3c'; }
-                    list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br>📅 ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🍉 ${GAME_NAME}</span></div>`;
+                    list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br>📅 ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source"> ${GAME_NAME}</span></div>`;
                 });
             }).catch(err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center; padding: 20px;">Gagal memuat riwayat.</p>'; });
         }

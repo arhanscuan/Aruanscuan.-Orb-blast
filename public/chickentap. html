@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🐔 Chicken Tap - Hans Cuan</title>
+    <title> Chicken Tap - Hans Cuan</title>
     <meta name="description" content="Chicken Tap - Game puzzle seru! Tap ayam warna sama untuk meledakkannya. Mainkan di HP atau PC!">
     
     <script src="https://pl31442264.profitableratecpmnetwork.com/a6/41/0d/a6410db42b68623bf2daa7e1fcff5615.js"></script>
@@ -57,7 +57,6 @@
         .button:active { transform: scale(0.95); }
         .button.secondary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
         
-        /* 2-PHASE AD OVERLAY */
         .center-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .center-box { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; position: relative; box-shadow: 0 0 30px rgba(255,215,0,0.5); }
         .ad-icon { font-size: 60px; margin-bottom: 15px; }
@@ -73,7 +72,6 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; touch-action: manipulation; }
         
-        /* REWARD POPUP */
         #rewardPopup { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; padding: 25px 40px; border-radius: 25px; font-size: 28px; font-weight: bold; box-shadow: 0 15px 50px rgba(0,0,0,0.6); z-index: 99999999; display: none; animation: popIn 0.5s ease-out; border: 4px solid white; text-align: center; min-width: 200px; pointer-events: none; }
         @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0) rotate(-10deg); opacity: 0; } 60% { transform: translate(-50%, -50%) scale(1.15) rotate(3deg); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; } }
         .reward-emoji { font-size: 50px; display: block; margin-bottom: 10px; }
@@ -121,7 +119,7 @@
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
             <div id="adPhase1">
-                <div class="ad-icon">📺</div>
+                <div class="ad-icon"></div>
                 <div class="ad-title" id="adPhase1Title">Tonton Iklan</div>
                 <div class="ad-desc" id="adPhase1Desc">Untuk mendapatkan hadiah</div>
                 <div class="ad-reward-preview">
@@ -131,12 +129,12 @@
                 <button id="btnWatchAd" class="overlay-btn watch">▶ TONTON SEKARANG</button>
             </div>
             <div id="adPhase2" style="display:none;">
-                <div class="ad-icon">🎁</div>
+                <div class="ad-icon"></div>
                 <div class="ad-title">Iklan Selesai!</div>
                 <div class="ad-desc">Klik tombol di bawah untuk klaim hadiahmu</div>
                 <div class="ad-reward-preview">
                     <div class="ad-reward-label">Hadiah siap diklaim:</div>
-                    <div class="ad-reward-amount" id="adPhase2Reward">+50 💰</div>
+                    <div class="ad-reward-amount" id="adPhase2Reward">+50 </div>
                 </div>
                 <div class="timer-text" id="adTimer">5</div>
                 <button id="btnClaimAd" class="overlay-btn" disabled>TUNGGU...</button>
@@ -163,7 +161,7 @@
                 <div class="ad-desc">Klik tombol di bawah untuk menerima bonus</div>
                 <div class="ad-reward-preview">
                     <div class="ad-reward-label">Bonus harian:</div>
-                    <div class="ad-reward-amount">+200 </div>
+                    <div class="ad-reward-amount">+200 💰</div>
                 </div>
                 <div class="timer-text" id="bonusTimer">5</div>
                 <button id="btnClaimBonus" class="overlay-btn" disabled>TUNGGU...</button>
@@ -173,14 +171,14 @@
 
     <div id="rewardPopup">
         <span class="reward-emoji">🎉</span>
-        <span class="reward-text" id="rewardText">+50 </span>
+        <span class="reward-text" id="rewardText">+50 💰</span>
     </div>
 
     <div id="wdModal" class="modal-overlay">
         <div class="modal-box">
-            <h2>💸 Tarik Saldo</h2>
+            <h2> Tarik Saldo</h2>
             <div class="tier-info">
-                <div>📊 WD Kamu: <strong id="wdTierDisplay">#1</strong><span id="vipBadgeDisplay"></span></div>
+                <div> WD Kamu: <strong id="wdTierDisplay">#1</strong><span id="vipBadgeDisplay"></span></div>
                 <div style="margin-top:5px;">💰 Saldo: Rp <span id="wdSaldo">0</span></div>
                 <div style="margin-top:5px;">📺 Iklan Ditonton: <span id="wdAdsCount">0</span></div>
             </div>
@@ -201,7 +199,7 @@
 
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box">
-            <h2>📜 Riwayat Penarikan</h2>
+            <h2> Riwayat Penarikan</h2>
             <div id="historyList" style="max-height:350px;overflow-y:auto;margin-bottom:15px;"><p style="color:#95a5a6;text-align:center;padding:20px;">Memuat data...</p></div>
             <button class="btn-action btn-close" onclick="closeModal('historyModal')">Tutup</button>
         </div>
@@ -439,7 +437,7 @@
             const rewardAmount = 50;
             gameState.lastAdScore = gameState.score;
             gameState.nextAdThreshold = gameState.score + 150 + Math.floor(Math.random() * 151);
-            showAdPhase1(' SKOR MENCAPAI!', `Hebat! Skor kamu ${gameState.lastAdScore}. Tonton iklan untuk klaim bonus!`, `+${rewardAmount} 💰`, () => {
+            showAdPhase1('🎯 SKOR MENCAPAI!', `Hebat! Skor kamu ${gameState.lastAdScore}. Tonton iklan untuk klaim bonus!`, `+${rewardAmount} 💰`, () => {
                 coins += rewardAmount;
                 localStorage.setItem('hans_coins', coins);
                 updatePlayerCoins(rewardAmount);
@@ -461,7 +459,7 @@
                         gameState.level++;
                         initGame();
                     } else {
-                        showMessage(' Selamat! Kamu menyelesaikan semua level!', 'success');
+                        showMessage('🏆 Selamat! Kamu menyelesaikan semua level!', 'success');
                     }
                 }, 2000);
             } else if (gameState.moves <= 0) {
@@ -515,7 +513,7 @@
             const now = Date.now();
             if (now - lastBonusTime < 30000) { alert(`⏳ Tunggu ${Math.ceil((30000 - (now - lastBonusTime)) / 1000)} detik!`); return; }
             const rewardAmount = 200;
-            showAdPhase1(' BONUS HARIAN', 'Tonton iklan untuk klaim bonus harianmu!', `+${rewardAmount} 💰`, () => {
+            showAdPhase1('🎁 BONUS HARIAN', 'Tonton iklan untuk klaim bonus harianmu!', `+${rewardAmount} 💰`, () => {
                 coins += rewardAmount; adsWatched++; lastBonusTime = Date.now();
                 localStorage.setItem('hans_coins', coins); localStorage.setItem('chicken_ads_watched', adsWatched);
                 updatePlayerCoins(rewardAmount);
@@ -544,7 +542,7 @@
                     <h1 style="color: #ffd700; margin-bottom: 20px;">🐔 CHICKEN TAP</h1>
                     <p style="color: #a78bfa; margin-bottom: 20px;">Tap ayam warna sama untuk meledakkannya!</p>
                     <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-                        <div style="font-size: 1.2em; color: #ffd700; font-weight: bold;">🪙 ${coins.toLocaleString()} Koin</div>
+                        <div style="font-size: 1.2em; color: #ffd700; font-weight: bold;"> ${coins.toLocaleString()} Koin</div>
                         <div style="font-size: 0.9em; color: #a78bfa;">Rp ${Math.floor(coins/50).toLocaleString()}</div>
                     </div>
                     <button class="button" onclick="startGame()">▶ MULAI MAIN</button>
@@ -624,7 +622,7 @@
             const submitBtn = document.getElementById('wdSubmitBtn'); submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
             try {
                 const vipTag = isVip ? ' [VIP]' : '';
-                await kirimNotifWablas(`💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`);
+                await kirimNotifWablas(`💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n📺 ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`);
                 await db.collection('withdrawals').add({ playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                 const newWdCount = wdCount + 1; const newCoins = coins - tier.coins;
                 await db.collection('players').doc(playerId).update({ wdCount: newWdCount, totalCoins: newCoins, adsWatched: 0, lastWdTime: firebase.firestore.FieldValue.serverTimestamp() });

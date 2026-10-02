@@ -24,13 +24,7 @@
         .start-btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 18px 50px; border: none; border-radius: 50px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.3); touch-action: manipulation; }
         .start-btn:active { transform: scale(0.95); }
 
-        /* ✅ FIX: CANVAS PAKAI POSITION ABSOLUTE BIAR Z-INDEX JALAN */
-        #gameCanvas { 
-            position: absolute; 
-            top: 0; left: 0; 
-            display: block; width: 100%; height: 100vh; 
-            z-index: 1; touch-action: none; 
-        }
+        #gameCanvas { position: absolute; top: 0; left: 0; display: block; width: 100%; height: 100vh; z-index: 1; touch-action: none; }
         
         .ui-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 22, 40, 0.95); z-index: 100; overflow-y: auto; padding: 20px; }
         .hidden { display: none !important; }
@@ -64,17 +58,12 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; touch-action: manipulation; }
         
-        /* ✅ FIX: TOMBOL MENU PASTI DI ATAS SEMUA & BISA DIKLIK */
         #backToMenuBtn { 
-            position: fixed; 
-            top: 10px; right: 10px; 
-            background: rgba(255, 71, 87, 0.95); 
-            color: white; border: 2px solid white; 
-            padding: 10px 20px; border-radius: 25px; 
-            font-size: 14px; font-weight: bold; 
-            cursor: pointer; z-index: 100000; 
-            display: none; touch-action: manipulation; 
-            pointer-events: auto; 
+            position: fixed; top: 10px; right: 10px; 
+            background: rgba(255, 71, 87, 0.95); color: white; 
+            border: 2px solid white; padding: 10px 20px; border-radius: 25px; 
+            font-size: 14px; font-weight: bold; cursor: pointer; 
+            z-index: 100000; display: none; touch-action: manipulation; pointer-events: auto; 
         }
         #soundToggle { position: fixed; left: 10px; top: 10px; background: rgba(255,255,255,0.9); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 100000; display: none; touch-action: manipulation; }
 
@@ -131,7 +120,7 @@
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk bola berwarna untuk memecahkannya.</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Setiap bola yang pecah memberikan Koin & Saldo!</span></div>
             <div class="instruction-item"><span class="instruction-icon">🏆</span> <span>Hancurkan semua bola di layar untuk naik level & dapat hadiah besar!</span></div>
-            <div class="instruction-item"><span class="instruction-icon"></span> <span>Kumpulkan koin dan tarik saldo ke DANA kamu!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Kumpulkan koin dan tarik saldo ke DANA kamu!</span></div>
         </div>
         <button class="start-btn" onclick="startGameFromLanding()">▶ MULAI MAIN</button>
         <p style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 20px;">© 2024 Hans Orb Blast. All rights reserved.</p>
@@ -187,7 +176,7 @@
                 <div class="ad-desc" id="adPhase1Desc">Untuk mendapatkan hadiah</div>
                 <div class="ad-reward-preview">
                     <div class="ad-reward-label">Hadiah yang akan didapat:</div>
-                    <div class="ad-reward-amount" id="adPhase1Reward">+50 </div>
+                    <div class="ad-reward-amount" id="adPhase1Reward">+50 💰</div>
                 </div>
                 <button id="btnWatchAd" class="overlay-btn watch">▶ TONTON SEKARANG</button>
             </div>
@@ -209,7 +198,7 @@
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
             <div id="bonusPhase1">
-                <div class="ad-icon">🎁</div>
+                <div class="ad-icon"></div>
                 <div class="ad-title">Bonus Harian</div>
                 <div class="ad-desc">Tonton iklan untuk klaim bonus harianmu</div>
                 <div class="ad-reward-preview">
@@ -233,8 +222,8 @@
     </div>
 
     <div id="rewardPopup">
-        <span class="reward-emoji"></span>
-        <span class="reward-text" id="rewardText">+50 💰</span>
+        <span class="reward-emoji">🎉</span>
+        <span class="reward-text" id="rewardText">+50 </span>
     </div>
 
     <div id="wdModal" class="modal-overlay">
@@ -272,7 +261,9 @@
         const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        const WABLAS_CONFIG = { baseUrl: 'https://jkt.wablas.com', token: 'NHUrrZcRnOXdA77e5UGtg4Fzz5O0zTvKMW3ofpdgtDKizqQIusuOTVv', adminPhone: '6285884026882' };
+        // ✅ DISCORD WEBHOOK CONFIG (GANTI WABLAS)
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1555340340557512806/NX1B3PrFxj6wA2Y99d76md5diSuUdypfRjdt-1WJZnic3NLVnBjtd3LgzpQZgn4EFs9m';
+
         const WD_TIERS = {
             1: { amount: 1000, coins: 50000, adsNormal: 100, adsVip: 50, oneTime: true, label: 'WD #1 - Rp 1.000' },
             2: { amount: 5000, coins: 250000, adsNormal: 500, adsVip: 500, oneTime: true, label: 'WD #2 - Rp 5.000' },
@@ -282,12 +273,44 @@
         const GAME_SOURCE = 'HansOrbBlast';
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/x967vh9dn?key=3f70f2d034fd98e1ad2f8165f9dfe521';
 
-        async function kirimNotifWablas(pesan) {
+        // ✅ FUNGSI NOTIFIKASI DISCORD (GRATIS & UNLIMITED)
+        async function kirimNotifDiscord(data) {
             try {
-                const response = await fetch(`${WABLAS_CONFIG.baseUrl}/api/send-message`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': WABLAS_CONFIG.token }, body: JSON.stringify({ phone: WABLAS_CONFIG.adminPhone, message: pesan }) });
-                const result = await response.json();
-                return (result.status || result.data) ? true : false;
-            } catch (error) { console.error('Error Wablas:', error); return false; }
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'Hans Cuan Bot',
+                        avatar_url: 'https://cdn-icons-png.flaticon.com/512/2111/2111646.png',
+                        embeds: [{
+                            title: '💰 Penarikan Saldo Baru!',
+                            color: 0x00FF00,
+                            fields: [
+                                { name: '🎮 Game', value: data.gameName, inline: true },
+                                { name: '📊 Tier WD', value: `#${data.tier}`, inline: true },
+                                { name: '💵 Nominal', value: `Rp ${data.amount.toLocaleString('id-ID')}`, inline: true },
+                                { name: '👤 Nama', value: data.name, inline: true },
+                                { name: '💳 Nomor DANA', value: data.dana, inline: true },
+                                { name: '⭐ Status', value: data.isVip ? 'VIP (50 iklan)' : 'Normal (100 iklan)', inline: true },
+                                { name: ' Iklan Ditonton', value: `${data.adsWatched} iklan`, inline: true },
+                                { name: '💰 Sisa Koin', value: data.sisaKoin.toLocaleString('id-ID'), inline: true }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: 'Hans Cuan Arcade • Hanscuan admin' }
+                        }]
+                    })
+                });
+                if (response.ok) {
+                    console.log('✅ Notif Discord terkirim');
+                    return true;
+                } else {
+                    console.error('❌ Gagal kirim Discord:', response.status);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Error Discord:', error);
+                return false;
+            }
         }
 
         function isVipHariIni(playerId) {
@@ -318,7 +341,7 @@
         const colors = ['#FF3B30', '#007AFF', '#34C759', '#FFCC00', '#AF52DE', '#FF9500'];
         let audioCtx = null;
         let soundEnabled = true;
-        let animationId = null; // ✅ FIX: Variable buat track loop
+        let animationId = null;
 
         function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
         function playSound(type) {
@@ -329,7 +352,7 @@
             else if(type === 'bonus') { [523.25, 659.25, 783.99].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.05); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.05); o.stop(now + 0.3); }); } 
             else if(type === 'start') { [440, 554.37, 659.25].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = freq; g.gain.setValueAtTime(0.2, now + i*0.08); g.gain.exponentialRampToValueAtTime(0.01, now + 0.3); o.start(now + i*0.08); o.stop(now + 0.3); }); }
         }
-        function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').innerText = soundEnabled ? '🔊' : ''; }
+        function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').innerText = soundEnabled ? '🔊' : '🔇'; }
 
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas);
@@ -427,10 +450,8 @@
 
         function startGameFromLanding() { document.getElementById('landingPage').style.display = 'none'; startGame(); }
         
-        // ✅ FIX: CANCEL LOOP LAMA SEBELUM MULAI BARU
         function startGame() { 
             if (animationId) cancelAnimationFrame(animationId);
-            
             initAudio(); playSound('start'); 
             gameState = 'playing'; score = 0; 
             isRewardPopupActive = false;
@@ -444,17 +465,14 @@
             animate(); 
         }
         
-        // ✅ FIX: FUNGSI BACK TO MENU YANG ROBUST
         function backToMenu() { 
             gameState = 'menu'; 
             isRewardPopupActive = false;
-            
             document.getElementById('adOverlay').style.display = 'none';
             document.getElementById('bonusOverlay').style.display = 'none';
             document.getElementById('rewardPopup').style.display = 'none';
             document.getElementById('wdModal').style.display = 'none';
             document.getElementById('historyModal').style.display = 'none';
-            
             showMainMenu(); 
         }
 
@@ -514,7 +532,7 @@
             const now = Date.now();
             if (now - lastBonusTime < 30000) { alert(`⏳ Tunggu ${Math.ceil((30000 - (now - lastBonusTime)) / 1000)} detik!`); return; }
             const rewardAmount = 200;
-            showAdPhase1('🎁 BONUS HARIAN', 'Tonton iklan untuk klaim bonus harianmu!', `+${rewardAmount} 💰`, () => {
+            showAdPhase1('🎁 BONUS HARIAN', 'Tonton iklan untuk klaim bonus harianmu!', `+${rewardAmount} `, () => {
                 coins += rewardAmount; adsWatched++; lastBonusTime = Date.now();
                 localStorage.setItem('hans_coins', coins); localStorage.setItem('orb_ads_watched', adsWatched);
                 updatePlayerCoins(rewardAmount); updateMenuUI();
@@ -537,7 +555,7 @@
             document.getElementById('wdTierDisplay').innerText = '#' + (wdCount + 1);
             const nextTierNum = Math.min(wdCount + 1, 3);
             const isVip = (nextTierNum === 1) && isVipHariIni(playerId);
-            document.getElementById('vipBadgeDisplay').innerHTML = isVip ? '<span class="vip-badge">⭐ VIP HARI INI</span>' : '';
+            document.getElementById('vipBadgeDisplay').innerHTML = isVip ? '<span class="vip-badge">⭐ VIP HARI INI (50 Iklan)</span>' : '<span class="vip-badge">Normal (100 Iklan)</span>';
             const tierContainer = document.getElementById('tierButtons'); tierContainer.innerHTML = '';
             for (let i = 1; i <= 3; i++) {
                 const tier = WD_TIERS[i]; const btn = document.createElement('div'); btn.className = 'tier-btn';
@@ -548,8 +566,8 @@
                 if (isDone) { btn.classList.add('done'); btn.innerHTML = `<span>✅ ${tier.label}</span><span class="tier-req">Sudah</span>`; } 
                 else if (!isCurrentTier && !isDone) { btn.classList.add('locked'); btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Belum unlock</span>`; } 
                 else {
-                    if (canAffordCoins && canAffordAds) { btn.classList.add('active'); btn.innerHTML = `<span>💰 ${tier.label}</span><span class="tier-req">✅ Siap</span>`; btn.onclick = () => selectTier(i, btn); } 
-                    else { btn.classList.add('locked'); const missing = []; if (!canAffordCoins) missing.push(`${tier.coins.toLocaleString()} koin`); if (!canAffordAds) missing.push(`${requiredAds} iklan`); btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Butuh: ${missing.join(' & ')}</span>`; }
+                    if (canAffordCoins && canAffordAds) { btn.classList.add('active'); btn.innerHTML = `<span> ${tier.label}</span><span class="tier-req">✅ Butuh ${requiredAds} Iklan</span>`; btn.onclick = () => selectTier(i, btn); } 
+                    else { btn.classList.add('locked'); const missing = []; if (!canAffordCoins) missing.push(`${tier.coins.toLocaleString()} koin`); if (!canAffordAds) missing.push(`${requiredAds} iklan`); btn.innerHTML = `<span> ${tier.label}</span><span class="tier-req">Butuh: ${missing.join(' & ')}</span>`; }
                 }
                 tierContainer.appendChild(btn);
             }
@@ -563,13 +581,15 @@
             const tier = WD_TIERS[tierNum]; const isVip = (tierNum === 1) && isVipHariIni(playerId);
             const requiredAds = isVip ? tier.adsVip : tier.adsNormal;
             const sisaKoin = coins - tier.coins; const sisaRupiah = Math.floor(sisaKoin / 50);
-            document.getElementById('summaryTier').innerText = `WD #${tierNum}${isVip ? ' [VIP]' : ''}`;
+            document.getElementById('summaryTier').innerText = `WD #${tierNum}${isVip ? ' [VIP - 50 Iklan]' : ' [Normal - 100 Iklan]'}`;
             document.getElementById('summaryAmount').innerText = `Rp ${tier.amount.toLocaleString('id-ID')}`;
             document.getElementById('summaryCoins').innerText = tier.coins.toLocaleString('id-ID') + ' koin';
             document.getElementById('summaryAds').innerText = requiredAds + ' iklan';
             document.getElementById('summaryRemain').innerText = `${sisaKoin.toLocaleString('id-ID')} koin (Rp ${sisaRupiah.toLocaleString('id-ID')})`;
             document.getElementById('wdSummary').style.display = 'block'; document.getElementById('wdSubmitBtn').disabled = false;
         }
+
+        // ✅ PROSES WD DENGAN NOTIFIKASI DISCORD
         async function processWD() {
             if (!selectedWdTier) { alert('Pilih tier WD dulu!'); return; }
             const dana = document.getElementById('inputDana').value.trim(); const name = document.getElementById('inputName').value.trim();
@@ -578,22 +598,45 @@
             if (dana.length < 10 || !dana.startsWith('08')) { alert('Nomor DANA tidak valid!'); return; }
             if (name.length < 3) { alert('Nama pemilik terlalu pendek!'); return; }
             if (coins < tier.coins) { alert(`Koin belum cukup! Butuh ${tier.coins.toLocaleString()} koin.`); return; }
-            if (adsWatched < requiredAds) { alert(`Iklan belum cukup! Butuh ${requiredAds} iklan.`); return; }
+            if (adsWatched < requiredAds) { alert(`Iklan belum cukup! Butuh ${requiredAds} iklan (Status: ${isVip ? 'VIP' : 'Normal'}).`); return; }
             const sisaKoin = coins - tier.coins; const sisaRupiah = Math.floor(sisaKoin / 50);
-            if (!confirm(`Konfirmasi WD:\n\nTier: WD #${selectedWdTier}\nNominal: Rp ${tier.amount.toLocaleString('id-ID')}\nDANA: ${dana}\nNama: ${name.toUpperCase()}\nSisa koin: ${sisaKoin.toLocaleString()}\n\nLanjutkan?`)) return;
+            if (!confirm(`Konfirmasi WD:\n\nTier: WD #${selectedWdTier} (${isVip ? 'VIP' : 'Normal'})\nNominal: Rp ${tier.amount.toLocaleString('id-ID')}\nDANA: ${dana}\nNama: ${name.toUpperCase()}\nSisa koin: ${sisaKoin.toLocaleString()}\n\nLanjutkan?`)) return;
             const submitBtn = document.getElementById('wdSubmitBtn'); submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
             try {
-                const vipTag = isVip ? ' [VIP]' : '';
-                await kirimNotifWablas(`💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🎮 ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n📺 ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`);
-                await db.collection('withdrawals').add({ playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                // ✅ KIRIM NOTIFIKASI DISCORD
+                const notifBerhasil = await kirimNotifDiscord({
+                    gameName: GAME_NAME,
+                    tier: selectedWdTier,
+                    amount: tier.amount,
+                    name: name.toUpperCase(),
+                    dana: dana,
+                    isVip: isVip,
+                    adsWatched: adsWatched,
+                    sisaKoin: sisaKoin
+                });
+
+                // ✅ SIMPAN KE FIREBASE
+                await db.collection('withdrawals').add({ 
+                    playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), 
+                    amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, 
+                    gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', 
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                });
                 const newWdCount = wdCount + 1; const newCoins = coins - tier.coins;
                 await db.collection('players').doc(playerId).update({ wdCount: newWdCount, totalCoins: newCoins, adsWatched: 0, lastWdTime: firebase.firestore.FieldValue.serverTimestamp() });
                 wdCount = newWdCount; coins = newCoins; adsWatched = 0;
                 localStorage.setItem('hans_coins', coins); localStorage.setItem('orb_ads_watched', 0);
-                alert(`✅ WD #${selectedWdTier} berhasil dikirim!`); closeModal('wdModal'); updateMenuUI();
+                
+                if (notifBerhasil) {
+                    alert(`✅ WD #${selectedWdTier} berhasil dikirim!\n\nNotifikasi Discord sudah masuk ke Admin.\nSisa koin: ${coins.toLocaleString()}`);
+                } else {
+                    alert(`✅ WD berhasil disimpan!\n\n⚠️ Notifikasi Discord gagal terkirim, tapi data WD aman di database.`);
+                }
+                closeModal('wdModal'); updateMenuUI();
             } catch (error) { alert('❌ Gagal memproses WD: ' + error.message); } 
             finally { submitBtn.disabled = false; submitBtn.innerText = 'Kirim Permintaan WD'; }
         }
+
         function showHistory() {
             document.getElementById('historyModal').style.display = 'flex'; const list = document.getElementById('historyList');
             list.innerHTML = '<p style="color:#95a5a6;text-align:center;padding:20px;">Memuat data...</p>';
@@ -609,6 +652,7 @@
                 });
             }).catch(err => { list.innerHTML = '<p style="color:#e74c3c;text-align:center;padding:20px;">Gagal memuat riwayat.</p>'; });
         }
+
         function updateMenuUI() {
             document.getElementById('menuBalance').innerText = coins.toLocaleString('id-ID');
             document.getElementById('menuRupiah').innerText = Math.floor(coins/50).toLocaleString('id-ID');

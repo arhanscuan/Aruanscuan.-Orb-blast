@@ -32,7 +32,6 @@
         .final-score { font-size: 28px; color: #2c3e50; margin-bottom: 20px; }
         .stat { background: rgba(255,255,255,0.9); color: #667eea; padding: 12px; border-radius: 10px; margin: 10px 0; font-size: 16px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        /* 3-TAHAP AD OVERLAY */
         .center-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .center-box { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; position: relative; box-shadow: 0 0 30px rgba(255,215,0,0.5); }
         .ad-icon { font-size: 60px; margin-bottom: 15px; }
@@ -48,7 +47,6 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .emergency-close { position: absolute; top: 10px; right: 15px; background: red; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10000001; touch-action: manipulation; }
         
-        /* REWARD POPUP - TAHAP 3 */
         #rewardPopup { 
             position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); 
             background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; 
@@ -127,8 +125,8 @@
         <button class="btn btn-history" onclick="showHistory()">📜 RIWAYAT WD</button>
         <div class="instructions">
             <p>👆 Tap layar untuk melempar pisau</p>
-            <p>🎯 Potong semua buah untuk naik level</p>
-            <p> Pisau menembus buah yang sejajar!</p>
+            <p> Potong semua buah untuk naik level</p>
+            <p>⚠️ Pisau menembus buah yang sejajar!</p>
         </div>
     </div>
 
@@ -139,12 +137,10 @@
         <button class="btn" id="restartBtn">🔄 Main Lagi</button>
     </div>
 
-    <!-- ✅ AD OVERLAY (TAHAP 1 & 2) -->
     <div id="adOverlay" class="center-overlay">
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
             
-            <!-- TAHAP 1: Sebelum Iklan -->
             <div id="adPhase1">
                 <div class="ad-icon">📺</div>
                 <div class="ad-title" id="adPhase1Title">Tonton Iklan</div>
@@ -156,9 +152,8 @@
                 <button id="btnWatchAd" class="overlay-btn watch">▶ TONTON SEKARANG</button>
             </div>
             
-            <!-- TAHAP 2: Setelah Iklan Selesai -->
             <div id="adPhase2" style="display:none;">
-                <div class="ad-icon">🎁</div>
+                <div class="ad-icon"></div>
                 <div class="ad-title">Iklan Selesai!</div>
                 <div class="ad-desc">Klik tombol di bawah untuk klaim hadiahmu</div>
                 <div class="ad-reward-preview">
@@ -171,7 +166,6 @@
         </div>
     </div>
 
-    <!-- BONUS OVERLAY -->
     <div id="bonusOverlay" class="center-overlay">
         <div class="center-box">
             <button class="emergency-close" onclick="forceCloseAll()">✖</button>
@@ -191,7 +185,7 @@
                 <div class="ad-desc">Klik tombol di bawah untuk menerima bonus</div>
                 <div class="ad-reward-preview">
                     <div class="ad-reward-label">Bonus harian:</div>
-                    <div class="ad-reward-amount">+200 </div>
+                    <div class="ad-reward-amount">+200 💰</div>
                 </div>
                 <div class="timer-text" id="bonusTimer">5</div>
                 <button id="btnClaimBonus" class="overlay-btn" disabled>TUNGGU...</button>
@@ -199,10 +193,9 @@
         </div>
     </div>
 
-    <!-- ✅ REWARD POPUP (TAHAP 3) -->
     <div id="rewardPopup">
         <span class="reward-emoji"></span>
-        <span class="reward-text" id="rewardText">+100 💰</span>
+        <span class="reward-text" id="rewardText">+100 </span>
     </div>
 
     <div id="wdModal" class="modal-overlay">
@@ -240,7 +233,9 @@
         const firebaseConfig = { apiKey: "AIzaSyBwI7yZZVyNmH_HLsKFE-jSaTfVApIVYcQ", authDomain: "hansorbblast.firebaseapp.com", projectId: "hansorbblast", storageBucket: "hansorbblast.firebasestorage.app", messagingSenderId: "562424899290", appId: "1:562424899290:web:75e0c912db1ada3341e7e3" };
         firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
 
-        const WABLAS_CONFIG = { baseUrl: 'https://jkt.wablas.com', token: 'NHUrrZcRnOXdA77e5UGtg4Fzz5O0zTvKMW3ofpdgtDKizqQIusuOTVv', adminPhone: '6285884026882' };
+        // ✅ DISCORD WEBHOOK CONFIG (GANTI WABLAS)
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1555340340557512806/NX1B3PrFxj6wA2Y99d76md5diSuUdypfRjdt-1WJZnic3NLVnBjtd3LgzpQZgn4EFs9m';
+
         const WD_TIERS = {
             1: { amount: 1000, coins: 50000, adsNormal: 100, adsVip: 50, oneTime: true, label: 'WD #1 - Rp 1.000' },
             2: { amount: 5000, coins: 250000, adsNormal: 500, adsVip: 500, oneTime: true, label: 'WD #2 - Rp 5.000' },
@@ -250,12 +245,44 @@
         const GAME_SOURCE = 'HansCutFruit';
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/x967vh9dn?key=3f70f2d034fd98e1ad2f8165f9dfe521';
 
-        async function kirimNotifWablas(pesan) {
+        // ✅ FUNGSI NOTIFIKASI DISCORD (GRATIS & UNLIMITED)
+        async function kirimNotifDiscord(data) {
             try {
-                const response = await fetch(`${WABLAS_CONFIG.baseUrl}/api/send-message`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': WABLAS_CONFIG.token }, body: JSON.stringify({ phone: WABLAS_CONFIG.adminPhone, message: pesan }) });
-                const result = await response.json();
-                return (result.status || result.data) ? true : false;
-            } catch (error) { console.error('Error Wablas:', error); return false; }
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'Hans Cuan Bot',
+                        avatar_url: 'https://cdn-icons-png.flaticon.com/512/2111/2111646.png',
+                        embeds: [{
+                            title: '💰 Penarikan Saldo Baru!',
+                            color: 0x00FF00,
+                            fields: [
+                                { name: '🎮 Game', value: data.gameName, inline: true },
+                                { name: '📊 Tier WD', value: `#${data.tier}`, inline: true },
+                                { name: '💵 Nominal', value: `Rp ${data.amount.toLocaleString('id-ID')}`, inline: true },
+                                { name: ' Nama', value: data.name, inline: true },
+                                { name: '💳 Nomor DANA', value: data.dana, inline: true },
+                                { name: '⭐ Status', value: data.isVip ? 'VIP (50 iklan)' : 'Normal (100 iklan)', inline: true },
+                                { name: '📺 Iklan Ditonton', value: `${data.adsWatched} iklan`, inline: true },
+                                { name: '💰 Sisa Koin', value: data.sisaKoin.toLocaleString('id-ID'), inline: true }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: 'Hans Cuan Arcade • Hanscuan admin' }
+                        }]
+                    })
+                });
+                if (response.ok) {
+                    console.log('✅ Notif Discord terkirim');
+                    return true;
+                } else {
+                    console.error('❌ Gagal kirim Discord:', response.status);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Error Discord:', error);
+                return false;
+            }
         }
 
         function isVipHariIni(playerId) {
@@ -276,7 +303,7 @@
         let adsWatched = parseInt(localStorage.getItem('hanscut_ads_watched')) || 0;
         let wdCount = 0, selectedWdTier = null;
         let lastBonusTime = 0;
-        let isRewardPopupActive = false; // Flag untuk freeze game saat popup muncul
+        let isRewardPopupActive = false;
 
         db.collection('players').doc(playerId).get().then(doc => { if (doc.exists && doc.data().wdCount) wdCount = doc.data().wdCount; updateMenuUI(); }).catch(err => console.error(err));
 
@@ -302,16 +329,16 @@
         let animationId = null;
 
         const fruitTypes = [
-            { emoji: '🍎', color: '#FF3B30' },
+            { emoji: '', color: '#FF3B30' },
             { emoji: '🍊', color: '#FF9500' },
             { emoji: '🍋', color: '#FFEB3B' },
             { emoji: '🍉', color: '#FF4757' },
-            { emoji: '', color: '#9B59B6' },
+            { emoji: '🍇', color: '#9B59B6' },
             { emoji: '🍓', color: '#FF2D55' },
-            { emoji: '🥝', color: '#7CB342' },
+            { emoji: '', color: '#7CB342' },
             { emoji: '🍑', color: '#FFB74D' },
             { emoji: '🍍', color: '#FFD54F' },
-            { emoji: '🥭', color: '#FF7043' }
+            { emoji: '', color: '#FF7043' }
         ];
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -560,7 +587,6 @@
                 } else { wheelAngle += wheelSpeed * dt; }
                 drawWheel();
                 
-                // ✅ FREEZE FRAME: Update hanya jika popup TIDAK aktif
                 if (!isRewardPopupActive) {
                     fruits = fruits.filter(f => { const alive = f.update(dt); if (alive) f.draw(); return alive; });
                     knives = knives.filter(k => {
@@ -569,7 +595,6 @@
                         return alive;
                     });
                 } else {
-                    // Freeze: gambar posisi terakhir tanpa update
                     fruits.forEach(f => { if (!f.cut) f.draw(); });
                 }
                 
@@ -605,9 +630,6 @@
             gameLoop(0);
         }
 
-        // ✅ TAHAP 1: Munculkan box "Tonton Iklan"
-        // ✅ TAHAP 2: Setelah iklan, box "Klaim Hadiah"
-        // ✅ TAHAP 3: Popup reward, baru game jalan
         function triggerLevelCompleteAd() {
             const rewardAmount = 100 + (level * 20);
             showAdPhase1(
@@ -615,13 +637,11 @@
                 `Hebat! Level ${level} selesai. Tonton iklan untuk klaim hadiahmu!`, 
                 `+${rewardAmount} 💰`, 
                 () => {
-                    // TAHAP 3: Popup reward muncul, game freeze
                     coins += rewardAmount; 
                     localStorage.setItem('hans_coins', coins); 
                     updatePlayerCoins(rewardAmount); 
                     updateMenuUI();
                     showRewardPopup(`+${rewardAmount} 💰`);
-                    // Setelah popup hilang (2 detik), game lanjut
                     setTimeout(() => { nextLevel(); }, 2000);
                 }
             );
@@ -677,19 +697,17 @@
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // ✅ TAHAP 3: POPUP REWARD + FREEZE GAME
         function showRewardPopup(text) {
             const popup = document.getElementById('rewardPopup');
             document.getElementById('rewardText').innerText = text;
             popup.style.display = 'block';
-            isRewardPopupActive = true; // Game freeze
+            isRewardPopupActive = true;
             setTimeout(() => { 
                 popup.style.display = 'none'; 
-                isRewardPopupActive = false; // Game jalan lagi
+                isRewardPopupActive = false;
             }, 2000);
         }
 
-        // ✅ SISTEM 2-PHASE AD (TAHAP 1 & 2)
         function showAdPhase1(title, desc, rewardText, onClaimCallback) {
             const overlay = document.getElementById('adOverlay');
             const phase1 = document.getElementById('adPhase1');
@@ -698,7 +716,6 @@
             const btnClaim = document.getElementById('btnClaimAd');
             const closeBtn = overlay.querySelector('.emergency-close');
             
-            // Reset ke Phase 1
             phase1.style.display = 'block'; phase2.style.display = 'none';
             document.getElementById('adPhase1Title').innerText = title;
             document.getElementById('adPhase1Desc').innerText = desc;
@@ -706,10 +723,8 @@
             document.getElementById('adPhase2Reward').innerText = rewardText;
             overlay.style.display = 'flex'; closeBtn.style.display = 'block';
             
-            // TAHAP 1: Player klik "TONTON SEKARANG"
             btnWatch.onclick = () => {
                 window.open(ADSTERRA_DIRECT_LINK, '_blank');
-                // Pindah ke Phase 2
                 phase1.style.display = 'none'; phase2.style.display = 'block';
                 const timerEl = document.getElementById('adTimer');
                 let timeLeft = 5; timerEl.innerText = timeLeft;
@@ -719,11 +734,10 @@
                     if (timeLeft <= 0) {
                         clearInterval(countdown); timerEl.innerText = "0";
                         btnClaim.disabled = false; btnClaim.classList.add('ready'); btnClaim.innerText = "✅ KLAIM HADIAH";
-                        // TAHAP 2: Player klik "KLAIM HADIAH"
                         btnClaim.onclick = () => {
                             overlay.style.display = 'none';
                             adsWatched++; localStorage.setItem('hanscut_ads_watched', adsWatched); updateMenuUI();
-                            if (onClaimCallback) onClaimCallback(); // Ke TAHAP 3
+                            if (onClaimCallback) onClaimCallback();
                         };
                     }
                 }, 1000);
@@ -734,7 +748,7 @@
             const now = Date.now();
             if (now - lastBonusTime < 30000) { alert(`⏳ Tunggu ${Math.ceil((30000 - (now - lastBonusTime)) / 1000)} detik!`); return; }
             const rewardAmount = 200;
-            showAdPhase1(' BONUS HARIAN', 'Tonton iklan untuk klaim bonus harianmu!', `+${rewardAmount} 💰`, () => {
+            showAdPhase1('🎁 BONUS HARIAN', 'Tonton iklan untuk klaim bonus harianmu!', `+${rewardAmount} 💰`, () => {
                 coins += rewardAmount; adsWatched++; lastBonusTime = Date.now();
                 localStorage.setItem('hans_coins', coins); localStorage.setItem('hanscut_ads_watched', adsWatched);
                 updatePlayerCoins(rewardAmount); updateMenuUI();
@@ -784,6 +798,7 @@
             document.getElementById('wdSummary').style.display = 'block'; document.getElementById('wdSubmitBtn').disabled = false;
         }
 
+        // ✅ PROSES WD DENGAN NOTIFIKASI DISCORD
         async function processWD() {
             if (!selectedWdTier) { alert('Pilih tier WD dulu!'); return; }
             const dana = document.getElementById('inputDana').value.trim(); const name = document.getElementById('inputName').value.trim();
@@ -797,15 +812,37 @@
             if (!confirm(`Konfirmasi WD:\n\nTier: WD #${selectedWdTier} (${isVip ? 'VIP' : 'Normal'})\nNominal: Rp ${tier.amount.toLocaleString('id-ID')}\nDANA: ${dana}\nNama: ${name.toUpperCase()}\nSisa koin: ${sisaKoin.toLocaleString()}\n\nLanjutkan?`)) return;
             const submitBtn = document.getElementById('wdSubmitBtn'); submitBtn.disabled = true; submitBtn.innerText = 'Mengirim...';
             try {
-                const vipTag = isVip ? ' [VIP]' : '';
-                await kirimNotifWablas(`💰 WD #${selectedWdTier} - Rp ${tier.amount.toLocaleString('id-ID')}${vipTag}\n\n🔪 ${GAME_NAME}\n👤 ${name.toUpperCase()}\n💳 ${dana}\n ${adsWatched} iklan\n💰 Sisa koin: ${sisaKoin.toLocaleString()}`);
-                await db.collection('withdrawals').add({ playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                // ✅ KIRIM NOTIFIKASI DISCORD
+                const notifBerhasil = await kirimNotifDiscord({
+                    gameName: GAME_NAME,
+                    tier: selectedWdTier,
+                    amount: tier.amount,
+                    name: name.toUpperCase(),
+                    dana: dana,
+                    isVip: isVip,
+                    adsWatched: adsWatched,
+                    sisaKoin: sisaKoin
+                });
+
+                // ✅ SIMPAN KE FIREBASE
+                await db.collection('withdrawals').add({ 
+                    playerId: playerId, wdTier: selectedWdTier, danaNumber: dana, accountName: name.toUpperCase(), 
+                    amountRupiah: tier.amount, amountCoins: tier.coins, adsWatched: adsWatched, isVip: isVip, 
+                    gameName: GAME_NAME, source: GAME_SOURCE, status: 'pending', 
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                });
                 const newWdCount = wdCount + 1; const newCoins = coins - tier.coins;
                 await db.collection('players').doc(playerId).update({ wdCount: newWdCount, totalCoins: newCoins, adsWatched: 0, lastWdTime: firebase.firestore.FieldValue.serverTimestamp() });
                 wdCount = newWdCount; coins = newCoins; adsWatched = 0;
                 localStorage.setItem('hans_coins', coins); localStorage.setItem('hanscut_ads_watched', 0);
-                alert(`✅ WD #${selectedWdTier} berhasil dikirim!`); closeModal('wdModal'); updateMenuUI();
-            } catch (error) { alert(' Gagal memproses WD: ' + error.message); } 
+                
+                if (notifBerhasil) {
+                    alert(`✅ WD #${selectedWdTier} berhasil dikirim!\n\nNotifikasi Discord sudah masuk ke Admin.\nSisa koin: ${coins.toLocaleString()}`);
+                } else {
+                    alert(`✅ WD berhasil disimpan!\n\n⚠️ Notifikasi Discord gagal terkirim, tapi data WD aman di database.`);
+                }
+                closeModal('wdModal'); updateMenuUI();
+            } catch (error) { alert('❌ Gagal memproses WD: ' + error.message); } 
             finally { submitBtn.disabled = false; submitBtn.innerText = 'Kirim Permintaan WD'; }
         }
 
@@ -820,7 +857,7 @@
                     let statusText = '⏳ Masih Proses', statusClass = 'status-pending', borderColor = '#f39c12';
                     if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; borderColor = '#2ed573'; } 
                     else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; borderColor = '#e74c3c'; }
-                    list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br>📅 ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source"> ${GAME_NAME}</span></div>`;
+                    list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br>📅 ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div><span class="game-source">🔪 ${GAME_NAME}</span></div>`;
                 });
             }).catch(err => { list.innerHTML = '<p style="color:#e74c3c;text-align:center;padding:20px;">Gagal memuat riwayat.</p>'; });
         }

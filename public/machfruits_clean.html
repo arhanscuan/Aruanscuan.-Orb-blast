@@ -4,30 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mach Fruits - Tile Match</title>
+    <meta name="description" content="Match 3 identical fruits to clear them. Don't let the dock fill up!">
+    
+    <!-- ============================================ -->
+    <!-- ✅ PUBLISHER SDK - AKTIFKAN SESUAI PLATFORM -->
+    <!-- ============================================ -->
+    
+    <!-- GAME DISTRIBUTION SDK -->
+    <!-- <script src="https://html5.api.gamedistribution.com/main.min.js"></script> -->
+    
+    <!-- CRAZY GAMES SDK -->
+    <!-- <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script> -->
+    
+    <!-- POKI SDK -->
+    <!-- <script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script> -->
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background: #f0f4f8; color: #333; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
-        #landingPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999999; padding: 20px; text-align: center; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        body { background: #f0f4f8; color: #333; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        
+        /* ============================================ */
+        /* ✅ LANDING PAGE */
+        /* ============================================ */
+        #landingPage { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 9999999; padding: 20px; text-align: center; 
+        }
         .landing-logo { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         .landing-title { font-size: 36px; font-weight: 800; color: #fff; text-shadow: 2px 2px 8px rgba(254, 207, 239, 0.6); margin-bottom: 20px; }
         .instruction-box { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; margin-bottom: 30px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .instruction-item { color: #555; margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 10px; }
         .instruction-icon { font-size: 20px; }
-        .start-btn { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); color: white; padding: 18px 50px; border: none; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 10px 20px rgba(255, 154, 158, 0.4); touch-action: manipulation; z-index: 10000; position: relative; }
+        .start-btn { 
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); 
+            color: white; padding: 18px 50px; border: none; border-radius: 50px; 
+            font-size: 20px; font-weight: bold; cursor: pointer; 
+            box-shadow: 0 10px 20px rgba(255, 154, 158, 0.4); 
+            transition: transform 0.1s;
+        }
         .start-btn:active { transform: scale(0.95); }
+        
+        /* ============================================ */
+        /* ✅ GAME CONTAINER */
+        /* ============================================ */
         #gameContainer { display: none; height: 100vh; flex-direction: column; }
-        #topBar { background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
+        #topBar { 
+            background: white; padding: 10px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; 
+        }
         .info-box { display: flex; gap: 10px; align-items: center; }
-        .level-badge { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
-        .saldo-box { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white; padding: 8px 15px; border-radius: 15px; font-weight: bold; box-shadow: 0 3px 0 rgba(0,0,0,0.1); font-size: 13px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
-        .saldo-rupiah { font-size: 10px; opacity: 0.9; }
+        .level-badge { 
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); 
+            color: white; padding: 5px 12px; border-radius: 15px; 
+            font-weight: bold; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,0.1); 
+        }
+        .score-box { 
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); 
+            color: white; padding: 8px 15px; border-radius: 15px; 
+            font-weight: bold; box-shadow: 0 3px 0 rgba(0,0,0,0.1); 
+            font-size: 13px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; 
+        }
+        .score-label { font-size: 10px; opacity: 0.9; }
         
         #gameArea { flex: 1; position: relative; overflow: hidden; background: rgba(255,255,255,0.5); padding-bottom: 140px; }
-        .tile { position: absolute; background: white; border-radius: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 6px 0 #bdc3c7, 0 8px 10px rgba(0,0,0,0.1); border: 2px solid #fff; transition: transform 0.1s, filter 0.2s; font-size: 24px; }
-        .tile:active { transform: scale(0.95); }
-        .tile.blocked { filter: brightness(0.6) grayscale(0.5); cursor: not-allowed; box-shadow: 0 2px 0 #7f8c8d; border-color: #e74c3c; }
+        #board { position: relative; width: 100%; height: 100%; }
         
+        .tile { 
+            position: absolute; background: white; border-radius: 12px; 
+            display: flex; justify-content: center; align-items: center; 
+            cursor: pointer; font-size: 24px;
+            box-shadow: 0 6px 0 #bdc3c7, 0 8px 10px rgba(0,0,0,0.1); 
+            border: 2px solid #fff; 
+            transition: transform 0.15s ease, filter 0.2s; 
+        }
+        .tile:active { transform: scale(0.95); }
+        .tile.blocked { 
+            filter: brightness(0.6) grayscale(0.5); 
+            cursor: not-allowed; 
+            box-shadow: 0 2px 0 #7f8c8d; 
+            border-color: #e74c3c; 
+        }
+        .tile.removing { animation: popOut 0.3s ease forwards; }
+        @keyframes popOut { 
+            0% { transform: scale(1); opacity: 1; } 
+            100% { transform: scale(0); opacity: 0; } 
+        }
+        
+        /* ============================================ */
+        /* ✅ DOCK (KOTAK BAWAH) */
+        /* ============================================ */
         #dockContainer { 
             position: fixed; bottom: 12vh; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 360px; background: white;
@@ -36,207 +105,681 @@
             border: 2px solid #ecf0f1; z-index: 50;
             display: flex; justify-content: center; gap: 5px;
         }
-        .dock-slot { width: 42px; height: 42px; background: #f8f9fa; border-radius: 10px; border: 2px dashed #bdc3c7; display: flex; justify-content: center; align-items: center; }
-        .dock-slot .tile { position: static; box-shadow: none; border: none; width: 38px; height: 38px; font-size: 22px; }
-
-        #powerUps { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 10px; z-index: 5; }
-        .power-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); position: relative; display: flex; justify-content: center; align-items: center; touch-action: manipulation; }
-        .power-badge { position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; border: 2px solid white; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .dock-slot { 
+            width: 42px; height: 42px; background: #f8f9fa; 
+            border-radius: 10px; border: 2px dashed #bdc3c7; 
+            display: flex; justify-content: center; align-items: center; 
+        }
+        .dock-slot .tile { 
+            position: static; box-shadow: none; border: none; 
+            width: 38px; height: 38px; font-size: 22px; 
+        }
         
-        .btn-action { background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); color: white; border: none; padding: 12px; border-radius: 15px; font-size: 16px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); touch-action: manipulation; }
+        /* ============================================ */
+        /* ✅ POWER UPS */
+        /* ============================================ */
+        #powerUps { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 10px; z-index: 5; }
+        .power-btn { 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; border: none; width: 45px; height: 45px; 
+            border-radius: 50%; font-size: 20px; cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            position: relative; display: flex; justify-content: center; align-items: center; 
+            transition: transform 0.1s;
+        }
+        .power-btn:active { transform: scale(0.9); }
+        .power-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .power-badge { 
+            position: absolute; top: -5px; right: -5px; 
+            background: #ff4757; color: white; font-size: 10px; 
+            padding: 2px 6px; border-radius: 10px; font-weight: bold; border: 2px solid white; 
+        }
+        
+        /* ============================================ */
+        /* ✅ MODALS */
+        /* ============================================ */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); 
+            z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; 
+        }
+        .modal-box { 
+            background: white; border-radius: 20px; padding: 25px; 
+            width: 100%; max-width: 350px; text-align: center; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+        }
+        .modal-box h2 { color: #2c3e50; margin-bottom: 10px; font-size: 24px; }
+        .modal-box p { color: #7f8c8d; margin-bottom: 20px; }
+        
+        .btn-action { 
+            background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%); 
+            color: white; border: none; padding: 12px; border-radius: 15px; 
+            font-size: 16px; font-weight: bold; width: 100%; 
+            margin-top: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); 
+            transition: transform 0.1s;
+        }
+        .btn-action:active { transform: scale(0.95); }
         .btn-close { background: #ecf0f1; color: #7f8c8d; box-shadow: none; }
+        .btn-restart { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%); }
+        
+        /* ============================================ */
+        /* ✅ MESSAGE POPUP */
+        /* ============================================ */
+        #gameMessage { 
+            position: fixed; top: 20%; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.9); color: #ffd700; 
+            padding: 15px 30px; border-radius: 30px; 
+            font-weight: bold; z-index: 200; display: none;
+            border: 2px solid #ffd700; text-align: center; pointer-events: none;
+        }
+        
+        /* ============================================ */
+        /* ✅ LEVEL COMPLETE ANIMATION */
+        /* ============================================ */
+        .level-complete { animation: celebrate 0.5s ease; }
+        @keyframes celebrate { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.1); } 
+        }
     </style>
 </head>
 <body>
 
+    <!-- ============================================ -->
+    <!-- ✅ LANDING PAGE -->
+    <!-- ============================================ -->
     <div id="landingPage">
         <div class="landing-logo">🍒</div>
         <h1 class="landing-title">Mach Fruits</h1>
         <div class="instruction-box">
             <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk buah untuk pindahkan ke kotak bawah.</span></div>
-            <div class="instruction-item"><span class="instruction-icon">3️⃣</span> <span>Kumpulkan <b>3 buah sama</b> untuk dapat Koin!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">3️⃣</span> <span>Kumpulkan <b>3 buah sama</b> untuk dapat poin!</span></div>
             <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Jangan biarkan kotak bawah penuh (7 slot)!</span></div>
             <div class="instruction-item"><span class="instruction-icon">🏆</span> <span>Selesaikan level untuk naik tingkat!</span></div>
         </div>
         <button class="start-btn" id="startBtn">▶ MULAI MAIN</button>
     </div>
 
+    <!-- ============================================ -->
+    <!-- ✅ GAME CONTAINER -->
+    <!-- ============================================ -->
     <div id="gameContainer">
         <div id="topBar">
             <div class="info-box">
                 <div class="level-badge">Level <span id="levelDisplay">1</span></div>
-                <div class="saldo-box"> <span id="coinDisplay">0</span><div class="saldo-rupiah">Poin</div></div>
+            </div>
+            <div class="score-box"> 
+                <span id="scoreDisplay">0</span>
+                <div class="score-label">Poin</div>
             </div>
         </div>
 
         <div id="gameArea">
             <div id="board"></div>
             <div id="powerUps">
-                <button class="power-btn" id="shuffleBtn"><span class="power-badge" id="shuffleCount">3</span>🔀</button>
+                <button class="power-btn" id="shuffleBtn" title="Acak Posisi">
+                    <span class="power-badge" id="shuffleCount">3</span>🔀
+                </button>
+                <button class="power-btn" id="undoBtn" title="Ambil Kembali">
+                    <span class="power-badge" id="undoCount">3</span>️
+                </button>
             </div>
         </div>
 
         <div id="dockContainer"></div>
     </div>
 
+    <!-- ============================================ -->
+    <!-- ✅ GAME OVER MODAL -->
+    <!-- ============================================ -->
     <div id="gameOverModal" class="modal-overlay">
         <div class="modal-box">
-            <h2 style="color:#e74c3c; margin-bottom:10px; font-size: 24px;">Kotak Penuh!</h2>
-            <p style="color:#7f8c8d; margin-bottom:20px;">Hapus 3 buah untuk lanjut main.</p>
-            <button class="btn-action" id="continueBtn">▶ Lanjut Main</button>
-            <button class="btn-action btn-close" id="menuBtn">🏠 Kembali ke Menu</button>
+            <h2 style="color:#e74c3c;">Kotak Penuh! 😱</h2>
+            <p>Hapus 3 buah untuk lanjut main.</p>
+            <button class="btn-action btn-restart" id="continueBtn">▶ Lanjut Main</button>
+            <button class="btn-action btn-close" id="menuBtn">🏠 Menu Utama</button>
         </div>
     </div>
 
+    <!-- ============================================ -->
+    <!-- ✅ LEVEL COMPLETE MODAL -->
+    <!-- ============================================ -->
+    <div id="levelCompleteModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:#2ed573;">Level Selesai! </h2>
+            <p>Hebat! Lanjut ke level berikutnya?</p>
+            <button class="btn-action" id="nextLevelBtn">▶ Level Berikutnya</button>
+            <button class="btn-action btn-close" id="menuBtn2">🏠 Menu Utama</button>
+        </div>
+    </div>
+
+    <div id="gameMessage"></div>
+
     <script>
-        // ✅ FIX: SEMUA EMOJI DIISI, GAK ADA YANG KOSONG LAGI!
-        const FRUITS = ['🍒', '🍓', '', '🍌', '🍋', '🍐', '🍑', '🍍', '🍎', ''];
+        // ============================================
+        // ✅ SAFE STORAGE WRAPPER
+        // ============================================
+        const safeStorage = {
+            get: (key) => { try { return localStorage.getItem(key); } catch(e) { return null; } },
+            set: (key, value) => { try { localStorage.setItem(key, value); } catch(e) {} }
+        };
+
+        // ============================================
+        // ✅ SEMUA EMOJI TERISI - TIDAK ADA YANG KOSONG!
+        // ============================================
+        const FRUITS = ['🍒', '🍓', '🍇', '🍌', '🍋', '', '🍑', '🍍', '🍎', '🥝'];
         
-        let coins = parseInt(localStorage.getItem('mach_coins')) || 0;
-        let currentLevel = parseInt(localStorage.getItem('tile_level')) || 1;
+        // ============================================
+        // ✅ GAME STATE
+        // ============================================
+        let score = parseInt(safeStorage.get('mach_score')) || 0;
+        let currentLevel = parseInt(safeStorage.get('mach_level')) || 1;
         let shuffleUses = 3;
+        let undoUses = 3;
+        let lastDockState = [];
         
-        let boardTiles = []; let dockTiles = [];
+        let boardTiles = []; 
+        let dockTiles = [];
         const MAX_DOCK = 7;
         let matchCount = 0;
-        let TILE_SIZE = 45; let CENTER_X = 0; let CENTER_Y = 0; let GAME_WIDTH = 0; let GAME_HEIGHT = 0;
+        let TILE_SIZE = 45; 
+        let CENTER_X = 0; 
+        let CENTER_Y = 0; 
+        let GAME_WIDTH = 0; 
+        let GAME_HEIGHT = 0;
+        let isPaused = false;
 
+        // ============================================
+        // ✅ PUBLISHER SDK PLACEHOLDER
+        // ============================================
+        const PublisherSDK = {
+            // GameDistribution
+            gd: typeof gamedistribution !== 'undefined' ? gamedistribution : null,
+            // CrazyGames
+            cg: typeof CrazyGames !== 'undefined' ? CrazyGames.SDK : null,
+            // Poki
+            poki: typeof PokiSDK !== 'undefined' ? PokiSDK : null,
+            
+            async showInterstitial() {
+                try {
+                    if (this.gd) {
+                        await this.gd.showAd('gamedistribution.com');
+                    } else if (this.cg) {
+                        await this.cg.ad.requestAd('midgame');
+                    } else if (this.poki) {
+                        await this.poki.commercialBreak();
+                    } else {
+                        console.log('No publisher SDK - skip ad');
+                    }
+                } catch(e) {
+                    console.log('Ad failed:', e);
+                }
+            },
+            
+            async showRewarded() {
+                try {
+                    if (this.gd) {
+                        await this.gd.showAd('rewarded');
+                        return true;
+                    } else if (this.cg) {
+                        await this.cg.ad.requestAd('rewarded');
+                        return true;
+                    } else if (this.poki) {
+                        await this.poki.rewardedBreak();
+                        return true;
+                    }
+                    return false;
+                } catch(e) {
+                    console.log('Rewarded ad failed:', e);
+                    return false;
+                }
+            },
+            
+            gameLoadingStart() {
+                if (this.poki) this.poki.gameLoadingStart();
+            },
+            gameLoadingFinished() {
+                if (this.poki) this.poki.gameLoadingFinished();
+            },
+            gameplayStart() {
+                if (this.poki) this.poki.gameplayStart();
+            },
+            gameplayStop() {
+                if (this.poki) this.poki.gameplayStop();
+            }
+        };
+
+        // ============================================
+        // ✅ MESSAGE SYSTEM (NO ALERT!)
+        // ============================================
+        function showMessage(text, duration = 2000) {
+            const msg = document.getElementById('gameMessage');
+            msg.innerText = text;
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, duration);
+        }
+
+        // ============================================
+        // ✅ GAME FLOW
+        // ============================================
         function startGameFromLanding() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'flex';
             document.getElementById('gameOverModal').style.display = 'none';
+            document.getElementById('levelCompleteModal').style.display = 'none';
+            PublisherSDK.gameplayStart();
             initGame();
         }
 
         function backToMenu() {
+            PublisherSDK.gameplayStop();
             document.getElementById('gameOverModal').style.display = 'none';
+            document.getElementById('levelCompleteModal').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('landingPage').style.display = 'flex';
         }
 
         function updateUI() {
-            document.getElementById('coinDisplay').innerText = coins.toLocaleString('id-ID');
+            document.getElementById('scoreDisplay').innerText = score.toLocaleString('id-ID');
             document.getElementById('shuffleCount').innerText = shuffleUses;
+            document.getElementById('undoCount').innerText = undoUses;
             document.getElementById('levelDisplay').innerText = currentLevel;
+            
+            // Disable buttons if no uses left
+            document.getElementById('shuffleBtn').disabled = shuffleUses <= 0;
+            document.getElementById('undoBtn').disabled = undoUses <= 0;
         }
 
+        // ============================================
+        // ✅ CONTINUE GAME (HAPUS 3 TILE RANDOM)
+        // ============================================
         function continueGame() {
+            if (dockTiles.length < 3) {
+                showMessage('Tidak cukup tile untuk dihapus!');
+                return;
+            }
+            // Hapus 3 tile terakhir
+            dockTiles.splice(-3);
+            updateDockUI();
             document.getElementById('gameOverModal').style.display = 'none';
-            dockTiles.splice(0, 3); 
-            updateDockUI(); 
+            isPaused = false;
+            showMessage('Lanjut main! 💪');
         }
 
+        // ============================================
+        // ✅ INIT GAME
+        // ============================================
         function initGame() {
             matchCount = 0;
-            const screenWidth = window.innerWidth; const screenHeight = window.innerHeight;
-            GAME_WIDTH = screenWidth - 20; GAME_HEIGHT = screenHeight - 200; 
+            const screenWidth = window.innerWidth; 
+            const screenHeight = window.innerHeight;
+            GAME_WIDTH = screenWidth - 20; 
+            GAME_HEIGHT = screenHeight - 200; 
             TILE_SIZE = Math.min(48, Math.floor((screenWidth - 40) / 6));
-            CENTER_X = screenWidth / 2; CENTER_Y = (GAME_HEIGHT / 2) + 20;
-            document.getElementById('board').innerHTML = ''; boardTiles = []; dockTiles = [];
-            createDockSlots(); updateDockUI(); updateUI(); generateLevel();
+            CENTER_X = screenWidth / 2; 
+            CENTER_Y = (GAME_HEIGHT / 2) + 20;
+            
+            document.getElementById('board').innerHTML = ''; 
+            boardTiles = []; 
+            dockTiles = [];
+            lastDockState = [];
+            
+            createDockSlots(); 
+            updateDockUI(); 
+            updateUI(); 
+            generateLevel();
         }
 
         function createDockSlots() { 
-            const dock = document.getElementById('dockContainer'); dock.innerHTML = ''; 
+            const dock = document.getElementById('dockContainer'); 
+            dock.innerHTML = ''; 
             for(let i=0; i<MAX_DOCK; i++) { 
-                let slot = document.createElement('div'); slot.className = 'dock-slot'; slot.id = 'slot'+i; dock.appendChild(slot); 
+                let slot = document.createElement('div'); 
+                slot.className = 'dock-slot'; 
+                slot.id = 'slot'+i; 
+                dock.appendChild(slot); 
             } 
         }
         
+        // ============================================
+        // ✅ LEVEL GENERATION
+        // ============================================
         function generateLevel() {
             document.getElementById('levelDisplay').innerText = currentLevel; 
-            localStorage.setItem('tile_level', currentLevel); 
+            safeStorage.set('mach_level', currentLevel); 
+            
+            // Tentukan jumlah jenis buah berdasarkan level
             let numTypes = Math.min(FRUITS.length, 3 + Math.floor(currentLevel / 2)); 
+            
+            // Buat kumpulan tile (kelipatan 3)
             let types = [];
-            for(let i=0; i<numTypes; i++) { types.push(FRUITS[i], FRUITS[i], FRUITS[i]); }
-            if(currentLevel > 3) { for(let i=0; i<Math.floor(currentLevel/2); i++) { let randomFruit = FRUITS[Math.floor(Math.random() * numTypes)]; types.push(randomFruit, randomFruit, randomFruit); } }
+            for(let i=0; i<numTypes; i++) { 
+                types.push(FRUITS[i], FRUITS[i], FRUITS[i]); 
+            }
+            
+            // Tambah tile bonus di level tinggi
+            if(currentLevel > 3) { 
+                for(let i=0; i<Math.floor(currentLevel/2); i++) { 
+                    let randomFruit = FRUITS[Math.floor(Math.random() * numTypes)]; 
+                    types.push(randomFruit, randomFruit, randomFruit); 
+                } 
+            }
+            
             types.sort(() => Math.random() - 0.5);
             let positions = getPatternPositions(currentLevel, types.length);
-            if(positions.length < types.length) types = types.slice(0, positions.length);
-            types.forEach((fruit, index) => { if(index < positions.length) { let pos = positions[index]; let tile = { id: index, type: fruit, x: pos.x, y: pos.y, layer: pos.layer, el: null }; createTileElement(tile); boardTiles.push(tile); } });
+            
+            if(positions.length < types.length) {
+                types = types.slice(0, positions.length);
+            }
+            
+            types.forEach((fruit, index) => { 
+                if(index < positions.length) { 
+                    let pos = positions[index]; 
+                    let tile = { id: index, type: fruit, x: pos.x, y: pos.y, layer: pos.layer, el: null }; 
+                    createTileElement(tile); 
+                    boardTiles.push(tile); 
+                } 
+            });
+            
             checkBlocked();
         }
 
-        function clampPosition(x, y) { const margin = 10; x = Math.max(margin, Math.min(x, GAME_WIDTH - TILE_SIZE - margin)); y = Math.max(margin, Math.min(y, GAME_HEIGHT - TILE_SIZE - margin)); return { x, y }; }
+        function clampPosition(x, y) { 
+            const margin = 10; 
+            x = Math.max(margin, Math.min(x, GAME_WIDTH - TILE_SIZE - margin)); 
+            y = Math.max(margin, Math.min(y, GAME_HEIGHT - TILE_SIZE - margin)); 
+            return { x, y }; 
+        }
         
         function getPatternPositions(level, count) {
-            let positions = []; const gap = TILE_SIZE + 4; 
-            const addTile = (x, y, layer) => { const clamped = clampPosition(x, y); positions.push({ x: clamped.x, y: clamped.y, layer: layer }); };
+            let positions = []; 
+            const gap = TILE_SIZE + 4; 
+            const addTile = (x, y, layer) => { 
+                const clamped = clampPosition(x, y); 
+                positions.push({ x: clamped.x, y: clamped.y, layer: layer }); 
+            };
+            
             if (level === 1) { 
-                let cols = 4; let rows = 3; let totalW = cols * gap; let totalH = rows * gap; 
-                let startX = (GAME_WIDTH - totalW) / 2; let startY = (GAME_HEIGHT - totalH) / 2; 
-                for(let r=0; r<rows; r++) { for(let c=0; c<cols; c++) { addTile(startX + c*gap, startY + r*gap, 0); } } 
-            } else { 
-                let rows = 5; let cols = 5; let totalW = cols * gap; let totalH = rows * gap; 
-                let startX = (GAME_WIDTH - totalW) / 2; let startY = (GAME_HEIGHT - totalH) / 2; 
-                let baseSlots = []; for(let r=0; r<rows; r++) { for(let c=0; c<cols; c++) { baseSlots.push({x: startX + c*gap, y: startY + r*gap}); } } 
+                // Level 1: Grid sederhana 4x3
+                let cols = 4; 
+                let rows = 3; 
+                let totalW = cols * gap; 
+                let totalH = rows * gap; 
+                let startX = (GAME_WIDTH - totalW) / 2; 
+                let startY = (GAME_HEIGHT - totalH) / 2; 
+                for(let r=0; r<rows; r++) { 
+                    for(let c=0; c<cols; c++) { 
+                        addTile(startX + c*gap, startY + r*gap, 0); 
+                    } 
+                } 
+            } else if (level <= 5) {
+                // Level 2-5: Grid 5x5 dengan layer
+                let rows = 5; 
+                let cols = 5; 
+                let totalW = cols * gap; 
+                let totalH = rows * gap; 
+                let startX = (GAME_WIDTH - totalW) / 2; 
+                let startY = (GAME_HEIGHT - totalH) / 2; 
+                let baseSlots = []; 
+                for(let r=0; r<rows; r++) { 
+                    for(let c=0; c<cols; c++) { 
+                        baseSlots.push({x: startX + c*gap, y: startY + r*gap}); 
+                    } 
+                } 
                 baseSlots.sort(() => Math.random() - 0.5); 
-                for(let i=0; i<count; i++) { let slotIndex = i % baseSlots.length; let slot = baseSlots[slotIndex]; let layer = Math.floor(i / baseSlots.length); addTile(slot.x, slot.y, layer); } 
+                for(let i=0; i<count; i++) { 
+                    let slotIndex = i % baseSlots.length; 
+                    let slot = baseSlots[slotIndex]; 
+                    let layer = Math.floor(i / baseSlots.length); 
+                    addTile(slot.x, slot.y, layer); 
+                }
+            } else {
+                // Level 6+: Pattern lebih kompleks
+                let rows = 6; 
+                let cols = 6; 
+                let totalW = cols * gap; 
+                let totalH = rows * gap; 
+                let startX = (GAME_WIDTH - totalW) / 2; 
+                let startY = (GAME_HEIGHT - totalH) / 2; 
+                let baseSlots = []; 
+                for(let r=0; r<rows; r++) { 
+                    for(let c=0; c<cols; c++) { 
+                        // Pattern diamond
+                        if (Math.abs(r - 2.5) + Math.abs(c - 2.5) <= 3) {
+                            baseSlots.push({x: startX + c*gap, y: startY + r*gap}); 
+                        }
+                    } 
+                } 
+                baseSlots.sort(() => Math.random() - 0.5); 
+                for(let i=0; i<count; i++) { 
+                    let slotIndex = i % baseSlots.length; 
+                    let slot = baseSlots[slotIndex]; 
+                    let layer = Math.floor(i / baseSlots.length); 
+                    addTile(slot.x, slot.y, layer); 
+                }
             }
+            
             return positions;
         }
 
         function createTileElement(tile) { 
             if(!tile.type) tile.type = FRUITS[0]; 
-            let el = document.createElement('div'); el.className = 'tile'; el.innerText = tile.type; 
-            el.style.width = TILE_SIZE + 'px'; el.style.height = TILE_SIZE + 'px'; 
-            el.style.left = tile.x + 'px'; el.style.top = tile.y + 'px'; el.style.zIndex = tile.layer * 10; 
-            el.onclick = () => clickTile(tile); 
-            document.getElementById('board').appendChild(el); tile.el = el; 
+            let el = document.createElement('div'); 
+            el.className = 'tile'; 
+            el.innerText = tile.type; 
+            el.style.width = TILE_SIZE + 'px'; 
+            el.style.height = TILE_SIZE + 'px'; 
+            el.style.left = tile.x + 'px'; 
+            el.style.top = tile.y + 'px'; 
+            el.style.zIndex = tile.layer * 10; 
+            el.addEventListener('click', () => clickTile(tile)); 
+            document.getElementById('board').appendChild(el); 
+            tile.el = el; 
         }
 
         function checkBlocked() { 
             boardTiles.forEach(t1 => { 
                 let isBlocked = false; 
-                boardTiles.forEach(t2 => { if(t2.layer > t1.layer) { let dist = Math.hypot(t1.x - t2.x, t1.y - t2.y); if(dist < TILE_SIZE * 0.85) isBlocked = true; } }); 
-                if(isBlocked) t1.el.classList.add('blocked'); else t1.el.classList.remove('blocked'); 
+                boardTiles.forEach(t2 => { 
+                    if(t2.layer > t1.layer) { 
+                        let dist = Math.hypot(t1.x - t2.x, t1.y - t2.y); 
+                        if(dist < TILE_SIZE * 0.85) isBlocked = true; 
+                    } 
+                }); 
+                if(isBlocked) t1.el.classList.add('blocked'); 
+                else t1.el.classList.remove('blocked'); 
             }); 
         }
         
+        // ============================================
+        // ✅ CLICK TILE
+        // ============================================
         function clickTile(tile) {
-            if(tile.el.classList.contains('blocked')) return; if(dockTiles.length >= MAX_DOCK) return;
-            boardTiles = boardTiles.filter(t => t !== tile); tile.el.remove();
-            let insertIdx = dockTiles.length; for(let i=0; i<dockTiles.length; i++) { if(dockTiles[i].type === tile.type) { insertIdx = i+1; break; } }
-            dockTiles.splice(insertIdx, 0, tile); updateDockUI(); checkBlocked(); checkMatch();
-            if(dockTiles.length >= MAX_DOCK) { document.getElementById('gameOverModal').style.display = 'flex'; }
+            if(isPaused) return;
+            if(tile.el.classList.contains('blocked')) return; 
+            if(dockTiles.length >= MAX_DOCK) return;
+            
+            // Simpan state untuk undo
+            lastDockState = [...dockTiles];
+            
+            boardTiles = boardTiles.filter(t => t !== tile); 
+            tile.el.remove();
+            
+            // Insert ke dock (dekat tile sejenis)
+            let insertIdx = dockTiles.length; 
+            for(let i=0; i<dockTiles.length; i++) { 
+                if(dockTiles[i].type === tile.type) { 
+                    insertIdx = i+1; 
+                    break; 
+                } 
+            }
+            dockTiles.splice(insertIdx, 0, tile); 
+            updateDockUI(); 
+            checkBlocked(); 
+            checkMatch();
+            
+            if(dockTiles.length >= MAX_DOCK) { 
+                isPaused = true;
+                document.getElementById('gameOverModal').style.display = 'flex'; 
+            }
         }
 
+        // ============================================
+        // ✅ CHECK MATCH
+        // ============================================
         function checkMatch() {
-            let counts = {}; dockTiles.forEach(t => counts[t.type] = (counts[t.type] || 0) + 1);
+            let counts = {}; 
+            dockTiles.forEach(t => counts[t.type] = (counts[t.type] || 0) + 1);
+            
             for(let type in counts) {
                 if(counts[type] >= 3) {
-                    matchCount++; let removed = 0;
-                    dockTiles = dockTiles.filter(t => { if(t.type === type && removed < 3) { removed++; return false; } return true; });
-                    coins += 50; localStorage.setItem('mach_coins', coins); updateUI(); updateDockUI();
+                    matchCount++; 
+                    let removed = 0;
+                    dockTiles = dockTiles.filter(t => { 
+                        if(t.type === type && removed < 3) { 
+                            removed++; 
+                            return false; 
+                        } 
+                        return true; 
+                    });
+                    score += 50; 
+                    safeStorage.set('mach_score', score); 
+                    updateUI(); 
+                    updateDockUI();
+                    showMessage('+50 Poin! ');
+                    
+                    // Cek win condition
                     if(boardTiles.length === 0 && dockTiles.length === 0) { 
-                        currentLevel++; localStorage.setItem('tile_level', currentLevel);
-                        setTimeout(() => { alert(' Level Selesai! Lanjut ke Level ' + currentLevel); initGame(); }, 500); 
+                        setTimeout(() => { 
+                            document.getElementById('levelCompleteModal').style.display = 'flex'; 
+                        }, 500); 
                     }
                     break;
                 }
             }
         }
 
-        function updateDockUI() { for(let i=0; i<MAX_DOCK; i++) { let slot = document.getElementById('slot'+i); if(!slot) continue; slot.innerHTML = ''; if(dockTiles[i]) { let el = document.createElement('div'); el.className = 'tile'; el.innerText = dockTiles[i].type; slot.appendChild(el); } } }
-        
-        function useShuffle() { 
-            if(shuffleUses <= 0) { alert('Jatah acak habis!'); return; } 
-            shuffleUses--; 
-            updateUI(); 
+        // ============================================
+        // ✅ NEXT LEVEL
+        // ============================================
+        function nextLevel() {
+            currentLevel++;
+            safeStorage.set('mach_level', currentLevel);
+            document.getElementById('levelCompleteModal').style.display = 'none';
+            
+            // Tambah power ups di level baru
+            shuffleUses = Math.min(5, shuffleUses + 1);
+            undoUses = Math.min(5, undoUses + 1);
+            
+            initGame();
+            showMessage('Level ' + currentLevel + '! 🚀');
+        }
+
+        function updateDockUI() { 
+            for(let i=0; i<MAX_DOCK; i++) { 
+                let slot = document.getElementById('slot'+i); 
+                if(!slot) continue; 
+                slot.innerHTML = ''; 
+                if(dockTiles[i]) { 
+                    let el = document.createElement('div'); 
+                    el.className = 'tile'; 
+                    el.innerText = dockTiles[i].type; 
+                    slot.appendChild(el); 
+                } 
+            } 
         }
         
-        window.addEventListener('resize', () => { if(document.getElementById('gameContainer').style.display !== 'none') initGame(); });
+        // ============================================
+        // ✅ POWER UPS
+        // ============================================
+        function useShuffle() { 
+            if(shuffleUses <= 0) { 
+                showMessage('Jatah acak habis!'); 
+                return; 
+            }
+            if(boardTiles.length === 0) {
+                showMessage('Tidak ada tile untuk diacak!');
+                return;
+            }
+            
+            shuffleUses--; 
+            
+            // Acak posisi tile di board
+            let positions = boardTiles.map(t => ({x: t.x, y: t.y, layer: t.layer}));
+            positions.sort(() => Math.random() - 0.5);
+            
+            boardTiles.forEach((tile, i) => {
+                if (i < positions.length) {
+                    tile.x = positions[i].x;
+                    tile.y = positions[i].y;
+                    tile.layer = positions[i].layer;
+                    tile.el.style.left = tile.x + 'px';
+                    tile.el.style.top = tile.y + 'px';
+                    tile.el.style.zIndex = tile.layer * 10;
+                }
+            });
+            
+            checkBlocked();
+            updateUI();
+            showMessage('Tile diacak! 🔀');
+        }
+        
+        function useUndo() {
+            if(undoUses <= 0) {
+                showMessage('Jatah undo habis!');
+                return;
+            }
+            if(lastDockState.length === 0) {
+                showMessage('Tidak ada yang bisa di-undo!');
+                return;
+            }
+            
+            undoUses--;
+            
+            // Kembalikan tile terakhir dari dock ke board
+            let lastTile = dockTiles.pop();
+            if (lastTile) {
+                boardTiles.push(lastTile);
+                createTileElement(lastTile);
+                checkBlocked();
+            }
+            
+            dockTiles = lastDockState;
+            updateDockUI();
+            updateUI();
+            showMessage('Undo! ️');
+        }
 
-        // ✅ FIX: PAKAI addEventListener BIAR 100% JALAN DI TREBEDIT
+        // ============================================
+        // ✅ EVENT LISTENERS
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('startBtn').addEventListener('click', startGameFromLanding);
             document.getElementById('shuffleBtn').addEventListener('click', useShuffle);
+            document.getElementById('undoBtn').addEventListener('click', useUndo);
             document.getElementById('continueBtn').addEventListener('click', continueGame);
             document.getElementById('menuBtn').addEventListener('click', backToMenu);
+            document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
+            document.getElementById('menuBtn2').addEventListener('click', backToMenu);
         });
+
+        window.addEventListener('resize', () => { 
+            if(document.getElementById('gameContainer').style.display !== 'none') {
+                initGame(); 
+            }
+        });
+
+        // ============================================
+        // ✅ POKI SDK INIT (Jika Ada)
+        // ============================================
+        if (typeof PokiSDK !== 'undefined') {
+            PokiSDK.init().then(() => {
+                PublisherSDK.gameLoadingFinished();
+                console.log('Poki SDK initialized');
+            }).catch(() => {
+                console.log('Poki SDK failed');
+            });
+        }
     </script>
 </body>
 </html>

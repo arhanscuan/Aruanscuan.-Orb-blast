@@ -47,7 +47,16 @@
             justify-content: center;
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
         }
-        .card-back svg { width: 80%; height: 80%; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
+        .card-back .emoji-display { 
+            font-size: 60px; 
+            line-height: 1; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+        }
+        .card-back .twemoji-fallback {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
 
         .center-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .center-box { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); padding: 30px; border-radius: 20px; text-align: center; border: 3px solid #ffd700; width: 90%; max-width: 350px; position: relative; }
@@ -123,7 +132,7 @@
             <div class="saldo-box"> <span id="coinDisplay">0</span><div class="saldo-rupiah">Rp <span id="rupiahDisplay">0</span></div></div>
             <div>
                 <button class="btn-wd" id="wdBtn">💸 WD</button>
-                <button class="btn-history" id="historyBtn"></button>
+                <button class="btn-history" id="historyBtn">📜</button>
             </div>
         </div>
         <div id="gameArea">
@@ -185,7 +194,7 @@
 
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box">
-            <h2> Riwayat Penarikan</h2>
+            <h2>📜 Riwayat Penarikan</h2>
             <div id="historyList" style="max-height:350px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center; padding: 20px;">Memuat data...</p></div>
             <button class="btn-action btn-close" id="historyCloseBtn">Tutup</button>
         </div>
@@ -229,138 +238,50 @@
         const GAME_SOURCE = 'MemoryCuan';
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/x967vh9dn?key=3f70f2d034fd98e1ad2f8165f9dfe521';
 
-        // ✅ SVG BUAH REALISTIS DENGAN GRADIENT 3D - TIDAK TERGANTUNG EMOJI FONT
-        const FRUIT_SVGS = {
-            apple: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="appleGrad" cx="35%" cy="35%">
-                        <stop offset="0%" style="stop-color:#ff6b81;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#ff4757;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <path d="M50 25 Q30 25 25 50 Q20 75 50 85 Q80 75 75 50 Q70 25 50 25" fill="url(#appleGrad)" stroke="#c0392b" stroke-width="1"/>
-                <path d="M50 25 Q50 15 50 10" stroke="#5d4037" stroke-width="3" stroke-linecap="round"/>
-                <path d="M50 20 Q60 15 65 20" stroke="#27ae60" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <ellipse cx="38" cy="45" rx="6" ry="8" fill="#ffffff" opacity="0.3"/>
-            </svg>`,
-            orange: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="orangeGrad" cx="35%" cy="35%">
-                        <stop offset="0%" style="stop-color:#ffb347;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#ff9f43;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#e67e22;stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <circle cx="50" cy="55" r="35" fill="url(#orangeGrad)" stroke="#e67e22" stroke-width="1"/>
-                <path d="M50 25 Q55 20 60 25" stroke="#27ae60" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <circle cx="42" cy="48" r="3" fill="#ffffff" opacity="0.4"/>
-                <circle cx="58" cy="52" r="2" fill="#ffffff" opacity="0.3"/>
-                <circle cx="50" cy="62" r="2.5" fill="#ffffff" opacity="0.3"/>
-            </svg>`,
-            lemon: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="lemonGrad" cx="35%" cy="35%">
-                        <stop offset="0%" style="stop-color:#fff9c4;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#ffd700;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#f39c12;stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <ellipse cx="50" cy="55" rx="30" ry="35" fill="url(#lemonGrad)" stroke="#f39c12" stroke-width="1"/>
-                <path d="M50 25 Q55 20 60 25" stroke="#27ae60" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <ellipse cx="42" cy="48" rx="5" ry="8" fill="#ffffff" opacity="0.4"/>
-            </svg>`,
-            grape: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="grapeGrad" cx="35%" cy="35%">
-                        <stop offset="0%" style="stop-color:#bb8fce;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#9b59b6;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#6c3483;stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <circle cx="50" cy="30" r="12" fill="url(#grapeGrad)" stroke="#6c3483" stroke-width="0.5"/>
-                <circle cx="35" cy="45" r="12" fill="url(#grapeGrad)" stroke="#6c3483" stroke-width="0.5"/>
-                <circle cx="65" cy="45" r="12" fill="url(#grapeGrad)" stroke="#6c3483" stroke-width="0.5"/>
-                <circle cx="50" cy="55" r="12" fill="url(#grapeGrad)" stroke="#6c3483" stroke-width="0.5"/>
-                <circle cx="35" cy="70" r="12" fill="url(#grapeGrad)" stroke="#6c3483" stroke-width="0.5"/>
-                <circle cx="65" cy="70" r="12" fill="url(#grapeGrad)" stroke="#6c3483" stroke-width="0.5"/>
-                <circle cx="50" cy="80" r="12" fill="url(#grapeGrad)" stroke="#6c3483" stroke-width="0.5"/>
-                <path d="M50 20 L50 10" stroke="#5d4037" stroke-width="3" stroke-linecap="round"/>
-                <path d="M50 15 Q60 10 65 15" stroke="#27ae60" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <circle cx="46" cy="26" r="3" fill="#ffffff" opacity="0.3"/>
-                <circle cx="31" cy="41" r="3" fill="#ffffff" opacity="0.3"/>
-                <circle cx="61" cy="41" r="3" fill="#ffffff" opacity="0.3"/>
-            </svg>`,
-            watermelon: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="watermelonGrad" cx="50%" cy="60%">
-                        <stop offset="0%" style="stop-color:#ff6b81;stop-opacity:1" />
-                        <stop offset="70%" style="stop-color:#ff4757;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#2ed573;stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <path d="M20 60 Q50 30 80 60 Q50 90 20 60" fill="url(#watermelonGrad)" stroke="#27ae60" stroke-width="2"/>
-                <path d="M25 60 Q50 35 75 60" fill="none" stroke="#27ae60" stroke-width="3"/>
-                <circle cx="40" cy="65" r="3" fill="#2d3436"/>
-                <circle cx="50" cy="70" r="3" fill="#2d3436"/>
-                <circle cx="60" cy="65" r="3" fill="#2d3436"/>
-                <circle cx="45" cy="72" r="2.5" fill="#2d3436"/>
-                <circle cx="55" cy="72" r="2.5" fill="#2d3436"/>
-            </svg>`,
-            pineapple: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="pineappleGrad" cx="40%" cy="40%">
-                        <stop offset="0%" style="stop-color:#ffed4e;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#f1c40f;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#d4a017;stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <ellipse cx="50" cy="60" rx="25" ry="35" fill="url(#pineappleGrad)" stroke="#d4a017" stroke-width="1"/>
-                <path d="M30 50 L70 50 M30 60 L70 60 M30 70 L70 70" stroke="#d4a017" stroke-width="1.5"/>
-                <path d="M35 45 L65 45 M35 55 L65 55 M35 65 L65 65 M35 75 L65 75" stroke="#d4a017" stroke-width="1"/>
-                <path d="M40 40 L45 25 L50 35 L55 20 L60 35 L65 25 L70 40" stroke="#27ae60" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="45" cy="55" r="2" fill="#d4a017"/>
-                <circle cx="55" cy="65" r="2" fill="#d4a017"/>
-                <circle cx="50" cy="50" r="2" fill="#d4a017"/>
-            </svg>`,
-            peach: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="peachGrad" cx="35%" cy="35%">
-                        <stop offset="0%" style="stop-color:#ffbe76;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#ff9f43;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#e67e22;stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <path d="M50 25 Q30 25 25 50 Q20 75 50 85 Q80 75 75 50 Q70 25 50 25" fill="url(#peachGrad)" stroke="#e67e22" stroke-width="1"/>
-                <path d="M50 25 Q50 15 50 10" stroke="#5d4037" stroke-width="3" stroke-linecap="round"/>
-                <path d="M50 20 Q60 15 65 20" stroke="#27ae60" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <ellipse cx="38" cy="45" rx="8" ry="10" fill="#ffffff" opacity="0.3"/>
-                <path d="M50 40 Q45 60 50 80" stroke="#e67e22" stroke-width="1" fill="none" opacity="0.3"/>
-            </svg>`,
-            cherry: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="cherryGrad1" cx="35%" cy="35%">
-                        <stop offset="0%" style="stop-color:#ff6b81;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#ff4757;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
-                    </radialGradient>
-                    <radialGradient id="cherryGrad2" cx="35%" cy="35%">
-                        <stop offset="0%" style="stop-color:#ff6b81;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#ff4757;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
-                    </radialGradient>
-                </defs>
-                <circle cx="35" cy="65" r="20" fill="url(#cherryGrad1)" stroke="#c0392b" stroke-width="1"/>
-                <circle cx="65" cy="65" r="20" fill="url(#cherryGrad2)" stroke="#c0392b" stroke-width="1"/>
-                <path d="M35 45 Q50 20 65 45" stroke="#5d4037" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <path d="M50 25 L50 15" stroke="#5d4037" stroke-width="3" stroke-linecap="round"/>
-                <path d="M50 20 Q60 15 65 20" stroke="#27ae60" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <circle cx="28" cy="58" r="5" fill="#ffffff" opacity="0.4"/>
-                <circle cx="58" cy="58" r="5" fill="#ffffff" opacity="0.4"/>
-            </svg>`
-        };
+        // ✅ EMOJI BUAH ASLI - YANG TERBUKTI JALAN DI DEVICE LO
+        // (Dari screenshot lo, semua emoji ini ter-render dengan baik)
+        const FRUITS = [
+            { emoji: '', name: 'apple', code: '1f34e' },
+            { emoji: '🍊', name: 'orange', code: '1f34a' },
+            { emoji: '🍋', name: 'lemon', code: '1f34b' },
+            { emoji: '🍇', name: 'grape', code: '1f347' },
+            { emoji: '', name: 'watermelon', code: '1f349' },
+            { emoji: '🍍', name: 'pineapple', code: '1f34d' },
+            { emoji: '🍑', name: 'peach', code: '1f351' },
+            { emoji: '🍒', name: 'cherry', code: '1f352' }
+        ];
 
-        const FRUIT_KEYS = ['apple', 'orange', 'lemon', 'grape', 'watermelon', 'pineapple', 'peach', 'cherry'];
+        // ✅ FUNGSI DETEKSI EMOJI - Cek apakah emoji ter-render atau jadi kotak kosong
+        function isEmojiSupported(emoji) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 50;
+            canvas.height = 50;
+            ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            ctx.fillText(emoji, 25, 25);
+            const imageData = ctx.getImageData(0, 0, 50, 50).data;
+            // Cek apakah ada pixel berwarna (bukan hanya background transparan)
+            for (let i = 0; i < imageData.length; i += 4) {
+                if (imageData[i + 3] > 0) { // Alpha channel
+                    // Cek apakah pixel ini bukan hanya outline hitam (kotak kosong biasanya hitam/abu)
+                    const r = imageData[i];
+                    const g = imageData[i + 1];
+                    const b = imageData[i + 2];
+                    // Kalau ada warna yang bukan hitam/abu-abu, berarti emoji support
+                    if (Math.abs(r - g) > 20 || Math.abs(g - b) > 20 || Math.abs(r - b) > 20) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // ✅ URL TWEMOJI CDN (Twitter Emoji) - Fallback kalau emoji gak support
+        function getTwemojiUrl(codePoint) {
+            return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${codePoint}.png`;
+        }
 
         async function kirimNotifDiscord(data) {
             try {
@@ -376,11 +297,11 @@
                             fields: [
                                 { name: '🎮 Game', value: data.gameName, inline: true },
                                 { name: ' Tier WD', value: `#${data.tier}`, inline: true },
-                                { name: ' Nominal', value: `Rp ${data.amount.toLocaleString('id-ID')}`, inline: true },
+                                { name: '💵 Nominal', value: `Rp ${data.amount.toLocaleString('id-ID')}`, inline: true },
                                 { name: '👤 Nama', value: data.name, inline: true },
-                                { name: '💳 Nomor DANA', value: data.dana, inline: true },
+                                { name: ' Nomor DANA', value: data.dana, inline: true },
                                 { name: '⭐ Status', value: data.isVip ? 'VIP (50 iklan)' : 'Normal (100 iklan)', inline: true },
-                                { name: ' Iklan Ditonton', value: `${data.adsWatched} iklan`, inline: true },
+                                { name: '📺 Iklan Ditonton', value: `${data.adsWatched} iklan`, inline: true },
                                 { name: '💰 Sisa Koin', value: data.sisaKoin.toLocaleString('id-ID'), inline: true }
                             ],
                             timestamp: new Date().toISOString(),
@@ -499,16 +420,27 @@
             document.getElementById('levelDisplay').innerText = currentLevel;
             updateUI();
             
-            let gameFruits = [...FRUIT_KEYS, ...FRUIT_KEYS];
+            // Duplikasi dan shuffle
+            let gameFruits = [...FRUITS, ...FRUITS];
             gameFruits.sort(() => Math.random() - 0.5);
             
-            gameFruits.forEach((fruitKey, index) => {
+            gameFruits.forEach((fruit, index) => {
                 const card = document.createElement('div');
                 card.className = 'card'; 
-                card.dataset.fruit = fruitKey;
+                card.dataset.fruit = fruit.name;
                 
-                // ✅ 100% SVG INLINE - TIDAK ADA EMOJI SAMA SEKALI!
-                card.innerHTML = `<div class="card-inner"><div class="card-front">?</div><div class="card-back">${FRUIT_SVGS[fruitKey]}</div></div>`;
+                // ✅ HYBRID: Coba emoji dulu, kalau gagal pakai Twemoji CDN
+                let contentHtml;
+                if (isEmojiSupported(fruit.emoji)) {
+                    // Emoji support - pakai emoji asli (terlihat natural)
+                    contentHtml = `<span class="emoji-display">${fruit.emoji}</span>`;
+                } else {
+                    // Emoji tidak support - pakai gambar Twemoji dari CDN
+                    const imgUrl = getTwemojiUrl(fruit.code);
+                    contentHtml = `<img class="twemoji-fallback" src="${imgUrl}" alt="${fruit.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'emoji-display\\'>${fruit.emoji}</span>';">`;
+                }
+                
+                card.innerHTML = `<div class="card-inner"><div class="card-front">?</div><div class="card-back">${contentHtml}</div></div>`;
                 
                 card.addEventListener('click', () => flipCard(card));
                 grid.appendChild(card); 
@@ -721,7 +653,7 @@
                 if (snapshot.empty) { list.innerHTML = '<p style="color:#95a5a6; text-align:center; padding: 20px;">Belum ada riwayat WD.</p>'; return; }
                 snapshot.forEach(doc => {
                     const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-';
-                    let statusText = ' Masih Proses', statusClass = 'status-pending', borderColor = '#f39c12';
+                    let statusText = '⏳ Masih Proses', statusClass = 'status-pending', borderColor = '#f39c12';
                     if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; borderColor = '#2ed573'; } 
                     else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; borderColor = '#e74c3c'; }
                     list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br>📅 ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div></div>`;

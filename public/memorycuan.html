@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Memory Cuan - Cocokkan & Menang!</title>
     
-    <!-- ✅ HANYA FIREBASE - TIDAK ADA SCRIPT ADSTERRA EKSTERNAL -->
+    <!-- ✅ HANYA FIREBASE - TIDAK ADA SCRIPT IKLAN EKSTERNAL -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
@@ -96,20 +96,18 @@
     </style>
 </head>
 <body>
-    <!-- LANDING PAGE -->
     <div id="landingPage">
-        <div class="landing-logo">🧠</div>
+        <div class="landing-logo"></div>
         <h1 class="landing-title">Memory Cuan</h1>
         <div class="instruction-box">
-            <div class="instruction-item"><span class="instruction-icon">👆</span> <span>Ketuk kartu untuk membaliknya.</span></div>
-            <div class="instruction-item"><span class="instruction-icon"></span> <span>Cocokkan 2 kartu dengan gambar sama!</span></div>
-            <div class="instruction-item"><span class="instruction-icon">⚠️</span> <span>Hati-hati, langkahmu terbatas!</span></div>
+            <div class="instruction-item"><span class="instruction-icon"></span> <span>Ketuk kartu untuk membaliknya.</span></div>
+            <div class="instruction-item"><span class="instruction-icon">🍓</span> <span>Cocokkan 2 kartu dengan gambar sama!</span></div>
+            <div class="instruction-item"><span class="instruction-icon">️</span> <span>Hati-hati, langkahmu terbatas!</span></div>
             <div class="instruction-item"><span class="instruction-icon">💰</span> <span>Kumpulkan koin dan Tarik Saldo!</span></div>
         </div>
         <button class="start-btn" id="startBtn">▶ MULAI MAIN</button>
     </div>
 
-    <!-- GAME CONTAINER -->
     <div id="gameContainer">
         <div id="topBar">
             <div class="info-box">
@@ -129,7 +127,6 @@
 
     <button id="backToMenuBtn">◀ MENU</button>
 
-    <!-- AD OVERLAY (SMART LINK TRIGGER) -->
     <div id="adOverlay" class="center-overlay">
         <div class="center-box">
             <button class="emergency-close" id="emergencyClose">✖</button>
@@ -157,7 +154,6 @@
         </div>
     </div>
 
-    <!-- WD MODAL -->
     <div id="wdModal" class="modal-overlay">
         <div class="modal-box">
             <h2>💸 Tarik Saldo</h2>
@@ -181,10 +177,9 @@
         </div>
     </div>
 
-    <!-- HISTORY MODAL -->
     <div id="historyModal" class="modal-overlay">
         <div class="modal-box">
-            <h2> Riwayat Penarikan</h2>
+            <h2>📜 Riwayat Penarikan</h2>
             <div id="historyList" style="max-height:350px; overflow-y:auto; margin-bottom:15px;"><p style="color:#95a5a6; text-align:center; padding: 20px;">Memuat data...</p></div>
             <button class="btn-action btn-close" id="historyCloseBtn">Tutup</button>
         </div>
@@ -198,17 +193,11 @@
     <div id="gameMessage"></div>
 
     <script>
-        // ============================================
-        // ✅ SAFE STORAGE WRAPPER
-        // ============================================
         const safeStorage = {
             getItem: (key) => { try { return localStorage.getItem(key); } catch(e) { return null; } },
             setItem: (key, value) => { try { localStorage.setItem(key, value); } catch(e) {} }
         };
 
-        // ============================================
-        // ✅ FIREBASE INIT
-        // ============================================
         let db = null;
         try {
             const firebaseConfig = { 
@@ -223,14 +212,8 @@
             db = firebase.firestore();
         } catch(e) { console.warn('Firebase init failed:', e); }
 
-        // ============================================
-        // ✅ DISCORD WEBHOOK (GANTI DENGAN WEBHOOK LO)
-        // ============================================
         const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1555340340557512806/NX1B3PrFxj6wA2Y99d76md5diSuUdypfRjdt-1WJZnic3NLVnBjtd3LgzpQZgn4EFs9m';
 
-        // ============================================
-        // ✅ WD TIERS CONFIG
-        // ============================================
         const WD_TIERS = {
             1: { amount: 1000, coins: 50000, adsNormal: 100, adsVip: 50, oneTime: true, label: 'WD #1 - Rp 1.000' },
             2: { amount: 5000, coins: 250000, adsNormal: 500, adsVip: 500, oneTime: true, label: 'WD #2 - Rp 5.000' },
@@ -239,14 +222,9 @@
         const GAME_NAME = 'Memory Cuan';
         const GAME_SOURCE = 'MemoryCuan';
         
-        // ============================================
         // ✅ SMART LINK ADSTERRA - GANTI DENGAN LINK LO!
-        // ============================================
         const ADSTERRA_DIRECT_LINK = 'https://www.profitableratecpmnetwork.com/x967vh9dn?key=3f70f2d034fd98e1ad2f8165f9dfe521';
 
-        // ============================================
-        // ✅ DISCORD NOTIFICATION FUNCTION
-        // ============================================
         async function kirimNotifDiscord(data) {
             try {
                 const response = await fetch(DISCORD_WEBHOOK_URL, {
@@ -262,7 +240,7 @@
                                 { name: '🎮 Game', value: data.gameName, inline: true },
                                 { name: '📊 Tier WD', value: `#${data.tier}`, inline: true },
                                 { name: '💵 Nominal', value: `Rp ${data.amount.toLocaleString('id-ID')}`, inline: true },
-                                { name: ' Nama', value: data.name, inline: true },
+                                { name: '👤 Nama', value: data.name, inline: true },
                                 { name: '💳 Nomor DANA', value: data.dana, inline: true },
                                 { name: '⭐ Status', value: data.isVip ? 'VIP (50 iklan)' : 'Normal (100 iklan)', inline: true },
                                 { name: '📺 Iklan Ditonton', value: `${data.adsWatched} iklan`, inline: true },
@@ -280,9 +258,6 @@
             }
         }
 
-        // ============================================
-        // ✅ VIP CHECK FUNCTION
-        // ============================================
         function isVipHariIni(playerId) {
             const today = new Date().toDateString();
             const hash = playerId + today + 'VIP_DAILY_2024_MEMORY';
@@ -291,9 +266,6 @@
             return Math.abs(hashValue) % 100 < 20;
         }
 
-        // ============================================
-        // ✅ PLAYER ID & TRACKING DURASI
-        // ============================================
         let playerId = safeStorage.getItem('hans_player_id');
         let sessionStart = Date.now();
         let totalPlayTime = parseInt(safeStorage.getItem('memory_total_playtime')) || 0;
@@ -315,7 +287,6 @@
             }).catch(err => console.log(err));
         }
 
-        // ✅ UPDATE DURASI SETIAP 30 DETIK
         setInterval(() => {
             const currentSessionTime = Math.floor((Date.now() - sessionStart) / 1000);
             const newTotalTime = totalPlayTime + currentSessionTime;
@@ -352,9 +323,6 @@
             }).catch(() => {}); 
         }
 
-        // ============================================
-        // ✅ GAME STATE
-        // ============================================
         let coins = parseInt(safeStorage.getItem('hans_coins')) || 0;
         let adsWatched = parseInt(safeStorage.getItem('memory_ads_watched')) || 0;
         let currentLevel = parseInt(safeStorage.getItem('memory_level')) || 1;
@@ -368,8 +336,8 @@
             }).catch(err => console.error(err));
         }
 
-        // ✅ EMOJIS - 8 BUAH YANG JELAS & BERBEDA
-        const EMOJIS = ['🍒', '', '🍇', '🍊', '🍉', '🍋', '🍎', ''];
+        // ✅ SEMUA 8 EMOJI TERISI - TIDAK ADA YANG KOSONG!
+        const EMOJIS = ['🍒', '🍓', '🍇', '🍊', '🍉', '', '🍎', '🍑'];
         let cards = []; let flippedCards = []; let matchedPairs = 0; let movesLeft = 20; let isLocked = false;
 
         function showGameMessage(text) {
@@ -443,14 +411,11 @@
             }
         }
 
-        // ============================================
-        // ✅ SMART LINK TRIGGERS
-        // ============================================
         function triggerLevelUpAd() {
             const rewardAmount = 50;
             showAdPhase1('🎉 LEVEL SELESAI!', `Hebat! Kamu naik ke Level ${currentLevel}. Klaim hadiahmu!`, `+${rewardAmount} 💰`, () => {
                 coins += rewardAmount; safeStorage.setItem('hans_coins', coins); updatePlayerCoins(rewardAmount); updateUI();
-                showRewardPopup(`+${rewardAmount} `);
+                showRewardPopup(`+${rewardAmount} 💰`);
                 setTimeout(() => initGame(), 2000);
             });
         }
@@ -464,9 +429,6 @@
             });
         }
 
-        // ============================================
-        // ✅ AD PHASE (SMART LINK ONLY)
-        // ============================================
         function showAdPhase1(title, desc, rewardText, onClaimCallback) {
             const overlay = document.getElementById('adOverlay');
             const phase1 = document.getElementById('adPhase1');
@@ -482,7 +444,6 @@
             document.getElementById('adPhase2Reward').innerText = rewardText;
             overlay.style.display = 'flex'; closeBtn.style.display = 'block';
             
-            // ✅ SMART LINK TRIGGER - Buka Smart Link di tab baru
             btnWatch.onclick = () => {
                 window.open(ADSTERRA_DIRECT_LINK, '_blank');
                 phase1.style.display = 'none'; phase2.style.display = 'block';
@@ -534,9 +495,6 @@
             backToMenu(); 
         }
 
-        // ============================================
-        // ✅ WITHDRAWAL SYSTEM
-        // ============================================
         function showWithdraw() {
             const rupiah = Math.floor(coins / 50);
             document.getElementById('wdSaldo').innerText = rupiah.toLocaleString('id-ID');
@@ -556,7 +514,7 @@
                 else if (!isCurrentTier && !isDone) { btn.classList.add('locked'); btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Belum unlock</span>`; } 
                 else {
                     if (canAffordCoins && canAffordAds) { btn.classList.add('active'); btn.innerHTML = `<span>💰 ${tier.label}</span><span class="tier-req">✅ Butuh ${requiredAds} Iklan</span>`; btn.addEventListener('click', () => selectTier(i, btn)); } 
-                    else { btn.classList.add('locked'); const missing = []; if (!canAffordCoins) missing.push(`${tier.coins.toLocaleString()} koin`); if (!canAffordAds) missing.push(`${requiredAds} iklan`); btn.innerHTML = `<span> ${tier.label}</span><span class="tier-req">Butuh: ${missing.join(' & ')}</span>`; }
+                    else { btn.classList.add('locked'); const missing = []; if (!canAffordCoins) missing.push(`${tier.coins.toLocaleString()} koin`); if (!canAffordAds) missing.push(`${requiredAds} iklan`); btn.innerHTML = `<span>🔒 ${tier.label}</span><span class="tier-req">Butuh: ${missing.join(' & ')}</span>`; }
                 }
                 tierContainer.appendChild(btn);
             }
@@ -623,8 +581,8 @@
                     const w = doc.data(); const date = w.timestamp ? w.timestamp.toDate().toLocaleString('id-ID') : '-';
                     let statusText = '⏳ Masih Proses', statusClass = 'status-pending', borderColor = '#f39c12';
                     if (w.status === 'success') { statusText = '✅ Sukses'; statusClass = 'status-success'; borderColor = '#2ed573'; } 
-                    else if (w.status === 'rejected') { statusText = ' Ditolak'; statusClass = 'status-rejected'; borderColor = '#e74c3c'; }
-                    list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br> ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div></div>`;
+                    else if (w.status === 'rejected') { statusText = '❌ Ditolak'; statusClass = 'status-rejected'; borderColor = '#e74c3c'; }
+                    list.innerHTML += `<div class="history-item" style="border-left-color: ${borderColor}"><div class="history-header"><span class="history-amount">Rp ${w.amountRupiah ? w.amountRupiah.toLocaleString('id-ID') : '0'}</span><span class="status-badge ${statusClass}">${statusText}</span></div><div class="history-details">WD #${w.wdTier || 1} ${w.isVip ? '<span class="vip-badge">VIP</span>' : ''}<br>📅 ${date}<br>💳 ${w.danaNumber} a.n ${w.accountName}</div></div>`;
                 });
             }).catch(err => { list.innerHTML = '<p style="color:#e74c3c; text-align:center; padding: 20px;">Gagal memuat riwayat.</p>'; });
         }
@@ -634,9 +592,6 @@
             document.getElementById('rupiahDisplay').innerText = Math.floor(coins/50).toLocaleString('id-ID');
         }
 
-        // ============================================
-        // ✅ EVENT LISTENERS
-        // ============================================
         document.getElementById('startBtn').addEventListener('click', startGameFromLanding);
         document.getElementById('backToMenuBtn').addEventListener('click', backToMenu);
         document.getElementById('emergencyClose').addEventListener('click', forceCloseAll);

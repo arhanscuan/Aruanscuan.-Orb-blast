@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Togel Analyzer Pro</title>
+    
+    <!-- Tailwind CSS (Buat styling) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel (Buat terjemahkan React & TypeScript di browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <div id="root"></div>
+
+    <!-- Script Utama -->
+    <script type="text/babel" data-presets="typescript,react">
+        // Ambil fungsi dari React global
+        const { useState, useCallback } = React;
+
+        // ==========================================
+        // [TYPES & INTERFACES]
+        // ==========================================
+        interface HistoryEntry {
+            id: number; numbers: number[]; type: '2D' | '3D' | '4D'; timestamp: Date; source: 'generate' | 'manual'; hour?: string; date?: string;
+        }
+        interface PairedEntry {
+            id: number; input: number[]; output: number[]; type: '2D' | '3D' | '4D'; timestamp: Date; hour?: string;
+        }
+        interface FrequencyData { number: number; count: number; percentage: number; }
+        interface HourlyPattern { hour: string; frequency: Record<number, number>; avgDigitSum: number; twinCount: number; hotDigits: number[]; coldDigits: number[]; }
+
+        // ==========================================
+        // [UTILITY & ANALYSIS FUNCTIONS]
+        // ==========================================
+        function generateNumbers(type: '2D' | '3D' | '4D'): number[] {
+            const count = type === '2D' ? 2 : type === '3D' ? 3 : 4;
+            const numbers: number[] = [];
+            for (let i = 0; i < count; i++) numbers.push(Math.floor(Math.random() * 10));
+            return numbers;
+        }
+
+        function generateMultipleSets(type: '2D' | '3D' | '4D', count: number): number[][] {
+            const results: number[][] = [];
+            for (let i = 0; i < count; i++) results.push(generateNumbers(type));
+            return results;
+        }
+
+        function convertToMistikLama(numbers: number[]): number[] {
+            const mistikMap: Record<number, number> = { 0: 5, 5: 0, 1: 6, 6: 1, 2: 7, 7: 2, 3: 8, 8: 3, 4: 9, 9: 4 };
+            return numbers.map(n => mistikMap[n]);
+        }
+
+        function convertToMistikBaru(numbers: number[]): number[] {
+            const mistikMap: Record<number, number> = { 0: 1, 1: 0, 2: 3, 3: 2, 4: 5, 5: 4, 6: 7, 7: 6, 8: 9, 9: 8 };
+            return numbers.map(n => mistikMap[n]);
+        }
+
+        function analyzeHourlyPatterns(history: HistoryEntry[]): Record<string, HourlyPattern> {
+            const hourlyData: Record<string, HistoryEntry[]> = {};
+            history.forEach(entry => {
+                const hour = entry.hour || 'unknown';
+                if (!hourlyData[hour]) hourlyData[hour] = [];
+                hourlyData[hour].push(entry);
+            });
+            const patterns: Record<string, HourlyPattern> = {};
+            Object.entries(hourlyData).forEach(([hour, entries]) => {
+                const frequency: Record<number, number> = {};
+                for (let i = 0; i <= 9; i++) frequency[i] = 0;
+                let totalDigitSum = 0; let twinCount = 0;
+                entries.forEach(entry => {
+                    entry.numbers.forEach(n => { frequency[n] = (frequency[n] || 0) + 1; });
+                    totalDigitSum += entry.numbers.reduce((sum, n) => sum + n, 0);
+                    const isTwin = entry.numbers.every(n => n === entry.numbers[0]);
+                    if (isTwin) twinCount++;
+                });
+                const sortedFreq = Object.entries(frequency).sort(([, a], [, b]) => b - a);
+                const hotDigits = sortedFreq.slice(0, 3).map(([n]) => parseInt(n));
+                const coldDigits = sortedFreq.slice(-3).map(([n]) => parseInt(n));
+                patterns[hour] = { hour, frequency, avgDigitSum: entries.length > 0 ? totalDigitSum / entries.length : 0, twinCount, hotDigits, coldDigits };
+            });
+            return patterns;
+        }
+
+        function analyzeMultiSessionCorrelation(history: HistoryEntry[]) {
+            const hourlyData: Record<string, HistoryEntry[]> = {};
+            history.forEach(entry => { const hour = entry.hour || 'unknown'; if (!hourlyData[hour]) hourlyData[hour] = []; hourlyData[hour].push(entry); });
+            const hours = Object.keys(hourlyData);
+            const correlations: { hour1: string; hour2: string; correlation: number }[] = [];
+            const bestPairs: { hour1: string; hour2: string; pattern: string }[] = [];
+            for (let i = 0; i < hours.length; i++) {
+                for (let j = i + 1; j < hours.length; j++) {
+                    const hour1 = hours[i]; const hour2 = hours[j];
+                    const data1 = hourlyData[hour1]; const data2 = hourlyData[hour2];
+                    let matchingPatterns = 0; const minLen = Math.min(data1.length, data2.length);
+                    for (let k = 0; k < minLen; k++) {
+                        const nums1 = data1[k].numbers; const nums2 = data2[k].numbers;
+                        const commonDigits = nums1.filter(n => nums2.includes(n)).length;
+                        if (commonDigits >= 2) matchingPatterns++;
+                    }
+                    const correlation = minLen > 0 ? (matchingPatterns / minLen) * 100 : 0;
+                    correlations.push({ hour1, hour2, correlation });
+                    if (correlation > 50) bestPairs.push({ hour1, hour2, pattern: `${correlation.toFixed(0)}% similarity` });
+                }
+            }
+            return { correlations: correlations.sort((a, b) => b.correlation - a.correlation), bestPairs };
+        }
+
+        function analyzeDatePatterns(history: HistoryEntry[]) {
+            const dayOfWeekData: Record<string, HistoryEntry[]> = {};
+            const dateOfMonthData: Record<number, HistoryEntry[]> = {};
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            history.forEach(entry => {
+                const date = entry.timestamp;
+                const dayName = days[date.getDay()];
+                const dateNum = date.getDate();
+                if (!dayOfWeekData[dayName]) dayOfWeekData[dayName] = [];
+                dayOfWeekData[dayName].push(entry);
+                if (!dateOfMonthData[dateNum]) dateOfMonthData[dateNum] = [];
+                dateOfMonthData[dateNum].push(entry);
+            });
+            const dayOfWeek: Record<string, { frequency: Record<number, number>; count: number }> = {};
+            const dateOfMonth: Record<number, { frequency: Record<number, number>; count: number }> = {};
+            Object.entries(dayOfWeekData).forEach(([day, entries]) => {
+                const frequency: Record<number, number> = {};
+                for (let i = 0; i <= 9; i++) frequency[i] = 0;
+                entries.forEach(entry => { entry.numbers.forEach(n => { frequency[n] = (frequency[n] || 0) + 1; }); });
+                dayOfWeek[day] = { frequency, count: entries.length };
+            });
+            Object.entries(dateOfMonthData).forEach(([date, entries]) => {
+                const frequency: Record<number, number> = {};
+                for (let i = 0; i <= 9; i++) frequency[i] = 0;
+                entries.forEach(entry => { entry.numbers.forEach(n => { frequency[n] = (frequency[n] || 0) + 1; }); });
+                dateOfMonth[parseInt(date)] = { frequency, count: entries.length };
+            });
+            return { dayOfWeek, dateOfMonth };
+        }
+
+        function detectSequentialPatterns(history: HistoryEntry[]) {
+            let ascending = 0; let descending = 0; let mixed = 0;
+            const sequenceCount: Record<string, number> = {};
+            history.forEach(entry => {
+                const nums = entry.numbers;
+                let isAscending = true; let isDescending = true;
+                for (let i = 1; i < nums.length; i++) {
+                    if (nums[i] < nums[i - 1]) isAscending = false;
+                    if (nums[i] > nums[i - 1]) isDescending = false;
+                }
+                if (isAscending) ascending++;
+                else if (isDescending) descending++;
+                else mixed++;
+                for (let i = 0; i < nums.length - 1; i++) {
+                    const seq = `${nums[i]}${nums[i + 1]}`;
+                    sequenceCount[seq] = (sequenceCount[seq] || 0) + 1;
+                }
+            });
+            const patterns = Object.entries(sequenceCount).map(([sequence, count]) => ({ sequence: sequence.split('').map(Number), count })).sort((a, b) => b.count - a.count).slice(0, 10);
+            return { ascending, descending, mixed, patterns };
+        }
+
+        function analyzePositionByHour(history: HistoryEntry[]) {
+            const hourlyData: Record<string, HistoryEntry[]> = {};
+            history.forEach(entry => { const hour = entry.hour || 'unknown'; if (!hourlyData[hour]) hourlyData[hour] = []; hourlyData[hour].push(entry); });
+            const result: Record<string, { position: number; mostFrequent: number; leastFrequent: number; frequency: Record<number, number> }[]> = {};
+            Object.entries(hourlyData).forEach(([hour, entries]) => {
+                const maxPos = entries[0]?.numbers.length || 4;
+                const positionFreq: Record<number, Record<number, number>> = {};
+                for (let p = 0; p < maxPos; p++) { positionFreq[p] = {}; for (let n = 0; n <= 9; n++) positionFreq[p][n] = 0; }
+                entries.forEach(entry => { entry.numbers.forEach((n, idx) => { if (idx < maxPos) positionFreq[idx][n] = (positionFreq[idx][n] || 0) + 1; }); });
+                result[hour] = Object.entries(positionFreq).map(([pos, nums]) => {
+                    const entries = Object.entries(nums).sort(([, a], [, b]) => b - a);
+                    return { position: parseInt(pos), mostFrequent: parseInt(entries[0][0]), leastFrequent: parseInt(entries[entries.length - 1][0]), frequency: nums };
+                });
+            });
+            return result;
+        }
+
+        function analyzeWeeklyCycle(history: HistoryEntry[]) {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayData: Record<string, HistoryEntry[]> = {};
+            history.forEach(entry => { const day = days[entry.timestamp.getDay()]; if (!dayData[day]) dayData[day] = []; dayData[day].push(entry); });
+            const dayPatterns = days.map(day => {
+                const entries = dayData[day] || [];
+                let totalSum = 0; let twinCount = 0;
+                const frequency: Record<number, number> = {};
+                for (let i = 0; i <= 9; i++) frequency[i] = 0;
+                entries.forEach(entry => {
+                    totalSum += entry.numbers.reduce((sum, n) => sum + n, 0);
+                    if (entry.numbers.every(n => n === entry.numbers[0])) twinCount++;
+                    entry.numbers.forEach(n => { frequency[n] = (frequency[n] || 0) + 1; });
+                });
+                const hotDigits = Object.entries(frequency).sort(([, a], [, b]) => b - a).slice(0, 3).map(([n]) => parseInt(n));
+                return { day, avgSum: entries.length > 0 ? totalSum / entries.length : 0, hotDigits, twinProbability: entries.length > 0 ? (twinCount / entries.length) * 100 : 0 };
+            });
+            return { dayPatterns };
+        }
+
+        interface NumberScore {
+            number: number[]; score: number; factors: { frequency: number; transition: number; mistikLama: number; mistikBaru: number; position: number; pattern: number; twin: number; hourly: number; weekly: number; sequential: number; };
+        }
+
+        function analyzeTwinNumbers(type: '2D' | '3D' | '4D', history: HistoryEntry[], pairedHistory: PairedEntry[]) {
+            const digitCount = type === '2D' ? 2 : type === '3D' ? 3 : 4;
+            const twinNumbers: number[][] = [];
+            for (let i = 0; i <= 9; i++) twinNumbers.push(Array(digitCount).fill(i));
+            let twinCount = 0; let lastTwinIndex = -1;
+            const twinFrequency: Record<string, number> = {};
+            history.forEach((entry, idx) => {
+                if (entry.numbers.length === digitCount) {
+                    const isTwin = entry.numbers.every(n => n === entry.numbers[0]);
+                    if (isTwin) { twinCount++; if (lastTwinIndex === -1) lastTwinIndex = idx; const key = entry.numbers.join(''); twinFrequency[key] = (twinFrequency[key] || 0) + 1; }
+                }
+            });
+            const totalEntries = history.filter(e => e.numbers.length === digitCount).length;
+            const baseProbability = totalEntries > 0 ? twinCount / totalEntries : 0;
+            const recencyFactor = lastTwinIndex !== -1 ? Math.max(0.5, 1 - lastTwinIndex / 10) : 1;
+            const adjustedProbability = baseProbability * recencyFactor;
+            let predictedTwin = twinNumbers[0]; let maxFreq = 0;
+            Object.entries(twinFrequency).forEach(([key, freq]) => { if (freq > maxFreq) { maxFreq = freq; predictedTwin = key.split('').map(Number); } });
+            if (twinCount === 0 && history.length > 0) {
+                const lastNumbers = history[0].numbers;
+                if (lastNumbers.length === digitCount) {
+                    const mistikLama = convertToMistikLama(lastNumbers);
+                    const mistikBaru = convertToMistikBaru(lastNumbers);
+                    const isLamaTwin = mistikLama.every(n => n === mistikLama[0]);
+                    const isBaruTwin = mistikBaru.every(n => n === mistikBaru[0]);
+                    if (isLamaTwin) predictedTwin = mistikLama; else if (isBaruTwin) predictedTwin = mistikBaru;
+                }
+            }
+            const confidence = Math.min(100, (adjustedProbability * 100) + (maxFreq * 10));
+            return { twinNumbers, frequency: twinCount, lastSeen: lastTwinIndex, probability: adjustedProbability, prediction: predictedTwin, confidence };
+        }
+
+        function calculateCombinedScore(numbers: number[], history: HistoryEntry[], pairedHistory: PairedEntry[], targetHour?: string): NumberScore {
+            const factors = { frequency: 0, transition: 0, mistikLama: 0, mistikBaru: 0, position: 0, pattern: 0, twin: 0, hourly: 0, weekly: 0, sequential: 0 };
+            const freq: Record<number, number> = {};
+            for (let i = 0; i <= 9; i++) freq[i] = 0;
+            history.forEach(entry => { entry.numbers.forEach(n => { freq[n] = (freq[n] || 0) + 1; }); });
+            const totalDigits = history.reduce((sum, e) => sum + e.numbers.length, 0);
+            const avgFreq = totalDigits > 0 ? totalDigits / 10 : 1;
+            numbers.forEach(n => { factors.frequency += (freq[n] / avgFreq) * 20; });
+            if (pairedHistory.length > 0) {
+                const lastOutput = pairedHistory[0].output;
+                if (lastOutput.length === numbers.length) {
+                    const changes = numbers.map((n, idx) => n - lastOutput[idx]);
+                    const avgChange = changes.reduce((sum, c) => sum + Math.abs(c), 0) / changes.length;
+                    factors.transition = Math.max(0, 100 - avgChange * 10);
+                }
+            }
+            const mistikLamaResult = convertToMistikLama(numbers);
+            const mistikLamaFreq: Record<string, number> = {};
+            history.forEach(entry => { const key = entry.numbers.join(''); mistikLamaFreq[key] = (mistikLamaFreq[key] || 0) + 1; });
+            factors.mistikLama = (mistikLamaFreq[mistikLamaResult.join('')] || 0) * 20;
+            const mistikBaruResult = convertToMistikBaru(numbers);
+            const mistikBaruFreq: Record<string, number> = {};
+            history.forEach(entry => { const key = entry.numbers.join(''); mistikBaruFreq[key] = (mistikBaruFreq[key] || 0) + 1; });
+            factors.mistikBaru = (mistikBaruFreq[mistikBaruResult.join('')] || 0) * 20;
+            if (history.length > 0) {
+                const positionFreq: Record<number, Record<number, number>> = {};
+                numbers.forEach((_, idx) => { positionFreq[idx] = {}; for (let n = 0; n <= 9; n++) positionFreq[idx][n] = 0; });
+                history.forEach(entry => { if (entry.numbers.length === numbers.length) entry.numbers.forEach((n, idx) => { positionFreq[idx][n] = (positionFreq[idx][n] || 0) + 1; }); });
+                const typeCount = history.filter(e => e.numbers.length === numbers.length).length;
+                numbers.forEach((n, idx) => { factors.position += ((positionFreq[idx][n] || 0) / typeCount) * 25; });
+            }
+            const pairs: Record<string, number> = {};
+            history.forEach(entry => { for (let i = 0; i < entry.numbers.length - 1; i++) { const pair = `${entry.numbers[i]}${entry.numbers[i + 1]}`; pairs[pair] = (pairs[pair] || 0) + 1; } });
+            for (let i = 0; i < numbers.length - 1; i++) { const pair = `${numbers[i]}${numbers[i + 1]}`; factors.pattern += (pairs[pair] || 0) * 10; }
+            const isTwin = numbers.every(n => n === numbers[0]);
+            if (isTwin) { const twinAnalysis = analyzeTwinNumbers(numbers.length === 2 ? '2D' : numbers.length === 3 ? '3D' : '4D', history, pairedHistory); factors.twin = twinAnalysis.confidence; }
+            if (targetHour) {
+                const hourlyPatterns = analyzeHourlyPatterns(history);
+                const pattern = hourlyPatterns[targetHour];
+                if (pattern) {
+                    numbers.forEach(n => {
+                        const freq = pattern.frequency[n] || 0;
+                        const totalEntries = history.filter(e => e.hour === targetHour).length;
+                        if (totalEntries > 0) factors.hourly += (freq / totalEntries) * 25;
+                    });
+                }
+            }
+            const today = new Date().getDay();
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const todayName = days[today];
+            const dayPatterns = analyzeWeeklyCycle(history);
+            const todayPattern = dayPatterns.dayPatterns.find(p => p.day === todayName);
+            if (todayPattern) { numbers.forEach(n => { if (todayPattern.hotDigits.includes(n)) factors.weekly += 20; }); }
+            const seqPatterns = detectSequentialPatterns(history);
+            for (let i = 0; i < numbers.length - 1; i++) { const seq = `${numbers[i]}${numbers[i + 1]}`; const pattern = seqPatterns.patterns.find(p => p.sequence.join('') === seq); if (pattern) factors.sequential += pattern.count * 15; }
+            const totalScore = factors.frequency * 0.18 + factors.transition * 0.15 + factors.mistikLama * 0.10 + factors.mistikBaru * 0.10 + factors.position * 0.12 + factors.pattern * 0.08 + factors.twin * 0.07 + factors.hourly * 0.10 + factors.weekly * 0.05 + factors.sequential * 0.05;
+            return { number: numbers, score: Math.min(100, totalScore), factors };
+        }
+
+        interface TimePrediction { formula: string; description: string; result: number[]; confidence: number; icon: string; color: string; }
+
+        function calculateTimeBasedPredictions(day1: number[], day2: number[]): TimePrediction[] {
+            const predictions: TimePrediction[] = [];
+            const len = day1.length;
+            const delta = day2.map((n, i) => n - day1[i]);
+            const deltaPrediction = day2.map((n, i) => { const result = n + delta[i]; return ((result % 10) + 10) % 10; });
+            predictions.push({ formula: 'Delta Harian', description: `Pola selisih: ${delta.map(d => d >= 0 ? `+${d}` : d).join(', ')}`, result: deltaPrediction, confidence: 85, icon: '📈', color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30' });
+            const sum1 = day1.reduce((a, b) => a + b, 0); const sum2 = day2.reduce((a, b) => a + b, 0); const sumDelta = sum2 - sum1; const predictedSum = sum2 + sumDelta; const normalizedSum = ((predictedSum % 9) + 9) % 9 || 9;
+            predictions.push({ formula: 'Jumlah Digit', description: `Jumlah: ${sum1} → ${sum2} → prediksi ${normalizedSum}`, result: [normalizedSum, ...deltaPrediction.slice(1)], confidence: 70, icon: '', color: 'from-purple-500/20 to-pink-500/20 border-purple-500/30' });
+            const head1 = parseInt(day1.slice(0, Math.floor(len / 2)).join('')); const head2 = parseInt(day2.slice(0, Math.floor(len / 2)).join('')); const tail1 = parseInt(day1.slice(Math.floor(len / 2)).join('')); const tail2 = parseInt(day2.slice(Math.floor(len / 2)).join(''));
+            const headDelta = head2 - head1; const tailDelta = tail2 - tail1; const predHead = head2 + headDelta; const predTail = tail2 + tailDelta;
+            const headStr = String(Math.abs(predHead) % Math.pow(10, Math.floor(len / 2))).padStart(Math.floor(len / 2), '0'); const tailStr = String(Math.abs(predTail) % Math.pow(10, Math.ceil(len / 2))).padStart(Math.ceil(len / 2), '0');
+            const keResult = (headStr + tailStr).split('').map(Number).slice(0, len);
+            predictions.push({ formula: 'Kepala Ekor', description: `Kepala: ${head1}→${head2}→${predHead} | Ekor: ${tail1}→${tail2}→${predTail}`, result: keResult, confidence: 75, icon: '🎭', color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30' });
+            const appeared = new Set([...day1, ...day2]); const deadNumbers = [0,1,2,3,4,5,6,7,8,9].filter(n => !appeared.has(n)); const hotDeadNumbers = deadNumbers.slice(0, len);
+            const deadPrediction = hotDeadNumbers.length >= len ? hotDeadNumbers : [...hotDeadNumbers, ...day2.slice(0, len - hotDeadNumbers.length)];
+            predictions.push({ formula: 'Angka Mati', description: `Angka muncul: {${[...appeared].sort().join(',')}} → Angka mati: {${deadNumbers.join(',')}}`, result: deadPrediction.slice(0, len), confidence: 65, icon: '💀', color: 'from-gray-500/20 to-slate-500/20 border-gray-500/30' });
+            const sumResult = day1.map((n, i) => (n + day2[i]) % 10);
+            predictions.push({ formula: 'Jumlah Posisi', description: `(${day1.join('+')}) + (${day2.join('+')}) = ${sumResult.join('')}`, result: sumResult, confidence: 80, icon: '➕', color: 'from-green-500/20 to-emerald-500/20 border-green-500/30' });
+            const crossResult: number[] = []; for (let i = 0; i < len; i++) { if (i % 2 === 0) crossResult.push(day2[i]); else crossResult.push(day1[i]); }
+            predictions.push({ formula: 'Pola Silang', description: `Ambil posisi genap hari 2, posisi ganjil hari 1`, result: crossResult, confidence: 60, icon: '️', color: 'from-red-500/20 to-rose-500/20 border-red-500/30' });
+            const mistikLamaDay2 = convertToMistikLama(day2); const mistikBaruDay2 = convertToMistikBaru(day2); const mistikCombined = day2.map((n, i) => { return (mistikLamaDay2[i] + mistikBaruDay2[i]) % 10; });
+            predictions.push({ formula: 'Mistik Gabungan', description: `ML(${mistikLamaDay2.join('')}) + MB(${mistikBaruDay2.join('')}) = ${mistikCombined.join('')}`, result: mistikCombined, confidence: 55, icon: '', color: 'from-violet-500/20 to-fuchsia-500/20 border-violet-500/30' });
+            const avgResult = day1.map((n, i) => Math.round((n + day2[i]) / 2));
+            predictions.push({ formula: 'Rata-rata', description: `(${day1.join('')} + ${day2.join('')}) ÷ 2 = ${avgResult.join('')}`, result: avgResult.map(n => n % 10), confidence: 70, icon: '⚖️', color: 'from-teal-500/20 to-cyan-500/20 border-teal-500/30' });
+            const multiplier = day2.map((n, i) => { if (day1[i] === 0) return 1; return Math.round(n / day1[i]) || 1; }); const multResult = day2.map((n, i) => (n * multiplier[i]) % 10);
+            predictions.push({ formula: 'Kelipatan', description: `Faktor: ×${multiplier.join(', ×')} → ${multResult.join('')}`, result: multResult, confidence: 50, icon: '️', color: 'from-indigo-500/20 to-blue-500/20 border-indigo-500/30' });
+            const twinCandidate = deadNumbers.length > 0 ? deadNumbers[0] : day2[0]; const twinResult = Array(len).fill(twinCandidate);
+            predictions.push({ formula: 'Kembar Dominan', description: `Berdasarkan angka mati, prediksi kembar: ${twinResult.join('')}`, result: twinResult, confidence: 45, icon: '👥', color: 'from-yellow-500/20 to-amber-500/20 border-yellow-500/30' });
+            return predictions.sort((a, b) => b.confidence - a.confidence);
+        }
+
+        function generateTopPredictions(type: '2D' | '3D' | '4D', history: HistoryEntry[], pairedHistory: PairedEntry[], count: number = 5, targetHour?: string): NumberScore[] {
+            const allScores: NumberScore[] = [];
+            const digitCount = type === '2D' ? 2 : type === '3D' ? 3 : 4;
+            const candidates: number[][] = [];
+            const freq: Record<number, number> = {};
+            for (let i = 0; i <= 9; i++) freq[i] = 0;
+            history.forEach(entry => { entry.numbers.forEach(n => { freq[n] = (freq[n] || 0) + 1; }); });
+            const sortedFreq = Object.entries(freq).sort(([, a], [, b]) => b - a);
+            const hotDigits = sortedFreq.slice(0, 5).map(([n]) => parseInt(n));
+            for (let i = 0; i < Math.min(100, Math.pow(hotDigits.length, digitCount)); i++) {
+                const candidate: number[] = [];
+                for (let j = 0; j < digitCount; j++) candidate.push(hotDigits[Math.floor(Math.random() * hotDigits.length)]);
+                candidates.push(candidate);
+            }
+            if (history.length > 0) { const lastNumbers = history[0].numbers; if (lastNumbers.length === digitCount) { candidates.push(convertToMistikLama(lastNumbers)); candidates.push(convertToMistikBaru(lastNumbers)); } }
+            if (pairedHistory.length > 0) { const lastOutput = pairedHistory[0].output; if (lastOutput.length === digitCount) { const transitionPred = lastOutput.map(n => (n + 1) % 10); candidates.push(transitionPred); } }
+            const uniqueCandidates = Array.from(new Set(candidates.map(c => c.join('')))).map(key => key.split('').map(Number));
+            uniqueCandidates.forEach(candidate => { allScores.push(calculateCombinedScore(candidate, history, pairedHistory, targetHour)); });
+            return allScores.sort((a, b) => b.score - a.score).slice(0, count);
+        }
+
+        // ==========================================
+        // [COMPONENTS]
+        // ==========================================
+        function NumberBall({ number, size = 'md', variant = 'default' }: { number: number; size?: 'sm' | 'md' | 'lg'; variant?: 'default' | 'hot' | 'cold' | 'gold' }) {
+            const sizeClasses = { sm: 'w-8 h-8 text-sm', md: 'w-12 h-12 text-lg', lg: 'w-16 h-16 text-2xl' };
+            const variantClasses = { default: 'bg-gradient-to-br from-blue-500 to-blue-700 shadow-blue-500/30', hot: 'bg-gradient-to-br from-red-500 to-orange-600 shadow-red-500/30', cold: 'bg-gradient-to-br from-cyan-400 to-blue-600 shadow-cyan-400/30', gold: 'bg-gradient-to-br from-yellow-400 to-amber-600 shadow-yellow-400/30' };
+            return <div className={`${sizeClasses[size]} ${variantClasses[variant]} rounded-full flex items-center justify-center font-bold text-white shadow-lg transition-all duration-300`}>{number}</div>;
+        }
+
+        function StatCard({ title, value, icon, color }: { title: string; value: string | number; icon: string; color: string }) {
+            return (
+                <div className={`bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 ${color}`}>
+                    <div className="flex items-center gap-3">
+                        <div className="text-2xl">{icon}</div>
+                        <div>
+                            <p className="text-gray-400 text-xs uppercase tracking-wide">{title}</p>
+                            <p className="text-white font-bold text-xl">{value}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function FrequencyBar({ data, maxCount }: { data: FrequencyData; maxCount: number }) {
+            const width = maxCount > 0 ? (data.count / maxCount) * 100 : 0;
+            return (
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="w-8 text-right text-gray-400 text-sm font-mono">{data.number}</span>
+                    <div className="flex-1 bg-gray-700/50 rounded-full h-5 overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500 flex items-center justify-end pr-2" style={{ width: `${Math.max(width, 5)}%` }}>
+                            <span className="text-xs text-white font-bold">{data.count}</span>
+                        </div>
+                    </div>
+                    <span className="w-12 text-gray-500 text-xs">{data.percentage.toFixed(1)}%</span>
+                </div>
+            );
+        }
+
+        // ==========================================
+        // [MAIN APP]
+        // ==========================================
+        function App() {
+            const [activeTab, setActiveTab] = useState<'generator' | 'analysis' | 'history' | 'prediction' | 'combined' | 'tutorial' | 'hourly'>('generator');
+            const [numberType, setNumberType] = useState<'2D' | '3D' | '4D'>('4D');
+            const [currentNumbers, setCurrentNumbers] = useState<number[]>([]);
+            const [history, setHistory] = useState<HistoryEntry[]>([]);
+            const [isAnimating, setIsAnimating] = useState(false);
+            const [generatedSets, setGeneratedSets] = useState<number[][]>([]);
+            const [batchCount, setBatchCount] = useState(10);
+            const [predictionNumbers, setPredictionNumbers] = useState<number[]>([]);
+            const [manualInput, setManualInput] = useState('');
+            const [manualInputError, setManualInputError] = useState('');
+            const [batchManualInput, setBatchManualInput] = useState('');
+            const [batchManualError, setBatchManualError] = useState('');
+            const [pairedInput, setPairedInput] = useState('');
+            const [pairedOutput, setPairedOutput] = useState('');
+            const [pairedError, setPairedError] = useState('');
+            const [pairedHistory, setPairedHistory] = useState<PairedEntry[]>([]);
+            const [selectedHour, setSelectedHour] = useState<string>('00:01');
+            const [inputHour, setInputHour] = useState<string>('00:01');
+            
+            const twinAnalysis = analyzeTwinNumbers(numberType, history, pairedHistory);
+            const hourlyPatterns = analyzeHourlyPatterns(history);
+            const multiSessionCorrelation = analyzeMultiSessionCorrelation(history);
+            const datePatterns = analyzeDatePatterns(history);
+            const sequentialPatterns = detectSequentialPatterns(history);
+            const positionByHour = analyzePositionByHour(history);
+            const weeklyCycle = analyzeWeeklyCycle(history);
+
+            const [temporalDay1, setTemporalDay1] = useState('0422');
+            const [temporalDay2, setTemporalDay2] = useState('2360');
+            const [temporalDay3Actual, setTemporalDay3Actual] = useState('1791');
+            const [temporalPredictions, setTemporalPredictions] = useState<TimePrediction[]>([]);
+            const [showTemporalAnalysis, setShowTemporalAnalysis] = useState(false);
+
+            const calculateTemporal = useCallback(() => {
+                const d1 = temporalDay1.split('').map(Number);
+                const d2 = temporalDay2.split('').map(Number);
+                if (d1.length !== d2.length || d1.length < 2 || d1.length > 4) return;
+                const predictions = calculateTimeBasedPredictions(d1, d2);
+                setTemporalPredictions(predictions);
+                setShowTemporalAnalysis(true);
+            }, [temporalDay1, temporalDay2]);
+
+            const generateSingle = useCallback(() => {
+                setIsAnimating(true);
+                setTimeout(() => {
+                    const nums = generateNumbers(numberType);
+                    setCurrentNumbers(nums);
+                    setHistory(prev => [{ id: Date.now(), numbers: nums, type: numberType, timestamp: new Date(), source: 'generate', hour: selectedHour }, ...prev].slice(0, 200));
+                    setIsAnimating(false);
+                }, 800);
+            }, [numberType, selectedHour]);
+
+            const generateBatch = useCallback(() => {
+                const sets = generateMultipleSets(numberType, batchCount);
+                setGeneratedSets(sets);
+                const newHistory: HistoryEntry[] = sets.map((nums, idx) => ({ id: Date.now() + idx, numbers: nums, type: numberType, timestamp: new Date(), source: 'generate', hour: selectedHour }));
+                setHistory(prev => [...newHistory, ...prev].slice(0, 200));
+            }, [numberType, batchCount, selectedHour]);
+
+            const submitManualInput = useCallback(() => {
+                setManualInputError('');
+                const cleaned = manualInput.replace(/\D/g, '');
+                if (cleaned.length < 2 || cleaned.length > 4) { setManualInputError('Masukkan 2-4 digit angka'); return; }
+                const nums = cleaned.split('').map(Number);
+                const type = cleaned.length === 2 ? '2D' : cleaned.length === 3 ? '3D' : '4D';
+                setCurrentNumbers(nums);
+                setNumberType(type as '2D' | '3D' | '4D');
+                setHistory(prev => [{ id: Date.now(), numbers: nums, type: type as '2D' | '3D' | '4D', timestamp: new Date(), source: 'manual', hour: inputHour }, ...prev].slice(0, 200));
+                setManualInput('');
+            }, [manualInput, inputHour]);
+
+            const submitBatchManualInput = useCallback(() => {
+                setBatchManualError('');
+                const lines = batchManualInput.split(/[\n,;]+/).map(l => l.trim()).filter(l => l.length > 0);
+                if (lines.length === 0) { setBatchManualError('Masukkan minimal 1 angka'); return; }
+                const newHistory: HistoryEntry[] = [];
+                const errors: string[] = [];
+                lines.forEach((line, idx) => {
+                    const cleaned = line.replace(/\D/g, '');
+                    if (cleaned.length < 2 || cleaned.length > 4) { errors.push(`Baris ${idx + 1}: "${line}" tidak valid`); return; }
+                    const nums = cleaned.split('').map(Number);
+                    const type = cleaned.length === 2 ? '2D' : cleaned.length === 3 ? '3D' : '4D';
+                    newHistory.push({ id: Date.now() + idx, numbers: nums, type: type as '2D' | '3D' | '4D', timestamp: new Date(), source: 'manual', hour: inputHour });
+                });
+                if (errors.length > 0) { setBatchManualError(errors.join('\n')); return; }
+                if (newHistory.length > 0) { setHistory(prev => [...newHistory, ...prev].slice(0, 200)); setBatchManualInput(''); }
+            }, [batchManualInput, inputHour]);
+
+            const submitPairedInput = useCallback(() => {
+                setPairedError('');
+                const inputCleaned = pairedInput.replace(/\D/g, '');
+                const outputCleaned = pairedOutput.replace(/\D/g, '');
+                if (inputCleaned.length < 2 || inputCleaned.length > 4) { setPairedError('Angka input harus 2-4 digit'); return; }
+                if (outputCleaned.length < 2 || outputCleaned.length > 4) { setPairedError('Angka keluar harus 2-4 digit'); return; }
+                if (inputCleaned.length !== outputCleaned.length) { setPairedError('Angka input dan keluar harus sama jumlah digitnya'); return; }
+                const inputNums = inputCleaned.split('').map(Number);
+                const outputNums = outputCleaned.split('').map(Number);
+                const type = inputCleaned.length === 2 ? '2D' : inputCleaned.length === 3 ? '3D' : '4D';
+                const newEntry: PairedEntry = { id: Date.now(), input: inputNums, output: outputNums, type: type as '2D' | '3D' | '4D', timestamp: new Date(), hour: inputHour };
+                setPairedHistory(prev => [newEntry, ...prev].slice(0, 100));
+                setHistory(prev => [{ id: Date.now(), numbers: inputNums, type: type as '2D' | '3D' | '4D', timestamp: new Date(), source: 'manual', hour: inputHour }, { id: Date.now() + 1, numbers: outputNums, type: type as '2D' | '3D' | '4D', timestamp: new Date(), source: 'manual', hour: inputHour }, ...prev].slice(0, 200));
+                setPairedInput(''); setPairedOutput('');
+            }, [pairedInput, pairedOutput, inputHour]);
+
+            const getFrequency = useCallback((): FrequencyData[] => {
+                const freq: Record<number, number> = {};
+                for (let i = 0; i <= 9; i++) freq[i] = 0;
+                history.forEach(entry => { entry.numbers.forEach(n => { freq[n] = (freq[n] || 0) + 1; }); });
+                const total = history.reduce((sum, e) => sum + e.numbers.length, 0);
+                return Object.entries(freq).map(([num, count]) => ({ number: parseInt(num), count, percentage: total > 0 ? (count / total) * 100 : 0 })).sort((a, b) => b.count - a.count);
+            }, [history]);
+
+            const getHotNumbers = useCallback((): number[] => { const freq = getFrequency(); return freq.filter(f => f.count > 0).slice(0, 5).map(f => f.number); }, [getFrequency]);
+            const getColdNumbers = useCallback((): number[] => { const freq = getFrequency(); return freq.filter(f => f.count === 0 || f.count <= 1).slice(0, 5).map(f => f.number); }, [getFrequency]);
+
+            const generatePrediction = useCallback(() => {
+                if (history.length < 3) { setPredictionNumbers(generateNumbers(numberType)); return; }
+                const freq = getFrequency();
+                const hotNums = freq.filter(f => f.count > 0).slice(0, 5).map(f => f.number);
+                const coldNums = freq.filter(f => f.count === 0).map(f => f.number);
+                const effectiveCold = coldNums.length > 0 ? coldNums : freq.slice(-3).map(f => f.number);
+                const count = numberType === '2D' ? 2 : numberType === '3D' ? 3 : 4;
+                const predicted: number[] = [];
+                for (let i = 0; i < count; i++) {
+                    if (Math.random() > 0.3 && hotNums.length > 0) predicted.push(hotNums[Math.floor(Math.random() * hotNums.length)]);
+                    else if (effectiveCold.length > 0) predicted.push(effectiveCold[Math.floor(Math.random() * effectiveCold.length)]);
+                    else predicted.push(Math.floor(Math.random() * 10));
+                }
+                setPredictionNumbers(predicted);
+            }, [history, numberType, getFrequency]);
+
+            const getPositionAnalysis = useCallback(() => {
+                if (history.length === 0) return [];
+                const positions: Record<number, Record<number, number>> = {};
+                const maxPos = numberType === '2D' ? 2 : numberType === '3D' ? 3 : 4;
+                for (let p = 0; p < maxPos; p++) { positions[p] = {}; for (let n = 0; n <= 9; n++) positions[p][n] = 0; }
+                history.forEach(entry => { if (entry.type === numberType) { entry.numbers.forEach((n, idx) => { if (idx < maxPos) positions[idx][n] = (positions[idx][n] || 0) + 1; }); } });
+                return Object.entries(positions).map(([pos, nums]) => { const entries = Object.entries(nums).sort(([, a], [, b]) => b - a); return { position: parseInt(pos), mostFrequent: parseInt(entries[0][0]), leastFrequent: parseInt(entries[entries.length - 1][0]), entries }; });
+            }, [history, numberType]);
+
+            const getTransitionAnalysis = useCallback(() => {
+                if (pairedHistory.length === 0) return null;
+                const positionChanges: { position: number; changes: number[] }[] = [];
+                const digitTransitions: Record<string, Record<string, number>> = {};
+                const maxPos = pairedHistory[0].input.length;
+                for (let p = 0; p < maxPos; p++) positionChanges.push({ position: p, changes: [] });
+                for (let i = 0; i <= 9; i++) { digitTransitions[i] = {}; for (let j = 0; j <= 9; j++) digitTransitions[i][j] = 0; }
+                pairedHistory.forEach(pair => { pair.input.forEach((inDigit, idx) => { const outDigit = pair.output[idx]; const change = outDigit - inDigit; positionChanges[idx].changes.push(change); digitTransitions[inDigit][outDigit]++; }); });
+                const avgChanges = positionChanges.map(pc => { const avg = pc.changes.reduce((sum, c) => sum + c, 0) / pc.changes.length; return { position: pc.position, avgChange: avg, trend: avg > 0 ? 'naik' : avg < 0 ? 'turun' : 'stabil' }; });
+                const commonTransitions: { from: number; to: number; count: number }[] = [];
+                for (let i = 0; i <= 9; i++) { for (let j = 0; j <= 9; j++) { if (digitTransitions[i][j] > 0) commonTransitions.push({ from: i, to: j, count: digitTransitions[i][j] }); } }
+                commonTransitions.sort((a, b) => b.count - a.count);
+                return { avgChanges, commonTransitions: commonTransitions.slice(0, 10), totalPairs: pairedHistory.length };
+            }, [pairedHistory]);
+
+            const totalGenerated = history.length;
+            const manualCount = history.filter(h => h.source === 'manual').length;
+            const frequency = getFrequency();
+            const maxFreq = Math.max(...frequency.map(f => f.count), 1);
+            const hotNumbers = getHotNumbers();
+            const coldNumbers = getColdNumbers();
+            const hours = ['00:01', '13:00', '16:00', '19:00', '22:00', '23:00'];
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 text-white">
+                    <header className="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-xl">🎲</div>
+                                    <div>
+                                        <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Togel Analyzer Pro</h1>
+                                        <p className="text-xs text-gray-500">Sistem Analisa Multi-Sesi & Multi-Rumus</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="hidden sm:flex items-center gap-2">
+                                        <span className="text-xs text-gray-500">Data:</span>
+                                        <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full text-sm font-bold">{totalGenerated}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <nav className="border-b border-gray-800 bg-gray-900/50">
+                        <div className="max-w-7xl mx-auto px-4">
+                            <div className="flex gap-1 overflow-x-auto">
+                                {[
+                                    { id: 'generator', label: 'Input & Generate', icon: '🎰' },
+                                    { id: 'hourly', label: 'Analisa Per Jam', icon: '⏰' },
+                                    { id: 'analysis', label: 'Analisa', icon: '' },
+                                    { id: 'combined', label: '🏆 Prediksi Utama', icon: '' },
+                                    { id: 'history', label: 'Riwayat', icon: '📋' },
+                                    { id: 'prediction', label: 'Prediksi', icon: '🔮' },
+                                    { id: 'tutorial', label: 'Cara Kerja', icon: '💡' }
+                                ].map(tab => (
+                                    <button key={tab.id} onClick={() => setActiveTab(tab.id as typeof activeTab)} className={`px-4 py-3 text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-500 hover:text-gray-300'}`}>
+                                        <span className="mr-1">{tab.icon}</span>{tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </nav>
+
+                    <main className="max-w-7xl mx-auto px-4 py-6">
+                        {activeTab === 'generator' && (
+                            <div className="space-y-6">
+                                <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/30 rounded-xl p-6">
+                                    <h3 className="text-lg font-bold mb-3 flex items-center gap-2"><span></span> Pilih Sesi Jam</h3>
+                                    <p className="text-gray-400 text-sm mb-4">Pilih jam pengeluaran untuk input dan analisa yang lebih akurat</p>
+                                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                                        {hours.map(hour => (
+                                            <button key={hour} onClick={() => { setSelectedHour(hour); setInputHour(hour); }} className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${selectedHour === hour ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>{hour}</button>
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-3">Sesi aktif: <span className="text-indigo-400 font-bold">{selectedHour}</span></p>
+                                </div>
+
+                                <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 text-center">
+                                    <p className="text-gray-400 text-sm mb-4">Angka Saat Ini</p>
+                                    <div className="flex items-center justify-center gap-3">
+                                        {currentNumbers.length > 0 ? (
+                                            currentNumbers.map((num, idx) => (
+                                                <div key={idx} className={`transition-all duration-300 ${isAnimating ? 'animate-bounce scale-110' : ''}`} style={{ animationDelay: `${idx * 100}ms` }}>
+                                                    <NumberBall number={num} size="lg" />
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-600 text-lg">Masukkan angka atau generate angka acak</p>
+                                        )}
+                                    </div>
+                                    {currentNumbers.length > 0 && !isAnimating && (
+                                        <p className="mt-4 text-gray-500 text-sm">Nilai: <span className="text-purple-300 font-bold">{currentNumbers.join('')}</span></p>
+                                    )}
+                                </div>
+
+                                <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-6">
+                                    <h3 className="text-lg font-bold mb-2 flex items-center gap-2"><span>️</span> Masukkan Angka Manual</h3>
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <input type="text" value={manualInput} onChange={(e) => { const val = e.target.value.replace(/\D/g, '').slice(0, 4); setManualInput(val); setManualInputError(''); }} placeholder="Contoh: 1791" className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white text-center text-xl font-mono font-bold focus:border-green-500 focus:outline-none" />
+                                        <button onClick={submitManualInput} disabled={manualInput.length < 2} className="px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-bold transition-all disabled:opacity-50">✅ Input Angka</button>
+                                    </div>
+                                    {manualInputError && <p className="mt-2 text-red-400 text-sm">⚠️ {manualInputError}</p>}
+                                </div>
+
+                                <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30 rounded-xl p-6">
+                                    <h3 className="text-lg font-bold mb-2 flex items-center gap-2"><span>📝</span> Input Banyak Angka Sekaligus</h3>
+                                    <textarea value={batchManualInput} onChange={(e) => { setBatchManualInput(e.target.value); setBatchManualError(''); }} placeholder={`Contoh:\n1791\n2360\n0422\natau: 1791, 2360, 0422`} rows={5} className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white font-mono text-sm focus:border-blue-500 focus:outline-none resize-none" />
+                                    <div className="flex items-center justify-between mt-3">
+                                        <div>{batchManualError && <p className="text-red-400 text-xs">⚠️ {batchManualError}</p>}</div>
+                                        <button onClick={submitBatchManualInput} disabled={batchManualInput.trim().length === 0} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold text-sm transition-all disabled:opacity-50">📥 Input Semua</button>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
+                                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span>🎲</span> Generate Angka Acak</h3>
+                                    <div className="flex items-center gap-3 justify-center mb-4">
+                                        <span className="text-gray-400 text-sm">Tipe:</span>
+                                        {(['2D', '3D', '4D'] as const).map(type => (
+                                            <button key={type} onClick={() => setNumberType(type)} className={`px-6 py-2 rounded-lg font-bold transition-all ${numberType === type ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>{type}</button>
+                                        ))}
+                                    </div>
+                                    <div className="text-center">
+                                        <button onClick={generateSingle} disabled={isAnimating} className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-bold text-lg shadow-lg transition-all disabled:opacity-50">
+                                            {isAnimating ? '⏳ Generating...' : ' Generate Acak'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <StatCard title="Total Data" value={totalGenerated} icon="" color="border-purple-500/30" />
+                                    <StatCard title="Input Manual" value={manualCount} icon="✍️" color="border-green-500/30" />
+                                    <StatCard title="Angka Panas" value={hotNumbers.join(', ') || '-'} icon="🔥" color="border-red-500/30" />
+                                    <StatCard title="Angka Dingin" value={coldNumbers.join(', ') || '-'} icon="❄️" color="border-cyan-500/30" />
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'hourly' && (
+                            <div className="space-y-6">
+                                <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-2xl p-6">
+                                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><span>⏰</span> Analisa Per Sesi Jam</h2>
+                                    <p className="text-gray-400 text-sm">Setiap jam memiliki pola dan karakteristik angka yang berbeda</p>
+                                </div>
+                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {Object.entries(hourlyPatterns).map(([hour, pattern]) => (
+                                        <div key={hour} className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span className="text-2xl">🕐</span><span className="text-indigo-400">{hour}</span></h3>
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <p className="text-xs text-gray-400 mb-2">Angka Panas:</p>
+                                                    <div className="flex gap-2">{pattern.hotDigits.map((n, idx) => (<NumberBall key={idx} number={n} size="sm" variant="hot" />))}</div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-400 mb-2">️ Angka Dingin:</p>
+                                                    <div className="flex gap-2">{pattern.coldDigits.map((n, idx) => (<NumberBall key={idx} number={n} size="sm" variant="cold" />))}</div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                                    <div className="bg-gray-700/30 rounded p-2"><p className="text-gray-400">Rata-rata Jumlah:</p><p className="text-white font-bold">{pattern.avgDigitSum.toFixed(1)}</p></div>
+                                                    <div className="bg-gray-700/30 rounded p-2"><p className="text-gray-400">Total Kembar:</p><p className="text-white font-bold">{pattern.twinCount}</p></div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-400 mb-2">Frekuensi Angka:</p>
+                                                    <div className="space-y-1">
+                                                        {Object.entries(pattern.frequency).sort(([, a], [, b]) => b - a).slice(0, 5).map(([num, count]) => (
+                                                            <div key={num} className="flex items-center gap-2">
+                                                                <span className="w-6 text-right text-gray-400 text-xs">{num}</span>
+                                                                <div className="flex-1 bg-gray-700/50 rounded-full h-3 overflow-hidden">
+                                                                    <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style={{ width: `${(count / Math.max(...Object.values(pattern.frequency))) * 100}%` }}></div>
+                                                                </div>
+                                                                <span className="text-xs text-gray-500 w-6">{count}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                {multiSessionCorrelation.bestPairs.length > 0 && (
+                                    <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-6">
+                                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span>🔗</span> Korelasi Antar Sesi</h3>
+                                        <div className="grid md:grid-cols-2 gap-3">
+                                            {multiSessionCorrelation.bestPairs.slice(0, 6).map((pair, idx) => (
+                                                <div key={idx} className="bg-gray-800/50 rounded-lg p-3">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2"><span className="text-indigo-400 font-bold">{pair.hour1}</span><span className="text-gray-500"></span><span className="text-purple-400 font-bold">{pair.hour2}</span></div>
+                                                        <span className="text-green-400 font-bold text-sm">{pair.pattern}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span></span> Analisa Posisi per Jam</h3>
+                                    <div className="space-y-4">
+                                        {Object.entries(positionByHour).slice(0, 3).map(([hour, positions]) => (
+                                            <div key={hour} className="bg-gray-700/30 rounded-lg p-4">
+                                                <h4 className="font-bold text-indigo-400 mb-3">Jam {hour}</h4>
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                    {positions.map((pos) => (
+                                                        <div key={pos.position} className="bg-gray-800/50 rounded p-2">
+                                                            <p className="text-xs text-gray-400">Posisi {pos.position + 1}</p>
+                                                            <div className="flex items-center gap-2 mt-1"><span className="text-xs text-green-400">Terbanyak:</span><NumberBall number={pos.mostFrequent} size="sm" variant="hot" /></div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'analysis' && (
+                            <div className="space-y-6">
+                                {history.length === 0 ? (
+                                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-12 text-center">
+                                        <p className="text-4xl mb-4">📊</p><p className="text-gray-400 font-bold mb-2">Belum Ada Data</p>
+                                        <button onClick={() => setActiveTab('generator')} className="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm">→ Ke Input Angka</button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/30 rounded-xl p-6">
+                                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span>📈</span> Pola Sekuensial</h3>
+                                            <div className="grid md:grid-cols-3 gap-4 mb-4">
+                                                <div className="bg-gray-800/50 rounded-lg p-4 text-center"><p className="text-xs text-gray-400 mb-1">Naik (Ascending)</p><p className="text-2xl font-bold text-green-400">{sequentialPatterns.ascending}</p></div>
+                                                <div className="bg-gray-800/50 rounded-lg p-4 text-center"><p className="text-xs text-gray-400 mb-1">Turun (Descending)</p><p className="text-2xl font-bold text-red-400">{sequentialPatterns.descending}</p></div>
+                                                <div className="bg-gray-800/50 rounded-lg p-4 text-center"><p className="text-xs text-gray-400 mb-1">Campuran (Mixed)</p><p className="text-2xl font-bold text-yellow-400">{sequentialPatterns.mixed}</p></div>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-400 mb-2">Pasangan Angka Paling Sering:</p>
+                                                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                                                    {sequentialPatterns.patterns.slice(0, 10).map((pattern, idx) => (
+                                                        <div key={idx} className="bg-gray-700/50 rounded-lg p-2 text-center"><p className="text-teal-400 font-bold">{pattern.sequence.join('')}</p><p className="text-xs text-gray-500">{pattern.count}x</p></div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl p-6">
+                                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span></span> Pola Mingguan</h3>
+                                            <div className="grid md:grid-cols-7 gap-2">
+                                                {weeklyCycle.dayPatterns.map((day, idx) => (
+                                                    <div key={idx} className="bg-gray-800/50 rounded-lg p-3 text-center">
+                                                        <p className="text-xs text-gray-400 mb-2">{day.day.slice(0, 3)}</p>
+                                                        <div className="flex gap-1 justify-center mb-2">{day.hotDigits.slice(0, 3).map((n, i) => (<NumberBall key={i} number={n} size="sm" variant="hot" />))}</div>
+                                                        <p className="text-xs text-gray-500">Kembar: {day.twinProbability.toFixed(0)}%</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                                <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span></span> Angka Panas</h3>
+                                                <div className="flex flex-wrap gap-3">{hotNumbers.map((n, idx) => (<NumberBall key={idx} number={n} variant="hot" />))}</div>
+                                            </div>
+                                            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                                <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span>❄️</span> Angka Dingin</h3>
+                                                <div className="flex flex-wrap gap-3">{coldNumbers.map((n, idx) => (<NumberBall key={idx} number={n} variant="cold" />))}</div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span>📊</span> Frekuensi Angka</h3>
+                                            <div className="space-y-1">{frequency.map((data, idx) => (<FrequencyBar key={idx} data={data} maxCount={maxFreq} />))}</div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'combined' && (
+                            <div className="space-y-6">
+                                <div className="bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-red-500/20 border border-yellow-500/30 rounded-2xl p-6">
+                                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><span>🏆</span> Prediksi Angka Paling Potensial</h2>
+                                    <p className="text-gray-400 text-sm">Hasil analisa gabungan dari 10 rumus: Frekuensi, Transisi, Mistik, Posisi, Pola, Kembar, Jam, Mingguan, Sekuensial</p>
+                                </div>
+                                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                    <h3 className="text-lg font-bold mb-4">Pilih Sesi untuk Prediksi:</h3>
+                                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                                        {hours.map(hour => (
+                                            <button key={hour} onClick={() => setSelectedHour(hour)} className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${selectedHour === hour ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>{hour}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                                {history.length >= 3 ? (
+                                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span></span> Top 5 Prediksi untuk Jam {selectedHour}</h3>
+                                        {(() => {
+                                            const predictions = generateTopPredictions(numberType, history, pairedHistory, 5, selectedHour);
+                                            if (predictions.length === 0) return <p className="text-gray-500 text-center py-8">Belum ada prediksi</p>;
+                                            return (
+                                                <div className="space-y-3">
+                                                    {predictions.map((pred, idx) => (
+                                                        <div key={idx} className={`rounded-xl p-4 ${idx === 0 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/50' : idx === 1 ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/50' : idx === 2 ? 'bg-gradient-to-r from-amber-700/20 to-amber-800/20 border border-amber-700/50' : 'bg-gray-700/30 border border-gray-600/30'}`}>
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${idx === 0 ? 'bg-yellow-500 text-black' : idx === 1 ? 'bg-gray-400 text-black' : idx === 2 ? 'bg-amber-700 text-white' : 'bg-gray-600 text-white'}`}>#{idx + 1}</div>
+                                                                    <div className="flex gap-2">{pred.number.map((n, i) => (<NumberBall key={i} number={n} size="md" variant={idx === 0 ? 'gold' : 'default'} />))}</div>
+                                                                    <span className="text-white font-mono font-bold text-xl">{pred.number.join('')}</span>
+                                                                </div>
+                                                                <div className="text-right"><p className="text-2xl font-bold text-white">{pred.score.toFixed(1)}</p><p className="text-xs text-gray-400">Skor</p></div>
+                                                            </div>
+                                                            <div className="mt-3 grid grid-cols-5 sm:grid-cols-10 gap-2">
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Frekuensi</p><p className="text-xs font-bold text-purple-400">{pred.factors.frequency.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Transisi</p><p className="text-xs font-bold text-blue-400">{pred.factors.transition.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Mistik L</p><p className="text-xs font-bold text-violet-400">{pred.factors.mistikLama.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Mistik B</p><p className="text-xs font-bold text-fuchsia-400">{pred.factors.mistikBaru.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Posisi</p><p className="text-xs font-bold text-green-400">{pred.factors.position.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Pola</p><p className="text-xs font-bold text-pink-400">{pred.factors.pattern.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Kembar</p><p className="text-xs font-bold text-amber-400">{pred.factors.twin.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Per Jam</p><p className="text-xs font-bold text-indigo-400">{pred.factors.hourly.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Mingguan</p><p className="text-xs font-bold text-orange-400">{pred.factors.weekly.toFixed(0)}</p></div>
+                                                                <div className="bg-gray-800/50 rounded p-2 text-center"><p className="text-[10px] text-gray-500">Sekuensial</p><p className="text-xs font-bold text-teal-400">{pred.factors.sequential.toFixed(0)}</p></div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+                                ) : (
+                                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-12 text-center">
+                                        <p className="text-4xl mb-4"></p><p className="text-gray-400 font-bold mb-2">Data Historis Belum Cukup</p><p className="text-gray-500 text-sm mb-4">Masukkan minimal 3 angka untuk prediksi</p>
+                                        <button onClick={() => setActiveTab('generator')} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm">→ Input Angka Sekarang</button>
+                                    </div>
+                                )}
+                                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><span>📐</span> Sistem Penilaian (10 Faktor)</h3>
+                                    <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-4">
+                                        <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg"></span><span className="font-bold text-purple-300 text-sm">Frekuensi (18%)</span></div><p className="text-xs text-gray-400">Seberapa sering angka muncul</p></div>
+                                        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg">📈</span><span className="font-bold text-blue-300 text-sm">Transisi (15%)</span></div><p className="text-xs text-gray-400">Pola naik/turun dari data berpasangan</p></div>
+                                        <div className="bg-violet-500/10 border border-violet-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg">🌙</span><span className="font-bold text-violet-300 text-sm">Mistik Lama (10%)</span></div><p className="text-xs text-gray-400">Konversi mistik lama (0↔5, 1↔6, dst)</p></div>
+                                        <div className="bg-fuchsia-500/10 border border-fuchsia-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg">️</span><span className="font-bold text-fuchsia-300 text-sm">Mistik Baru (10%)</span></div><p className="text-xs text-gray-400">Konversi mistik baru (0↔1, 23, dst)</p></div>
+                                        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg"></span><span className="font-bold text-green-300 text-sm">Posisi (12%)</span></div><p className="text-xs text-gray-400">Angka sering di posisi tertentu</p></div>
+                                        <div className="bg-pink-500/10 border border-pink-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg">🔗</span><span className="font-bold text-pink-300 text-sm">Pola (8%)</span></div><p className="text-xs text-gray-400">Pasangan angka berurutan</p></div>
+                                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg">👥</span><span className="font-bold text-amber-300 text-sm">Kembar (7%)</span></div><p className="text-xs text-gray-400">Probabilitas angka kembar</p></div>
+                                        <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg"></span><span className="font-bold text-indigo-300 text-sm">Per Jam (10%)</span></div><p className="text-xs text-gray-400">Pola spesifik jam tertentu</p></div>
+                                        <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg">📅</span><span className="font-bold text-orange-300 text-sm">Mingguan (5%)</span></div><p className="text-xs text-gray-400">Pola berdasarkan hari</p></div>
+                                        <div className="bg-teal-500/10 border border-teal-500/30 rounded-lg p-3"><div className="flex items-center gap-2 mb-2"><span className="text-lg">📈</span><span className="font-bold text-teal-300 text-sm">Sekuensial (5%)</span></div><p className="text-xs text-gray-400">Pola urutan angka</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'history' && (
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-bold flex items-center gap-2"><span></span> Riwayat Data ({totalGenerated})</h3>
+                                    {history.length > 0 && (<button onClick={() => { setHistory([]); setCurrentNumbers([]); }} className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-sm hover:bg-red-500/30">Hapus Semua</button>)}
+                                </div>
+                                {history.length > 0 ? (
+                                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead><tr className="border-b border-gray-700"><th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">#</th><th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Jam</th><th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Sumber</th><th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Tipe</th><th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Angka</th><th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Nilai</th><th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Waktu</th></tr></thead>
+                                                <tbody>
+                                                    {history.slice(0, 50).map((entry, idx) => (
+                                                        <tr key={entry.id} className="border-b border-gray-700/50 hover:bg-gray-700/30">
+                                                            <td className="px-4 py-3 text-gray-500 text-sm">{idx + 1}</td>
+                                                            <td className="px-4 py-3"><span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 rounded text-xs font-bold">{entry.hour || '-'}</span></td>
+                                                            <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded text-xs font-bold ${entry.source === 'manual' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>{entry.source === 'manual' ? '✍️ Manual' : '🎲 Acak'}</span></td>
+                                                            <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded text-xs font-bold ${entry.type === '2D' ? 'bg-green-500/20 text-green-400' : entry.type === '3D' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>{entry.type}</span></td>
+                                                            <td className="px-4 py-3"><div className="flex gap-1">{entry.numbers.map((n, i) => (<NumberBall key={i} number={n} size="sm" />))}</div></td>
+                                                            <td className="px-4 py-3 text-white font-mono font-bold">{entry.numbers.join('')}</td>
+                                                            <td className="px-4 py-3 text-gray-500 text-sm">{entry.timestamp.toLocaleTimeString('id-ID')}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-12 text-center"><p className="text-4xl mb-4"></p><p className="text-gray-500">Belum ada riwayat.</p></div>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'prediction' && (
+                            <div className="space-y-6">
+                                <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 text-center">
+                                    <h3 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2"><span></span> Prediksi Angka</h3>
+                                    <p className="text-gray-400 text-sm mb-6">Prediksi berdasarkan data yang sudah Anda masukkan</p>
+                                    <div className="flex items-center gap-3 justify-center mb-6">
+                                        <span className="text-gray-400 text-sm">Tipe:</span>
+                                        {(['2D', '3D', '4D'] as const).map(type => (
+                                            <button key={type} onClick={() => setNumberType(type)} className={`px-4 py-2 rounded-lg font-bold transition-all ${numberType === type ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>{type}</button>
+                                        ))}
+                                    </div>
+                                    <div className="mb-6">
+                                        {predictionNumbers.length > 0 ? (
+                                            <div className="flex items-center justify-center gap-3">{predictionNumbers.map((num, idx) => (<div key={idx} className="animate-pulse"><NumberBall number={num} size="lg" variant="gold" /></div>))}</div>
+                                        ) : (<p className="text-gray-600">Tekan tombol untuk prediksi</p>)}
+                                    </div>
+                                    <button onClick={generatePrediction} className="px-8 py-4 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 rounded-xl font-bold text-lg shadow-lg transition-all">🔮 Prediksi Sekarang</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'tutorial' && (
+                            <div className="space-y-6">
+                                <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-2xl p-6">
+                                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><span></span> Cara Menggunakan Sistem</h2>
+                                    <p className="text-gray-400 text-sm">Panduan lengkap dengan 10 rumus baru</p>
+                                </div>
+                                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                                    <h3 className="font-bold text-lg mb-4">10 Rumus & Metode Baru:</h3>
+                                    <div className="space-y-4">
+                                        <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-lg p-4"><h4 className="font-bold text-indigo-300 mb-2">1. Analisa Per Jam (Hourly Pattern)</h4><p className="text-xs text-gray-400">Setiap jam (00:01, 13:00, 16:00, 19:00, 22:00, 23:00) memiliki pola angka yang berbeda. Sistem menganalisa frekuensi, angka panas/dingin, dan rata-rata jumlah per jam.</p></div>
+                                        <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4"><h4 className="font-bold text-purple-300 mb-2">2. Korelasi Multi-Sesi</h4><p className="text-xs text-gray-400">Mendeteksi korelasi antara jam-jam berbeda. Jika jam 00:01 dan 13:00 memiliki pola serupa, sistem akan memberikan prediksi berdasarkan korelasi ini.</p></div>
+                                        <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4"><h4 className="font-bold text-orange-300 mb-2">3. Pola Mingguan (Weekly Cycle)</h4><p className="text-xs text-gray-400">Setiap hari dalam seminggu memiliki karakteristik berbeda. Sistem menganalisa pola berdasarkan hari (Senin, Selasa, dst) untuk prediksi yang lebih akurat.</p></div>
+                                        <div className="bg-teal-500/10 border border-teal-500/30 rounded-lg p-4"><h4 className="font-bold text-teal-300 mb-2">4. Deteksi Pola Sekuensial</h4><p className="text-xs text-gray-400">Mendeteksi apakah angka cenderung naik (ascending), turun (descending), atau campuran. Juga melacak pasangan angka yang sering muncul berurutan.</p></div>
+                                        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4"><h4 className="font-bold text-green-300 mb-2">5. Posisi per Jam</h4><p className="text-xs text-gray-400">Analisa angka yang sering muncul di posisi tertentu (1, 2, 3, 4) untuk setiap jam. Contoh: Posisi 1 jam 00:01 sering angka 7.</p></div>
+                                        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4"><h4 className="font-bold text-blue-300 mb-2">6. Prediksi Cross-Session</h4><p className="text-xs text-gray-400">Menggunakan data dari multiple jam untuk memprediksi jam target. Metode: Rata-rata, Delta, dan Kombinasi Angka Panas.</p></div>
+                                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4"><h4 className="font-bold text-red-300 mb-2">7. Scoring 10 Faktor</h4><p className="text-xs text-gray-400">Sistem penilaian gabungan dari 10 faktor dengan bobot berbeda untuk menghasilkan prediksi paling potensial.</p></div>
+                                        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4"><h4 className="font-bold text-yellow-300 mb-2">8. Input Multi-Sesi</h4><p className="text-xs text-gray-400">Sekarang Anda bisa memilih jam saat input angka, memungkinkan analisa yang lebih spesifik per sesi pengeluaran.</p></div>
+                                        <div className="bg-pink-500/10 border border-pink-500/30 rounded-lg p-4"><h4 className="font-bold text-pink-300 mb-2">9. Analisa Tanggal</h4><p className="text-xs text-gray-400">Melacak pola berdasarkan tanggal dalam bulan dan hari dalam minggu untuk mendeteksi siklus jangka panjang.</p></div>
+                                        <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4"><h4 className="font-bold text-cyan-300 mb-2">10. Rekomendasi Otomatis</h4><p className="text-xs text-gray-400">Sistem secara otomatis memberikan rekomendasi jam terbaik untuk bermain berdasarkan konsistensi pola.</p></div>
+                                    </div>
+                                </div>
+                                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+                                    <div className="flex items-start gap-3"><span className="text-xl">️</span><div><p className="text-yellow-300 font-bold text-sm">Catatan Penting</p><p className="text-yellow-200/70 text-xs mt-1">Sistem ini menggunakan analisa statistik dari data historis multi-sesi. Setiap angka tetap bersifat acak. Gunakan untuk hiburan dan pembelajaran.</p></div></div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    <footer className="border-t border-gray-800 mt-12 py-6">
+                        <div className="max-w-7xl mx-auto px-4 text-center">
+                            <p className="text-gray-600 text-sm">⚠️ Sistem ini hanya untuk hiburan dan analisa statistik. Angka yang dihasilkan sepenuhnya acak.</p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        // Render App ke DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
